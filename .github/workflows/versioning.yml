@@ -19,6 +19,11 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    # Explicit permissions: org "Workflow permissions" can otherwise cap GITHUB_TOKEN to read-only.
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
@@ -26,13 +31,17 @@ jobs:
       # Do not set skip-github-release: merged release PRs must get a GitHub release + tag
       # in this run, or autorelease:pending is never cleared and new release PRs are blocked
       # ("untagged, merged release PRs outstanding").
+      # Token: prefers RELEASE_PLEASE_TOKEN if set. A fine-grained PAT must include
+      # Contents + Pull requests (+ Issues) Read/Write and usually Actions Read (see README).
+      # If you see "Resource not accessible by integration" on create release: delete the
+      # broken secret so this falls back to github.token, or fix PAT scopes / repo Actions settings.
       - name: Release Please
         id: release
         uses: googleapis/release-please-action@v4
         with:
           command: manifest
           target-branch: main
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN != '' && secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
 
       - name: Debug release outputs
         run: |

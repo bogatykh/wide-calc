@@ -16,8 +16,10 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly IFileDialogService _fileDialogs;
     private readonly IOptions<PrintMeterOptions> _options;
     private readonly ILogger<MainViewModel> _logger;
+    private readonly bool _autoAnalyzeAfterFileSelection;
     private CancellationTokenSource? _cts;
     private readonly List<string> _selectedFiles = [];
+    private string? _lastFolderPath;
 
     public MainViewModel(
         IFormatRegistry formatRegistry,
@@ -25,7 +27,8 @@ public sealed partial class MainViewModel : ObservableObject
         IBatchReportWriter reportWriter,
         IFileDialogService fileDialogs,
         IOptions<PrintMeterOptions> options,
-        ILogger<MainViewModel> logger)
+        ILogger<MainViewModel> logger,
+        bool autoAnalyzeAfterFileSelection = true)
     {
         _formatRegistry = formatRegistry;
         _batchPdfAnalyzer = batchPdfAnalyzer;
@@ -33,6 +36,7 @@ public sealed partial class MainViewModel : ObservableObject
         _fileDialogs = fileDialogs;
         _options = options;
         _logger = logger;
+        _autoAnalyzeAfterFileSelection = autoAnalyzeAfterFileSelection;
 
         var enabled = _formatRegistry.EnabledFormats;
         _formatA4 = enabled.Contains("A4");
@@ -53,7 +57,8 @@ public sealed partial class MainViewModel : ObservableObject
     private double _progressValue;
 
     [ObservableProperty]
-    private string _statusText = "Выберите PDF-файлы или папку.";
+    private string _statusText =
+        "Добавьте PDF через «Выбрать PDF» или папку. Новый выбор заменяет список и запускает расчёт заново.";
 
     [ObservableProperty]
     private double _totalLengthMeters;
@@ -82,6 +87,27 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _formatA0Plus = true;
 
+    [ObservableProperty]
+    private string _formatStatA4 = "—";
+
+    [ObservableProperty]
+    private string _formatStatA3 = "—";
+
+    [ObservableProperty]
+    private string _formatStatA2 = "—";
+
+    [ObservableProperty]
+    private string _formatStatA1 = "—";
+
+    [ObservableProperty]
+    private string _formatStatA1Plus = "—";
+
+    [ObservableProperty]
+    private string _formatStatA0 = "—";
+
+    [ObservableProperty]
+    private string _formatStatA0Plus = "—";
+
     private BatchReport? _lastReport;
 
     [RelayCommand]
@@ -93,10 +119,18 @@ public sealed partial class MainViewModel : ObservableObject
             return;
         }
 
-        _selectedFiles.Clear();
-        _selectedFiles.AddRange(picked);
-        StatusText = $"Выбрано файлов: {_selectedFiles.Count}";
+        _lastFolderPath = null;
+        ReplaceSelectedPdfFiles([..picked]);
         AnalyzeCommand.NotifyCanExecuteChanged();
+        if (_autoAnalyzeAfterFileSelection)
+        {
+            StatusText = $"Файлов: {_selectedFiles.Count}. Запуск расчёта…";
+            await AnalyzeAsync().ConfigureAwait(true);
+            return;
+        }
+
+        StatusText =
+            $"Выбрано файлов: {_selectedFiles.Count}. Нажмите «Считать», чтобы посчитать метраж (новый выбор заменяет список).";
     }
 
     [RelayCommand]
@@ -108,28 +142,42 @@ public sealed partial class MainViewModel : ObservableObject
             return;
         }
 
-        _selectedFiles.Clear();
-        var files = PdfFileDiscovery.EnumeratePdfFilesInFolder(folder, RecursiveFolders);
-        _selectedFiles.AddRange(files);
-        StatusText = $"Папка: {folder}. PDF: {_selectedFiles.Count}";
-        AnalyzeCommand.NotifyCanExecuteChanged();
+        await ApplyFolderAndAnalyzeAsync(folder).ConfigureAwait(true);
     }
+
+    [RelayCommand(CanExecute = nameof(CanClear))]
+    private void ClearAll()
+    {
+        _cts?.Cancel();
+        _lastFolderPath = null;
+        _selectedFiles.Clear();
+        ResetOutputsAfterSelectionChange();
+        StatusText =
+            "Список файлов и результаты очищены. Добавьте PDF через «Выбрать PDF» или укажите папку.";
+        AnalyzeCommand.NotifyCanExecuteChanged();
+        ExportCsvCommand.NotifyCanExecuteChanged();
+        ExportXlsxCommand.NotifyCanExecuteChanged();
+    }
+
+    private bool CanClear() => !IsBusy && (_selectedFiles.Count > 0 || Rows.Count > 0 || _lastReport is not null);
 
     [RelayCommand(CanExecute = nameof(CanAnalyze))]
     private async Task AnalyzeAsync()
     {
         if (_selectedFiles.Count == 0)
         {
+            ResetOutputsBeforeRun();
+            _lastReport = null;
+            UpdateFormatStatLines();
+            ExportCsvCommand.NotifyCanExecuteChanged();
+            ExportXlsxCommand.NotifyCanExecuteChanged();
             return;
         }
 
         _cts = new CancellationTokenSource();
         IsBusy = true;
         ProgressValue = 0;
-        Rows.Clear();
-        TotalLengthMeters = 0;
-        SummaryByFormat = string.Empty;
-        _lastReport = null;
+        ResetOutputsBeforeRun();
         ExportCsvCommand.NotifyCanExecuteChanged();
         ExportXlsxCommand.NotifyCanExecuteChanged();
 
@@ -168,19 +216,31 @@ public sealed partial class MainViewModel : ObservableObject
             _lastReport = PageAnalysisService.Combine(fileReports);
             TotalLengthMeters = RoundMeters(_lastReport.TotalLengthMeters);
             SummaryByFormat = BuildBatchSummary(_lastReport);
-            StatusText = "Готово.";
+            UpdateFormatStatLines();
+            StatusText =
+                $"Готово: {_selectedFiles.Count} файл(ов), суммарно {TotalLengthMeters:F3} м по длинной стороне листов.";
             ProgressValue = 100;
             ExportCsvCommand.NotifyCanExecuteChanged();
             ExportXlsxCommand.NotifyCanExecuteChanged();
         }
         catch (OperationCanceledException)
         {
+            ResetOutputsBeforeRun();
+            _lastReport = null;
+            UpdateFormatStatLines();
             StatusText = "Отменено.";
+            ExportCsvCommand.NotifyCanExecuteChanged();
+            ExportXlsxCommand.NotifyCanExecuteChanged();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Analysis failed");
+            ResetOutputsBeforeRun();
+            _lastReport = null;
+            UpdateFormatStatLines();
             StatusText = $"Ошибка: {ex.Message}";
+            ExportCsvCommand.NotifyCanExecuteChanged();
+            ExportXlsxCommand.NotifyCanExecuteChanged();
         }
         finally
         {
@@ -188,6 +248,7 @@ public sealed partial class MainViewModel : ObservableObject
             _cts?.Dispose();
             _cts = null;
             AnalyzeCommand.NotifyCanExecuteChanged();
+            ClearAllCommand.NotifyCanExecuteChanged();
         }
     }
 
@@ -269,6 +330,7 @@ public sealed partial class MainViewModel : ObservableObject
         ExportCsvCommand.NotifyCanExecuteChanged();
         ExportXlsxCommand.NotifyCanExecuteChanged();
         CancelCommand.NotifyCanExecuteChanged();
+        ClearAllCommand.NotifyCanExecuteChanged();
     }
 
     private static string BuildFormatsSummary(FileReport report)
@@ -289,7 +351,7 @@ public sealed partial class MainViewModel : ObservableObject
         return string.Join(
             Environment.NewLine,
             report.SummaryByFormat.OrderBy(k => k.Key, StringComparer.Ordinal)
-                .Select(kv => $"{kv.Key}: {kv.Value.PageCount} стр., {RoundMeters(kv.Value.LengthMeters)} м"));
+                .Select(kv => $"{kv.Key}: {kv.Value.PageCount} л., {RoundMeters(kv.Value.LengthMeters)} м"));
     }
 
     private static double RoundMeters(double m) =>
@@ -323,6 +385,131 @@ public sealed partial class MainViewModel : ObservableObject
 
     partial void OnRecursiveFoldersChanged(bool value)
     {
-        // Re-pick folder semantics: user may toggle before picking folder again — no-op.
+        if (string.IsNullOrWhiteSpace(_lastFolderPath))
+        {
+            return;
+        }
+
+        _ = ReapplyLastFolderAsync();
+    }
+
+    private async Task ReapplyLastFolderAsync()
+    {
+        try
+        {
+            var folder = _lastFolderPath!;
+            var files = PdfFileDiscovery.EnumeratePdfFilesInFolder(folder, RecursiveFolders);
+            ReplaceSelectedPdfFiles(files);
+
+            if (_selectedFiles.Count == 0)
+            {
+                StatusText =
+                    "В этой папке не найдено PDF при текущем режиме (включён или выключен обход подпапок). Укажите другую папку.";
+                AnalyzeCommand.NotifyCanExecuteChanged();
+                return;
+            }
+
+            AnalyzeCommand.NotifyCanExecuteChanged();
+            if (_autoAnalyzeAfterFileSelection)
+            {
+                StatusText = $"Папка: {folder}. PDF: {_selectedFiles.Count}. Запуск расчёта…";
+                await AnalyzeAsync().ConfigureAwait(true);
+                return;
+            }
+
+            StatusText =
+                $"Папка: {folder}. PDF: {_selectedFiles.Count}. Список обновлён — нажмите «Считать».";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Recursive folder toggle failed");
+            StatusText = $"Не удалось обновить список PDF: {ex.Message}";
+        }
+    }
+
+    /// <summary>Заполняет <see cref="_selectedFiles"/> и сбрасывает результаты анализа (до нового расчёта).</summary>
+    private void ReplaceSelectedPdfFiles(IReadOnlyList<string> pdfPaths)
+    {
+        _selectedFiles.Clear();
+        _selectedFiles.AddRange(pdfPaths);
+        ResetOutputsAfterSelectionChange();
+    }
+
+    private async Task ApplyFolderAndAnalyzeAsync(string folder)
+    {
+        _lastFolderPath = folder;
+        var files = PdfFileDiscovery.EnumeratePdfFilesInFolder(folder, RecursiveFolders);
+        ReplaceSelectedPdfFiles(files);
+
+        if (_selectedFiles.Count == 0)
+        {
+            StatusText =
+                "В выбранной папке не найдено PDF. Проверьте «Рекурсивно искать PDF в папке» или выберите другую папку.";
+            AnalyzeCommand.NotifyCanExecuteChanged();
+            return;
+        }
+
+        AnalyzeCommand.NotifyCanExecuteChanged();
+        if (_autoAnalyzeAfterFileSelection)
+        {
+            StatusText = $"Папка: {folder}. PDF: {_selectedFiles.Count}. Запуск расчёта…";
+            await AnalyzeAsync().ConfigureAwait(true);
+            return;
+        }
+
+        StatusText =
+            $"Папка: {folder}. PDF: {_selectedFiles.Count}. Нажмите «Считать». Переключатель «Рекурсивно» подхватывает ту же папку.";
+    }
+
+    private void ResetOutputsAfterSelectionChange()
+    {
+        ResetOutputsBeforeRun();
+        _lastReport = null;
+        UpdateFormatStatLines();
+        ExportCsvCommand.NotifyCanExecuteChanged();
+        ExportXlsxCommand.NotifyCanExecuteChanged();
+    }
+
+    /// <summary>Очищает таблицу и сводные поля перед новым расчётом (без затрагивания выбора файлов).</summary>
+    private void ResetOutputsBeforeRun()
+    {
+        Rows.Clear();
+        TotalLengthMeters = 0;
+        SummaryByFormat = string.Empty;
+        ProgressValue = 0;
+        ResetFormatStatLines();
+        ClearAllCommand.NotifyCanExecuteChanged();
+    }
+
+    private void ResetFormatStatLines()
+    {
+        FormatStatA4 = "—";
+        FormatStatA3 = "—";
+        FormatStatA2 = "—";
+        FormatStatA1 = "—";
+        FormatStatA1Plus = "—";
+        FormatStatA0 = "—";
+        FormatStatA0Plus = "—";
+    }
+
+    private void UpdateFormatStatLines()
+    {
+        FormatStatA4 = FormatStatForLabel("A4");
+        FormatStatA3 = FormatStatForLabel("A3");
+        FormatStatA2 = FormatStatForLabel("A2");
+        FormatStatA1 = FormatStatForLabel("A1");
+        FormatStatA1Plus = FormatStatForLabel("A1+");
+        FormatStatA0 = FormatStatForLabel("A0");
+        FormatStatA0Plus = FormatStatForLabel("A0+");
+    }
+
+    private string FormatStatForLabel(string label)
+    {
+        if (_lastReport?.SummaryByFormat.TryGetValue(label, out var agg) == true && agg.PageCount > 0)
+        {
+            return $"{agg.PageCount} л., {RoundMeters(agg.LengthMeters)} м";
+        }
+
+        return "—";
     }
 }

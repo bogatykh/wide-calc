@@ -83,7 +83,6 @@ public sealed class MainViewModelTests
         var vm = new MainViewModel(new Iso216FormatRegistry(), analyzer, writer, dialogs, options, NullLogger<MainViewModel>.Instance);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
-        await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
 
         vm.Rows.Should().ContainSingle();
         vm.Rows[0].FormatsSummary.Should().Contain("A4");
@@ -107,7 +106,6 @@ public sealed class MainViewModelTests
         var vm = new MainViewModel(new Iso216FormatRegistry(), analyzer, writer, dialogs, options, NullLogger<MainViewModel>.Instance);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
-        await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
         await ((IAsyncRelayCommand)vm.ExportCsvCommand).ExecuteAsync(null);
 
         writer.LastCsvPath.Should().Be(dialogs.SaveFileResult);
@@ -139,7 +137,6 @@ public sealed class MainViewModelTests
             NullLogger<MainViewModel>.Instance);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
-        await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
         await ((IAsyncRelayCommand)vm.ExportXlsxCommand).ExecuteAsync(null);
 
         writer.LastXlsxPath.Should().Be(dialogs.SaveFileResult);
@@ -164,7 +161,6 @@ public sealed class MainViewModelTests
             NullLogger<MainViewModel>.Instance);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
-        await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
 
         vm.Rows.Should().ContainSingle();
         vm.Rows[0].Error.Should().Contain("bad pdf");
@@ -201,7 +197,8 @@ public sealed class MainViewModelTests
             new RecordingWriter(),
             new RecordingDialogs { PickFilesResult = new[] { @"C:\demo\slow.pdf" } },
             Options.Create(new PrintMeterOptions()),
-            NullLogger<MainViewModel>.Instance);
+            NullLogger<MainViewModel>.Instance,
+            autoAnalyzeAfterFileSelection: false);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
         var runTask = ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
@@ -243,7 +240,6 @@ public sealed class MainViewModelTests
             NullLogger<MainViewModel>.Instance);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
-        await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
         await ((IAsyncRelayCommand)vm.ExportCsvCommand).ExecuteAsync(null);
 
         writer.CsvCalls.Should().Be(0);
@@ -269,7 +265,6 @@ public sealed class MainViewModelTests
             NullLogger<MainViewModel>.Instance);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
-        await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
         await ((IAsyncRelayCommand)vm.ExportXlsxCommand).ExecuteAsync(null);
 
         writer.XlsxCalls.Should().Be(0);
@@ -297,7 +292,6 @@ public sealed class MainViewModelTests
         vm.ExportXlsxCommand.CanExecute(null).Should().BeFalse();
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
-        await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
 
         vm.ExportCsvCommand.CanExecute(null).Should().BeTrue();
         vm.ExportXlsxCommand.CanExecute(null).Should().BeTrue();

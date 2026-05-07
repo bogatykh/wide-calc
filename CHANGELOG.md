@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.5](https://github.com/bogatykh/wide-calc/compare/v0.2.4...v0.2.5) (2026-05-07)
+
+
+### Bug Fixes
+
+* restore with PublishReadyToRun for publish pipeline ([2e83a8b](https://github.com/bogatykh/wide-calc/commit/2e83a8bc108164a1927942b9a091f2a25d20f213))
+* restore with PublishReadyToRun for publish pipeline ([97d5913](https://github.com/bogatykh/wide-calc/commit/97d5913675b46f62d60b0a0f63553b7f3b69b19d))
+
 ## [0.2.4](https://github.com/bogatykh/wide-calc/compare/v0.2.3...v0.2.4) (2026-05-07)
 
 

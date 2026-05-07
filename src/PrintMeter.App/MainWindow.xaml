@@ -304,40 +304,97 @@
                 Style="{StaticResource PanelSectionTitle}"
                 Text="Результаты по файлам" />
 
-            <ListView
-                Grid.Row="1"
-                x:Name="ResultsListView"
-                Margin="8,0,8,8"
-                Padding="4"
-                HorizontalScrollBarVisibility="Auto"
-                ItemsSource="{Binding Rows}"
-                SelectionMode="Single"
-                VerticalScrollBarVisibility="Auto">
-              <ListView.View>
-                <GridView>
-                  <GridViewColumn
-                      Width="280"
-                      DisplayMemberBinding="{Binding FilePath}"
-                      Header="Файл" />
-                  <GridViewColumn
-                      Width="72"
-                      DisplayMemberBinding="{Binding PageCount}"
-                      Header="Листов" />
-                  <GridViewColumn
-                      Width="100"
-                      DisplayMemberBinding="{Binding TotalLengthMeters}"
-                      Header="Длина, м" />
-                  <GridViewColumn
-                      Width="220"
-                      DisplayMemberBinding="{Binding FormatsSummary}"
-                      Header="По форматам" />
-                  <GridViewColumn
-                      Width="140"
-                      DisplayMemberBinding="{Binding Path=Error}"
-                      Header="Ошибка" />
-                </GridView>
-              </ListView.View>
-            </ListView>
+            <Grid Grid.Row="1" Margin="8,0,8,8">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+
+              <Grid
+                  Grid.Row="0"
+                  Padding="8,6,8,8"
+                  BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                  BorderThickness="0,0,0,1">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="280" />
+                  <ColumnDefinition Width="72" />
+                  <ColumnDefinition Width="100" />
+                  <ColumnDefinition Width="*" MinWidth="160" />
+                  <ColumnDefinition Width="*" MinWidth="100" />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    Grid.Column="0"
+                    FontWeight="SemiBold"
+                    Style="{ThemeResource CaptionTextBlockStyle}"
+                    Text="Файл" />
+                <TextBlock
+                    Grid.Column="1"
+                    FontWeight="SemiBold"
+                    Style="{ThemeResource CaptionTextBlockStyle}"
+                    Text="Листов" />
+                <TextBlock
+                    Grid.Column="2"
+                    FontWeight="SemiBold"
+                    Style="{ThemeResource CaptionTextBlockStyle}"
+                    Text="Длина, м" />
+                <TextBlock
+                    Grid.Column="3"
+                    FontWeight="SemiBold"
+                    Style="{ThemeResource CaptionTextBlockStyle}"
+                    Text="По форматам" />
+                <TextBlock
+                    Grid.Column="4"
+                    FontWeight="SemiBold"
+                    Style="{ThemeResource CaptionTextBlockStyle}"
+                    Text="Ошибка" />
+              </Grid>
+
+              <ListView
+                  Grid.Row="1"
+                  x:Name="ResultsListView"
+                  Padding="0,4,0,0"
+                  HorizontalScrollBarVisibility="Disabled"
+                  ItemsSource="{Binding Rows}"
+                  SelectionMode="Single"
+                  VerticalScrollBarVisibility="Auto">
+                <ListView.ItemTemplate>
+                  <DataTemplate>
+                    <Grid Padding="8,6">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="280" />
+                        <ColumnDefinition Width="72" />
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="*" MinWidth="160" />
+                        <ColumnDefinition Width="*" MinWidth="100" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock
+                          Grid.Column="0"
+                          VerticalAlignment="Center"
+                          Text="{Binding FilePath}"
+                          TextTrimming="CharacterEllipsis" />
+                      <TextBlock
+                          Grid.Column="1"
+                          VerticalAlignment="Center"
+                          Text="{Binding PageCount}" />
+                      <TextBlock
+                          Grid.Column="2"
+                          VerticalAlignment="Center"
+                          Text="{Binding TotalLengthMeters}" />
+                      <TextBlock
+                          Grid.Column="3"
+                          VerticalAlignment="Center"
+                          Text="{Binding FormatsSummary}"
+                          TextTrimming="CharacterEllipsis" />
+                      <TextBlock
+                          Grid.Column="4"
+                          VerticalAlignment="Center"
+                          Text="{Binding Path=Error}"
+                          TextTrimming="CharacterEllipsis" />
+                    </Grid>
+                  </DataTemplate>
+                </ListView.ItemTemplate>
+              </ListView>
+            </Grid>
           </Grid>
         </Border>
       </Grid>

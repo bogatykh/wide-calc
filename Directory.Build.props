@@ -7,4 +7,8 @@
     <AnalysisLevel>latest</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
+  <!-- net8 test host on a machine with only .NET 10+ runtime -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+    <RollForward>LatestMajor</RollForward>
+  </PropertyGroup>
 </Project>

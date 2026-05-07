@@ -87,4 +87,91 @@ public sealed class PricelistFormatEquivalenceTests
             .BillingSheets.Should()
             .Be(1);
     }
+
+    [Theory]
+    [InlineData("", PricelistFormatEquivalence.RoundingMode.Ceiling)]
+    [InlineData("   ", PricelistFormatEquivalence.RoundingMode.Ceiling)]
+    [InlineData("ceiling", PricelistFormatEquivalence.RoundingMode.Ceiling)]
+    [InlineData(" UP ", PricelistFormatEquivalence.RoundingMode.Ceiling)]
+    [InlineData("nearest", PricelistFormatEquivalence.RoundingMode.NearestAwayFromZero)]
+    [InlineData("HalfUp", PricelistFormatEquivalence.RoundingMode.NearestAwayFromZero)]
+    [InlineData("AWAYFROMZERO", PricelistFormatEquivalence.RoundingMode.NearestAwayFromZero)]
+    [InlineData("unknown-mode", PricelistFormatEquivalence.RoundingMode.Ceiling)]
+    public void ParseRounding_maps_app_setting_strings(string input, PricelistFormatEquivalence.RoundingMode expected)
+    {
+        PricelistFormatEquivalence.ParseRounding(input).Should().Be(expected);
+    }
+
+    [Fact]
+    public void ParseRounding_null_is_ceiling()
+    {
+        PricelistFormatEquivalence.ParseRounding(null).Should().Be(PricelistFormatEquivalence.RoundingMode.Ceiling);
+    }
+
+    [Fact]
+    public void BuildExportAttachment_is_null_when_nothing_billable()
+    {
+        var empty = new Dictionary<string, FormatAggregate>(StringComparer.Ordinal);
+        PricelistFormatEquivalence.BuildExportAttachment(empty, null, PricelistFormatEquivalence.RoundingMode.Ceiling)
+            .Should()
+            .BeNull();
+
+        var onlyZero = new Dictionary<string, FormatAggregate>(StringComparer.Ordinal)
+        {
+            ["A4"] = new FormatAggregate(1, 0),
+        };
+        PricelistFormatEquivalence.BuildExportAttachment(onlyZero, null, PricelistFormatEquivalence.RoundingMode.Ceiling)
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public void BuildExportAttachment_carries_rows_and_rounding_key()
+    {
+        var summary = new Dictionary<string, FormatAggregate>(StringComparer.Ordinal)
+        {
+            ["A4"] = new FormatAggregate(1, 0.297),
+        };
+
+        var att = PricelistFormatEquivalence.BuildExportAttachment(
+            summary,
+            null,
+            PricelistFormatEquivalence.RoundingMode.NearestAwayFromZero);
+
+        att.Should().NotBeNull();
+        att!.RoundingModeKey.Should().Be("NearestAwayFromZero");
+        att.PerFormatRows.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void ComputeRows_skips_non_positive_page_count_or_length()
+    {
+        var summary = new Dictionary<string, FormatAggregate>(StringComparer.Ordinal)
+        {
+            ["A4"] = new FormatAggregate(0, 0.297),
+            ["A3"] = new FormatAggregate(1, 0),
+        };
+
+        PricelistFormatEquivalence.ComputeRows(summary, null, PricelistFormatEquivalence.RoundingMode.Ceiling)
+            .Should()
+            .BeEmpty();
+    }
+
+    [Fact]
+    public void Non_positive_override_falls_back_to_iso_divisor()
+    {
+        var summary = new Dictionary<string, FormatAggregate>(StringComparer.Ordinal)
+        {
+            ["A4"] = new FormatAggregate(1, 0.297),
+        };
+
+        var overrides = new Dictionary<string, double>(StringComparer.Ordinal) { ["A4"] = 0 };
+
+        var rows = PricelistFormatEquivalence.ComputeRows(
+            summary,
+            overrides,
+            PricelistFormatEquivalence.RoundingMode.Ceiling);
+        rows.Should().ContainSingle();
+        rows[0].DivisorMm.Should().Be(297);
+    }
 }

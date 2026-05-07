@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.4](https://github.com/bogatykh/wide-calc/compare/v0.2.3...v0.2.4) (2026-05-07)
+
+
+### Bug Fixes
+
+* avoid solution RID build and restore app RID separately ([fff43fc](https://github.com/bogatykh/wide-calc/commit/fff43fc1701ab1e74d08b8a309e020e4c985a2b0))
+* avoid solution RID build and restore app RID separately ([9c41d82](https://github.com/bogatykh/wide-calc/commit/9c41d82d5856a2e355ea75e0bead8b7423b650ed))
+
 ## [0.2.3](https://github.com/bogatykh/wide-calc/compare/v0.2.2...v0.2.3) (2026-05-07)
 
 

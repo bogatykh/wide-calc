@@ -102,13 +102,13 @@ How it works:
 1. Push commits to `main` using Conventional Commit style (`feat:`, `fix:`, `chore:`).
 2. Release Please opens/updates a release PR with next SemVer bump and changelog.
 3. When that PR is merged, Release Please creates git tag `vX.Y.Z` and GitHub Release.
-4. Workflow `.github/workflows/release.yml` builds and attaches:
+4. Workflow `.github/workflows/versioning.yml` (job `publish-release-assets`) builds and attaches:
    - `PrintMeter-Setup-x64.exe`
    - `PrintMeter-win-x64.zip`
 
-Release-only workflow responsibilities:
+Manual/tag release workflow responsibilities:
 
-- `release.yml` performs restore/build/publish, builds the Inno Setup installer, and uploads release assets.
+- `release.yml` remains available for tag/release/manual runs and also uploads installer + portable assets.
 
 ## Commit message policy
 

@@ -48,7 +48,7 @@ public sealed class CsvBatchReportExporterTests
             bytes[2].Should().Be(0xBF);
 
             var text = await File.ReadAllTextAsync(path);
-            text.Should().Contain(';');
+            text.Should().Contain(";");
         }
         finally
         {

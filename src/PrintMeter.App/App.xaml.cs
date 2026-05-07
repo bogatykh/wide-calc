@@ -1,5 +1,10 @@
 using System.IO;
-using System.Windows;
+using WpfApplication = System.Windows.Application;
+using StartupEventArgs = System.Windows.StartupEventArgs;
+using ExitEventArgs = System.Windows.ExitEventArgs;
+using MessageBox = System.Windows.MessageBox;
+using MessageBoxButton = System.Windows.MessageBoxButton;
+using MessageBoxImage = System.Windows.MessageBoxImage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,7 +17,7 @@ using Serilog;
 
 namespace PrintMeter.App;
 
-public partial class App : Application
+public partial class App : WpfApplication
 {
     private IHost? _host;
 

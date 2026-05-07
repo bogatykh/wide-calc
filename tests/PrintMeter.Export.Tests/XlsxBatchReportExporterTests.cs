@@ -9,7 +9,7 @@ namespace PrintMeter.Export.Tests;
 public sealed class XlsxBatchReportExporterTests
 {
     [Fact]
-    public void Writes_summary_sheet()
+    public async Task Writes_summary_sheet()
     {
         var report = new BatchReport
         {
@@ -25,13 +25,11 @@ public sealed class XlsxBatchReportExporterTests
         try
         {
             var exporter = new XlsxBatchReportExporter();
-            exporter.ExportAsync(
-                    report,
-                    path,
-                    new ReportExportOptions(UseUtf8Bom: true, CsvDelimiter: ';'),
-                    CancellationToken.None)
-                .GetAwaiter()
-                .GetResult();
+            await exporter.ExportAsync(
+                report,
+                path,
+                new ReportExportOptions(UseUtf8Bom: true, CsvDelimiter: ';'),
+                CancellationToken.None);
 
             using var wb = new XLWorkbook(path);
             var sheet = wb.Worksheet("Summary");

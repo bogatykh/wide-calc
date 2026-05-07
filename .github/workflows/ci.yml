@@ -1,0 +1,58 @@
+name: ci
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore PrintMeter.sln
+
+      - name: Build
+        run: dotnet build PrintMeter.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test PrintMeter.sln -c Release --no-build --collect:"XPlat Code Coverage"
+
+      - name: Publish
+        run: >
+          dotnet publish src/PrintMeter.App/PrintMeter.App.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:PublishTrimmed=false
+          -p:PublishReadyToRun=true
+          -o ./artifacts/publish
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+
+      - name: Build Installer
+        shell: pwsh
+        run: >
+          iscc /DMyAppVersion=0.0.0-ci.${{ github.run_number }}
+          installer/PrintMeter.iss
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PrintMeter-win-x64
+          path: artifacts/publish/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PrintMeter-Setup-x64
+          path: artifacts/installer/PrintMeter-Setup-x64.exe

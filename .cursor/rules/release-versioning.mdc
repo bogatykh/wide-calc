@@ -1,0 +1,16 @@
+---
+description: Enforce conventional commits and automated releases
+alwaysApply: true
+---
+
+# Release And Commit Rules
+
+- Use Conventional Commits for every commit:
+  - `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `build:`, `ci:`, `perf:`, `revert:`
+- Write commit messages in imperative mood and keep the subject concise.
+- For user-visible changes, prefer `feat` or `fix` so Release Please can bump versions correctly.
+- Do not use arbitrary commit prefixes (for example `update`, `misc`, `wip`).
+- When asked to create a release, rely on automated versioning:
+  - merge release PR created by Release Please
+  - let GitHub Actions build and attach `PrintMeter-Setup-x64.exe` and portable zip
+- Do not edit release tags manually unless explicitly requested.

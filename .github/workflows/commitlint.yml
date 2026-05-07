@@ -1,0 +1,15 @@
+name: commitlint
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches:
+      - main
+
+jobs:
+  lint-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lint commit messages
+        uses: wagoid/commitlint-github-action@v6

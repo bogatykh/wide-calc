@@ -30,10 +30,14 @@ jobs:
       - name: Restore
         run: dotnet restore PrintMeter.sln --nologo
 
+      - name: Build
+        run: dotnet build PrintMeter.sln -c Release --no-restore --nologo
+
       - name: Publish
         run: >
           dotnet publish src/PrintMeter.App/PrintMeter.App.csproj
           -c Release
+          --no-build
           --no-restore
           -r win-x64
           --self-contained true

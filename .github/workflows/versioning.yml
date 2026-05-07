@@ -13,7 +13,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
+      releases_created: ${{ steps.release.outputs.releases_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - name: Release Please
@@ -26,14 +26,14 @@ jobs:
 
   publish-release-assets:
     needs: release-please
-    if: needs.release-please.outputs.release_created == 'true'
+    if: needs.release-please.outputs.releases_created == 'true'
     runs-on: windows-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.release-please.outputs.tag_name }}
+          fetch-depth: 0
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -81,8 +81,13 @@ jobs:
         shell: pwsh
         run: |
           $tag = "${{ needs.release-please.outputs.tag_name }}"
+          if ([string]::IsNullOrWhiteSpace($tag)) {
+            git fetch --tags --force
+            $tag = git tag --sort=-creatordate | Select-Object -First 1
+          }
           $v = $tag.TrimStart('v')
           "value=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: Build Installer
         shell: pwsh
@@ -98,8 +103,8 @@ jobs:
       - name: Create release with assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.release-please.outputs.tag_name }}
-          name: ${{ needs.release-please.outputs.tag_name }}
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
           files: |
             artifacts/PrintMeter-win-x64.zip
             artifacts/installer/PrintMeter-Setup-x64.exe

@@ -23,6 +23,9 @@ jobs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
+      # Do not set skip-github-release: merged release PRs must get a GitHub release + tag
+      # in this run, or autorelease:pending is never cleared and new release PRs are blocked
+      # ("untagged, merged release PRs outstanding").
       - name: Release Please
         id: release
         uses: googleapis/release-please-action@v4
@@ -30,7 +33,6 @@ jobs:
           command: manifest
           target-branch: main
           token: ${{ secrets.RELEASE_PLEASE_TOKEN != '' && secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
-          skip-github-release: true
 
       - name: Debug release outputs
         run: |
@@ -121,15 +123,14 @@ jobs:
         run: |
           Compress-Archive -Path ./artifacts/publish/* -DestinationPath ./artifacts/PrintMeter-win-x64.zip
 
-      - name: Create release with assets
+      # Release Please already created the GitHub release + tag; only attach binaries.
+      # Omit name/body/generate_release_notes so the existing release keeps RP changelog text.
+      - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
-          name: ${{ steps.version.outputs.tag }}
           files: |
             artifacts/PrintMeter-win-x64.zip
             artifacts/installer/PrintMeter-Setup-x64.exe
-          generate_release_notes: true
-          append_body: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

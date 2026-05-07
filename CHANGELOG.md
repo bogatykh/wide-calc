@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.6](https://github.com/bogatykh/wide-calc/compare/v0.2.5...v0.2.6) (2026-05-07)
+
+
+### Bug Fixes
+
+* create release with assets in single versioning flow ([e02b079](https://github.com/bogatykh/wide-calc/commit/e02b079e5072a56d7742dc65cb465457c39e175f))
+* create release with assets in single versioning flow ([e7d4d60](https://github.com/bogatykh/wide-calc/commit/e7d4d60a6a9e15f584f2440c7ea51a8d73118237))
+
 ## [0.2.5](https://github.com/bogatykh/wide-calc/compare/v0.2.4...v0.2.5) (2026-05-07)
 
 

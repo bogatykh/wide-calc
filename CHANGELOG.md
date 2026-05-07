@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.3](https://github.com/bogatykh/wide-calc/compare/v0.2.2...v0.2.3) (2026-05-07)
+
+
+### Bug Fixes
+
+* restore and build with win-x64 runtime ([9e2c187](https://github.com/bogatykh/wide-calc/commit/9e2c187665fd0603e4ca9a609f271be27d860355))
+* restore and build with win-x64 runtime ([b65a7e3](https://github.com/bogatykh/wide-calc/commit/b65a7e3aa589a096808ff063fbbddafead80959f))
+
 ## [0.2.2](https://github.com/bogatykh/wide-calc/compare/v0.2.1...v0.2.2) (2026-05-07)
 
 

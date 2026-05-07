@@ -1,4 +1,5 @@
-using Microsoft.Win32;
+using Win32OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using Win32SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 using PrintMeter.App.ViewModels;
 using WpfApplication = System.Windows.Application;
 
@@ -17,7 +18,7 @@ public sealed class Win32FileDialogService : IFileDialogService
         return WpfApplication.Current.Dispatcher.InvokeAsync(
             () =>
             {
-                var dlg = new OpenFileDialog
+                var dlg = new Win32OpenFileDialog
                 {
                     Filter = "PDF (*.pdf)|*.pdf",
                     Multiselect = true,
@@ -57,7 +58,7 @@ public sealed class Win32FileDialogService : IFileDialogService
         return WpfApplication.Current.Dispatcher.InvokeAsync(
             () =>
             {
-                var dlg = new SaveFileDialog
+                var dlg = new Win32SaveFileDialog
                 {
                     Filter = filter,
                     FileName = defaultFileName,

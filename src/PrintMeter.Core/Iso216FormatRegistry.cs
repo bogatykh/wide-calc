@@ -1,6 +1,10 @@
 namespace PrintMeter.Core;
 
-/// <summary>ISO 216 A-series sizes (long × short mm).</summary>
+/// <summary>
+/// Серия форматов для полиграфии по короткой стороне (ширине) листа.
+/// Полосы A1 до 610 мм и A0 до 914 мм соответствуют бывшим границам A1+/A0+,
+/// но в отчёт идёт одна метка <c>A1</c> или <c>A0</c> с теми же условными длинными сторонами в прайсе.
+/// </summary>
 public sealed class Iso216FormatRegistry : IFormatRegistry
 {
     private sealed record SizeBand(string Label, double MaxWidthMm);
@@ -10,10 +14,8 @@ public sealed class Iso216FormatRegistry : IFormatRegistry
         new SizeBand("A4", 210),
         new SizeBand("A3", 297),
         new SizeBand("A2", 420),
-        new SizeBand("A1", 594),
-        new SizeBand("A1+", 610),
-        new SizeBand("A0", 841),
-        new SizeBand("A0+", 914),
+        new SizeBand("A1", 610),
+        new SizeBand("A0", 914),
     ];
 
     private readonly HashSet<string> _enabledFormats = new(

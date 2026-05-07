@@ -15,10 +15,7 @@ public sealed class BatchReportWriter(CsvBatchReportExporter csv, XlsxBatchRepor
     public Task WriteXlsxAsync(
         BatchReport report,
         string destinationPath,
+        ReportExportOptions options,
         CancellationToken cancellationToken) =>
-        xlsx.ExportAsync(
-            report,
-            destinationPath,
-            new ReportExportOptions(UseUtf8Bom: true, CsvDelimiter: ';'),
-            cancellationToken);
+        xlsx.ExportAsync(report, destinationPath, options, cancellationToken);
 }

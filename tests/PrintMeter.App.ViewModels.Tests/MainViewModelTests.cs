@@ -33,7 +33,11 @@ public sealed class MainViewModelTests
             return Task.CompletedTask;
         }
 
-        public Task WriteXlsxAsync(BatchReport report, string destinationPath, CancellationToken cancellationToken)
+        public Task WriteXlsxAsync(
+            BatchReport report,
+            string destinationPath,
+            ReportExportOptions options,
+            CancellationToken cancellationToken)
         {
             XlsxCalls++;
             LastXlsxPath = destinationPath;
@@ -52,14 +56,24 @@ public sealed class MainViewModelTests
 
     private sealed class RecordingDialogs : IFileDialogService
     {
+        /// <summary>Если не пустая, при каждом вызове диалога файлов извлекается следующий набор путей.</summary>
+        public Queue<IReadOnlyList<string>> PickPdfQueue { get; } = new();
+
         public IReadOnlyList<string>? PickFilesResult { get; set; }
 
         public string? PickFolderResult { get; set; }
 
         public string? SaveFileResult { get; set; }
 
-        public Task<IReadOnlyList<string>?> PickPdfFilesAsync(CancellationToken cancellationToken = default) =>
-            Task.FromResult(PickFilesResult);
+        public Task<IReadOnlyList<string>?> PickPdfFilesAsync(CancellationToken cancellationToken = default)
+        {
+            if (PickPdfQueue.Count > 0)
+            {
+                return Task.FromResult<IReadOnlyList<string>?>(PickPdfQueue.Dequeue());
+            }
+
+            return Task.FromResult(PickFilesResult);
+        }
 
         public Task<string?> PickFolderAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(PickFolderResult);
@@ -83,12 +97,44 @@ public sealed class MainViewModelTests
         var vm = new MainViewModel(new Iso216FormatRegistry(), analyzer, writer, dialogs, options, NullLogger<MainViewModel>.Instance);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
-        await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
 
         vm.Rows.Should().ContainSingle();
         vm.Rows[0].FormatsSummary.Should().Contain("A4");
         vm.Rows[0].PageCount.Should().Be(1);
         vm.TotalLengthMeters.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task Repeated_file_picks_append_rows_without_clearing_prior_results()
+    {
+        var pathA = Path.GetFullPath(Path.Combine(Path.GetTempPath(), "printmeter-append-a.pdf"));
+        var pathB = Path.GetFullPath(Path.Combine(Path.GetTempPath(), "printmeter-append-b.pdf"));
+        var reader = new FakePdfPageReader(
+            path =>
+                string.Equals(Path.GetFullPath(path), pathA, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(Path.GetFullPath(path), pathB, StringComparison.OrdinalIgnoreCase)
+                    ? new[] { new PageDimensions(1, 595, 842) }
+                    : Array.Empty<PageDimensions>());
+
+        var analyzer = new BatchPdfAnalyzer(reader, new PageAnalysisService(new Iso216FormatRegistry()), 2);
+        var writer = new RecordingWriter();
+        var dialogs = new RecordingDialogs();
+        dialogs.PickPdfQueue.Enqueue(new[] { Path.Combine(Path.GetTempPath(), "printmeter-append-a.pdf") });
+        dialogs.PickPdfQueue.Enqueue(new[] { Path.Combine(Path.GetTempPath(), "printmeter-append-b.pdf") });
+        var vm = new MainViewModel(
+            new Iso216FormatRegistry(),
+            analyzer,
+            writer,
+            dialogs,
+            Options.Create(new PrintMeterOptions()),
+            NullLogger<MainViewModel>.Instance);
+
+        await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
+        await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
+
+        vm.Rows.Should().HaveCount(2);
+        vm.Rows.Should().OnlyContain(r => r.PageCount == 1);
+        vm.TotalLengthMeters.Should().BeApproximately(0.594, 0.02);
     }
 
     [Fact]
@@ -107,7 +153,6 @@ public sealed class MainViewModelTests
         var vm = new MainViewModel(new Iso216FormatRegistry(), analyzer, writer, dialogs, options, NullLogger<MainViewModel>.Instance);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
-        await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
         await ((IAsyncRelayCommand)vm.ExportCsvCommand).ExecuteAsync(null);
 
         writer.LastCsvPath.Should().Be(dialogs.SaveFileResult);
@@ -139,7 +184,6 @@ public sealed class MainViewModelTests
             NullLogger<MainViewModel>.Instance);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
-        await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
         await ((IAsyncRelayCommand)vm.ExportXlsxCommand).ExecuteAsync(null);
 
         writer.LastXlsxPath.Should().Be(dialogs.SaveFileResult);
@@ -164,7 +208,6 @@ public sealed class MainViewModelTests
             NullLogger<MainViewModel>.Instance);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
-        await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
 
         vm.Rows.Should().ContainSingle();
         vm.Rows[0].Error.Should().Contain("bad pdf");
@@ -201,7 +244,8 @@ public sealed class MainViewModelTests
             new RecordingWriter(),
             new RecordingDialogs { PickFilesResult = new[] { @"C:\demo\slow.pdf" } },
             Options.Create(new PrintMeterOptions()),
-            NullLogger<MainViewModel>.Instance);
+            NullLogger<MainViewModel>.Instance,
+            autoAnalyzeAfterFileSelection: false);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
         var runTask = ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
@@ -243,7 +287,6 @@ public sealed class MainViewModelTests
             NullLogger<MainViewModel>.Instance);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
-        await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
         await ((IAsyncRelayCommand)vm.ExportCsvCommand).ExecuteAsync(null);
 
         writer.CsvCalls.Should().Be(0);
@@ -269,7 +312,6 @@ public sealed class MainViewModelTests
             NullLogger<MainViewModel>.Instance);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
-        await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
         await ((IAsyncRelayCommand)vm.ExportXlsxCommand).ExecuteAsync(null);
 
         writer.XlsxCalls.Should().Be(0);
@@ -297,7 +339,6 @@ public sealed class MainViewModelTests
         vm.ExportXlsxCommand.CanExecute(null).Should().BeFalse();
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
-        await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
 
         vm.ExportCsvCommand.CanExecute(null).Should().BeTrue();
         vm.ExportXlsxCommand.CanExecute(null).Should().BeTrue();

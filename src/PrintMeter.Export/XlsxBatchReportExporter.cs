@@ -36,6 +36,30 @@ public sealed class XlsxBatchReportExporter : IReportExporter
         summarySheet.Cell(row + 1, 2).Value = Round(report.TotalLengthMeters);
         summarySheet.Cell(row + 1, 2).Style.NumberFormat.Format = "0.000";
 
+        if (options.PricelistEquivalence is { } pe)
+        {
+            row += 2;
+            summarySheet.Cell(row, 1).Value = "PricingFormatEquivalence";
+            summarySheet.Cell(row, 2).Value = pe.RoundingModeKey;
+            row++;
+            summarySheet.Cell(row, 1).Value = "Format";
+            summarySheet.Cell(row, 2).Value = "CombinedLongMm";
+            summarySheet.Cell(row, 3).Value = "DivisorMm";
+            summarySheet.Cell(row, 4).Value = "RawSheets";
+            summarySheet.Cell(row, 5).Value = "BillingSheets";
+            row++;
+            foreach (var r in pe.PerFormatRows)
+            {
+                summarySheet.Cell(row, 1).Value = r.FormatLabel;
+                summarySheet.Cell(row, 2).Value = r.CombinedLongMm;
+                summarySheet.Cell(row, 2).Style.NumberFormat.Format = "0.0";
+                summarySheet.Cell(row, 3).Value = r.DivisorMm;
+                summarySheet.Cell(row, 4).Value = r.RawSheets;
+                summarySheet.Cell(row, 5).Value = r.BillingSheets;
+                row++;
+            }
+        }
+
         var detailSheet = workbook.AddWorksheet("Files");
         detailSheet.Cell(1, 1).Value = "FilePath";
         detailSheet.Cell(1, 2).Value = "Pages";

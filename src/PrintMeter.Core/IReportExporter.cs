@@ -10,13 +10,9 @@ public interface IReportExporter
 public sealed record ReportExportOptions(
     bool UseUtf8Bom,
     char CsvDelimiter,
-    A0BillingExportSnapshot? BillingA0 = null);
+    PricelistEquivalenceExportAttachment? PricelistEquivalence = null);
 
-/// <summary>Строки «условного A0» для прайса (для блока экспорта).</summary>
-public sealed record A0BillingExportSnapshot(
-    double CombinedLongMm,
-    double DivisorMm,
-    double RawSheetEquivalents,
-    int BillingSheetCount,
-    string IncludedFormats,
+/// <summary>Условные «страницы» прайса по каждому формату со знаменателем (экспорт).</summary>
+public sealed record PricelistEquivalenceExportAttachment(
+    IReadOnlyList<PricelistFormatEquivalence.FormatRow> PerFormatRows,
     string RoundingModeKey);

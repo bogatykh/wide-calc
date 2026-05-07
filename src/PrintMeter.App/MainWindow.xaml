@@ -107,7 +107,7 @@
 
         <TextBlock Text="{Binding StatusText}" TextWrapping="Wrap" FontSize="13" Margin="0,0,0,6" />
         <TextBlock Margin="0,0,0,6" FontWeight="SemiBold" FontSize="14" Text="{Binding TotalLengthMeters, StringFormat='Всего по длинной стороне листов, м: {0:F3}'}" />
-        <TextBlock Margin="0,0,0,6" FontSize="13" Text="{Binding BillingA0PricelistLine}" TextWrapping="Wrap" Foreground="#333" ToolTip="Суммируются длинные стороны выбранных форматов (по умолчанию A0 + A0+), делится на знаменатель из appsettings (1189 мм = ISO A0). Отдельно от числа страниц в PDF." />
+        <TextBlock Margin="0,0,0,6" FontSize="13" Text="{Binding BillingPricelistFormatsSummary}" TextWrapping="Wrap" Foreground="#333" ToolTip="По каждой ISO-метке в сводке: сумма мм по длинной стороне делится на номинал из справочника в коде. Это уже не «голый» размер страницы, а метка после классификации. Custom без номинала в прайсовый блок не попадает." />
         <ProgressBar Height="14" Margin="0,0,0,0" Minimum="0" Maximum="100" Value="{Binding ProgressValue}" />
       </StackPanel>
     </ScrollViewer>

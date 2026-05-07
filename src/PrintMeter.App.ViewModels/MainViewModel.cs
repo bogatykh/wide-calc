@@ -114,9 +114,9 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _formatStatA0Plus = "—";
 
-    /// <summary>Условные «страницы» A0 по прайсу: сумма мм длинных сторон включённых форматов ÷ делитель.</summary>
+    /// <summary>Условные листы по прайсу: по каждому ISO-формату Σ мм длинной стороны ÷ номинал (зашит в <see cref="PricelistFormatEquivalence.IsoNominalLongEdgeMm"/>).</summary>
     [ObservableProperty]
-    private string _billingA0PricelistLine = "—";
+    private string _billingPricelistFormatsSummary = "—";
 
     private BatchReport? _lastReport;
 
@@ -407,59 +407,53 @@ public sealed partial class MainViewModel : ObservableObject
 
     private ReportExportOptions BuildExportOptions()
     {
-        return new ReportExportOptions(Utf8BomForCsv, ';', TryCreateBillingExportSnapshot());
+        var pricelist =
+            _lastReport is null
+                ? null
+                : PricelistFormatEquivalence.BuildExportAttachment(
+                    _lastReport.SummaryByFormat,
+                    null,
+                    PricelistFormatEquivalence.DefaultRounding);
+
+        return new ReportExportOptions(Utf8BomForCsv, ';', pricelist);
     }
 
-    private A0BillingExportSnapshot? TryCreateBillingExportSnapshot()
+    private void RefreshBillingPricelistFormatsSummary()
     {
         if (_lastReport is null)
         {
-            return null;
-        }
-
-        var opt = _options.Value;
-        var rounding = A0EquivalenceBilling.ParseRounding(opt.A0EquivalenceRounding);
-        var (combinedMm, raw, sheets) = A0EquivalenceBilling.Compute(
-            _lastReport.SummaryByFormat,
-            opt.A0EquivalenceIncludedFormats,
-            opt.A0EquivalenceDivisorMm,
-            rounding);
-        var joined = string.Join('+', opt.A0EquivalenceIncludedFormats);
-        return new A0BillingExportSnapshot(
-            combinedMm,
-            opt.A0EquivalenceDivisorMm,
-            raw,
-            sheets,
-            joined,
-            rounding.ToString());
-    }
-
-    private void RefreshBillingA0PricelistLine()
-    {
-        if (_lastReport is null)
-        {
-            BillingA0PricelistLine = "—";
+            BillingPricelistFormatsSummary = "—";
             return;
         }
 
-        var opt = _options.Value;
-        var rounding = A0EquivalenceBilling.ParseRounding(opt.A0EquivalenceRounding);
-        var (combinedMm, raw, sheets) = A0EquivalenceBilling.Compute(
+        var mode = PricelistFormatEquivalence.DefaultRounding;
+        var rows = PricelistFormatEquivalence.ComputeRows(
             _lastReport.SummaryByFormat,
-            opt.A0EquivalenceIncludedFormats,
-            opt.A0EquivalenceDivisorMm,
-            rounding);
-        var inv = CultureInfo.InvariantCulture;
-        var joined = string.Join(" + ", opt.A0EquivalenceIncludedFormats);
-        var roundRu = rounding switch
+            overridesMm: null,
+            mode);
+
+        if (rows.Count == 0)
         {
-            A0EquivalenceBilling.RoundingMode.Ceiling => "округление вверх",
-            A0EquivalenceBilling.RoundingMode.NearestAwayFromZero => "к ближайшему целому",
-            _ => rounding.ToString(),
+            BillingPricelistFormatsSummary =
+                "Прайс по форматам: нет ISO-меток в сводке (или только Custom / нулевой метраж). Номиналы A4…A0+ заданы в коде.";
+            return;
+        }
+
+        var inv = CultureInfo.InvariantCulture;
+        var roundRu = mode switch
+        {
+            PricelistFormatEquivalence.RoundingMode.Ceiling => "округление вверх до целого условного листа",
+            PricelistFormatEquivalence.RoundingMode.NearestAwayFromZero => "к ближайшему целому",
+            _ => mode.ToString(),
         };
-        BillingA0PricelistLine =
-            $"Условных «страниц» для прайса A0 ({joined}, сумма мм длинных сторон ÷ {opt.A0EquivalenceDivisorMm.ToString("0.#", inv)} мм, {roundRu})" +
-            $": {sheets.ToString(inv)} (до округления {raw.ToString("0.###", inv)}; {combinedMm.ToString("0.#", inv)} мм).";
+
+        var lines = rows.Select(
+            r =>
+                $"{r.FormatLabel}: {r.BillingSheets.ToString(inv)} условн. ({r.CombinedLongMm.ToString("0.#", inv)} мм ÷ {r.DivisorMm.ToString("0.#", inv)} мм → {r.RawSheets.ToString("0.###", inv)}, {roundRu})");
+
+        BillingPricelistFormatsSummary =
+            "Условные листы под прайс (знаменатель = номинальная длинная сторона формата из ISO, см. код):" +
+            Environment.NewLine + string.Join(Environment.NewLine, lines);
     }
 
     private bool CanAnalyze() => !IsBusy && _selectedFiles.Count > 0;
@@ -806,7 +800,7 @@ public sealed partial class MainViewModel : ObservableObject
         SummaryByFormat = string.Empty;
         ProgressValue = 0;
         ResetFormatStatLines();
-        RefreshBillingA0PricelistLine();
+        RefreshBillingPricelistFormatsSummary();
         ClearAllCommand.NotifyCanExecuteChanged();
     }
 
@@ -830,7 +824,7 @@ public sealed partial class MainViewModel : ObservableObject
         FormatStatA1Plus = FormatStatForLabel("A1+");
         FormatStatA0 = FormatStatForLabel("A0");
         FormatStatA0Plus = FormatStatForLabel("A0+");
-        RefreshBillingA0PricelistLine();
+        RefreshBillingPricelistFormatsSummary();
     }
 
     private string FormatStatForLabel(string label)

@@ -54,39 +54,31 @@ public sealed class CsvBatchReportExporter : IReportExporter
             csv.NextRecord();
         }
 
-        if (options.BillingA0 is { } bill)
+        if (options.PricelistEquivalence is { } pe)
         {
             csv.NextRecord();
-            csv.WriteField("PricingA0Equivalence");
-            csv.WriteField("IncludedFormats");
-            csv.WriteField(bill.IncludedFormats);
+            csv.WriteField("PricingFormatEquivalence");
+            csv.WriteField("RoundingMode");
+            csv.WriteField(pe.RoundingModeKey);
             csv.WriteField(string.Empty);
             csv.NextRecord();
-            csv.WriteField("PricingA0Equivalence");
-            csv.WriteField(nameof(bill.CombinedLongMm));
-            csv.WriteField(bill.CombinedLongMm.ToString(culture));
-            csv.WriteField(string.Empty);
+            csv.WriteField("PricingFormatEquivalence");
+            csv.WriteField("Format");
+            csv.WriteField(nameof(PricelistFormatEquivalence.FormatRow.CombinedLongMm));
+            csv.WriteField(nameof(PricelistFormatEquivalence.FormatRow.DivisorMm));
+            csv.WriteField(nameof(PricelistFormatEquivalence.FormatRow.RawSheets));
+            csv.WriteField(nameof(PricelistFormatEquivalence.FormatRow.BillingSheets));
             csv.NextRecord();
-            csv.WriteField("PricingA0Equivalence");
-            csv.WriteField(nameof(bill.DivisorMm));
-            csv.WriteField(bill.DivisorMm.ToString(culture));
-            csv.WriteField(string.Empty);
-            csv.NextRecord();
-            csv.WriteField("PricingA0Equivalence");
-            csv.WriteField(nameof(bill.RawSheetEquivalents));
-            csv.WriteField(bill.RawSheetEquivalents.ToString(culture));
-            csv.WriteField(string.Empty);
-            csv.NextRecord();
-            csv.WriteField("PricingA0Equivalence");
-            csv.WriteField(nameof(bill.BillingSheetCount));
-            csv.WriteField(bill.BillingSheetCount.ToString(culture));
-            csv.WriteField(string.Empty);
-            csv.NextRecord();
-            csv.WriteField("PricingA0Equivalence");
-            csv.WriteField(nameof(bill.RoundingModeKey));
-            csv.WriteField(bill.RoundingModeKey);
-            csv.WriteField(string.Empty);
-            csv.NextRecord();
+            foreach (var r in pe.PerFormatRows)
+            {
+                csv.WriteField("PricingFormatEquivalence");
+                csv.WriteField(r.FormatLabel);
+                csv.WriteField(r.CombinedLongMm.ToString(culture));
+                csv.WriteField(r.DivisorMm.ToString(culture));
+                csv.WriteField(r.RawSheets.ToString(culture));
+                csv.WriteField(r.BillingSheets.ToString(culture));
+                csv.NextRecord();
+            }
         }
 
         csv.NextRecord();

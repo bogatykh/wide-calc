@@ -24,23 +24,8 @@ jobs:
       - name: Restore
         run: dotnet restore PrintMeter.sln --nologo
 
-      # WinUI XamlCompiler often exits 1 without printing the real error on stdout/stderr — use detailed
-      # MSBuild verbosity + binaryLogger; on failure attach obj/**/* (includes XAML compiler temp files).
       - name: Build
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force artifacts | Out-Null
-          dotnet build PrintMeter.sln -c Release --no-restore -v:d -bl:artifacts/ci.binlog
+        run: dotnet build PrintMeter.sln -c Release --no-restore
 
       - name: Test
         run: dotnet test PrintMeter.sln -c Release --no-build --collect:"XPlat Code Coverage"
-
-      - name: Upload Windows build diagnostics on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-build-diagnostics-${{ github.run_attempt }}-${{ github.run_id }}
-          if-no-files-found: warn
-          path: |
-            artifacts/ci.binlog
-            src/PrintMeter.App/obj/**/*

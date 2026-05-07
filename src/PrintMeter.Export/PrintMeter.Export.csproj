@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>PrintMeter.Export</RootNamespace>
     <AssemblyName>PrintMeter.Export</AssemblyName>
   </PropertyGroup>

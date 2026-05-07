@@ -36,6 +36,25 @@ public sealed class XlsxBatchReportExporter : IReportExporter
         summarySheet.Cell(row + 1, 2).Value = Round(report.TotalLengthMeters);
         summarySheet.Cell(row + 1, 2).Style.NumberFormat.Format = "0.000";
 
+        if (options.BillingA0 is { } bill)
+        {
+            row += 3;
+            summarySheet.Cell(row, 1).Value = "PricingA0Equivalence";
+            summarySheet.Cell(row + 1, 1).Value = "IncludedFormats";
+            summarySheet.Cell(row + 1, 2).Value = bill.IncludedFormats;
+            summarySheet.Cell(row + 2, 1).Value = "CombinedLongMm";
+            summarySheet.Cell(row + 2, 2).Value = bill.CombinedLongMm;
+            summarySheet.Cell(row + 2, 2).Style.NumberFormat.Format = "0.0";
+            summarySheet.Cell(row + 3, 1).Value = "DivisorMm";
+            summarySheet.Cell(row + 3, 2).Value = bill.DivisorMm;
+            summarySheet.Cell(row + 4, 1).Value = "RawSheetEquivalents";
+            summarySheet.Cell(row + 4, 2).Value = bill.RawSheetEquivalents;
+            summarySheet.Cell(row + 5, 1).Value = "BillingSheetCount";
+            summarySheet.Cell(row + 5, 2).Value = bill.BillingSheetCount;
+            summarySheet.Cell(row + 6, 1).Value = "RoundingModeKey";
+            summarySheet.Cell(row + 6, 2).Value = bill.RoundingModeKey;
+        }
+
         var detailSheet = workbook.AddWorksheet("Files");
         detailSheet.Cell(1, 1).Value = "FilePath";
         detailSheet.Cell(1, 2).Value = "Pages";

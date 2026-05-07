@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
@@ -113,6 +114,10 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _formatStatA0Plus = "—";
 
+    /// <summary>Условные «страницы» A0 по прайсу: сумма мм длинных сторон включённых форматов ÷ делитель.</summary>
+    [ObservableProperty]
+    private string _billingA0PricelistLine = "—";
+
     private BatchReport? _lastReport;
 
     [RelayCommand]
@@ -195,8 +200,8 @@ public sealed partial class MainViewModel : ObservableObject
     {
         if (_selectedFiles.Count == 0)
         {
-            ResetOutputsBeforeRun();
             _lastReport = null;
+            ResetOutputsBeforeRun();
             UpdateFormatStatLines();
             ExportCsvCommand.NotifyCanExecuteChanged();
             ExportXlsxCommand.NotifyCanExecuteChanged();
@@ -206,6 +211,7 @@ public sealed partial class MainViewModel : ObservableObject
         _cts = new CancellationTokenSource();
         IsBusy = true;
         ProgressValue = 0;
+        _lastReport = null;
         ResetOutputsBeforeRun();
         ExportCsvCommand.NotifyCanExecuteChanged();
         ExportXlsxCommand.NotifyCanExecuteChanged();
@@ -386,17 +392,74 @@ public sealed partial class MainViewModel : ObservableObject
         {
             TotalLengthMeters = 0;
             SummaryByFormat = string.Empty;
-            ResetFormatStatLines();
         }
         else
         {
             TotalLengthMeters = RoundMeters(_lastReport.TotalLengthMeters);
             SummaryByFormat = BuildBatchSummary(_lastReport);
-            UpdateFormatStatLines();
         }
+
+        UpdateFormatStatLines();
 
         ProgressValue = 0;
         ClearAllCommand.NotifyCanExecuteChanged();
+    }
+
+    private ReportExportOptions BuildExportOptions()
+    {
+        return new ReportExportOptions(Utf8BomForCsv, ';', TryCreateBillingExportSnapshot());
+    }
+
+    private A0BillingExportSnapshot? TryCreateBillingExportSnapshot()
+    {
+        if (_lastReport is null)
+        {
+            return null;
+        }
+
+        var opt = _options.Value;
+        var rounding = A0EquivalenceBilling.ParseRounding(opt.A0EquivalenceRounding);
+        var (combinedMm, raw, sheets) = A0EquivalenceBilling.Compute(
+            _lastReport.SummaryByFormat,
+            opt.A0EquivalenceIncludedFormats,
+            opt.A0EquivalenceDivisorMm,
+            rounding);
+        var joined = string.Join('+', opt.A0EquivalenceIncludedFormats);
+        return new A0BillingExportSnapshot(
+            combinedMm,
+            opt.A0EquivalenceDivisorMm,
+            raw,
+            sheets,
+            joined,
+            rounding.ToString());
+    }
+
+    private void RefreshBillingA0PricelistLine()
+    {
+        if (_lastReport is null)
+        {
+            BillingA0PricelistLine = "—";
+            return;
+        }
+
+        var opt = _options.Value;
+        var rounding = A0EquivalenceBilling.ParseRounding(opt.A0EquivalenceRounding);
+        var (combinedMm, raw, sheets) = A0EquivalenceBilling.Compute(
+            _lastReport.SummaryByFormat,
+            opt.A0EquivalenceIncludedFormats,
+            opt.A0EquivalenceDivisorMm,
+            rounding);
+        var inv = CultureInfo.InvariantCulture;
+        var joined = string.Join(" + ", opt.A0EquivalenceIncludedFormats);
+        var roundRu = rounding switch
+        {
+            A0EquivalenceBilling.RoundingMode.Ceiling => "округление вверх",
+            A0EquivalenceBilling.RoundingMode.NearestAwayFromZero => "к ближайшему целому",
+            _ => rounding.ToString(),
+        };
+        BillingA0PricelistLine =
+            $"Условных «страниц» для прайса A0 ({joined}, сумма мм длинных сторон ÷ {opt.A0EquivalenceDivisorMm.ToString("0.#", inv)} мм, {roundRu})" +
+            $": {sheets.ToString(inv)} (до округления {raw.ToString("0.###", inv)}; {combinedMm.ToString("0.#", inv)} мм).";
     }
 
     private bool CanAnalyze() => !IsBusy && _selectedFiles.Count > 0;
@@ -421,7 +484,7 @@ public sealed partial class MainViewModel : ObservableObject
                 .WriteCsvAsync(
                     _lastReport,
                     path,
-                    new ReportExportOptions(UseUtf8Bom: Utf8BomForCsv, CsvDelimiter: ';'),
+                    BuildExportOptions(),
                     CancellationToken.None)
                 .ConfigureAwait(true);
             StatusText = $"Экспорт CSV: {path}";
@@ -450,7 +513,7 @@ public sealed partial class MainViewModel : ObservableObject
         try
         {
             await _reportWriter
-                .WriteXlsxAsync(_lastReport, path, CancellationToken.None)
+                .WriteXlsxAsync(_lastReport, path, BuildExportOptions(), CancellationToken.None)
                 .ConfigureAwait(true);
             StatusText = $"Экспорт XLSX: {path}";
         }
@@ -661,14 +724,14 @@ public sealed partial class MainViewModel : ObservableObject
         {
             TotalLengthMeters = 0;
             SummaryByFormat = string.Empty;
-            ResetFormatStatLines();
         }
         else
         {
             TotalLengthMeters = RoundMeters(_lastReport.TotalLengthMeters);
             SummaryByFormat = BuildBatchSummary(_lastReport);
-            UpdateFormatStatLines();
         }
+
+        UpdateFormatStatLines();
 
         ExportCsvCommand.NotifyCanExecuteChanged();
         ExportXlsxCommand.NotifyCanExecuteChanged();
@@ -728,8 +791,8 @@ public sealed partial class MainViewModel : ObservableObject
 
     private void ResetOutputsAfterSelectionChange()
     {
-        ResetOutputsBeforeRun();
         _lastReport = null;
+        ResetOutputsBeforeRun();
         UpdateFormatStatLines();
         ExportCsvCommand.NotifyCanExecuteChanged();
         ExportXlsxCommand.NotifyCanExecuteChanged();
@@ -743,6 +806,7 @@ public sealed partial class MainViewModel : ObservableObject
         SummaryByFormat = string.Empty;
         ProgressValue = 0;
         ResetFormatStatLines();
+        RefreshBillingA0PricelistLine();
         ClearAllCommand.NotifyCanExecuteChanged();
     }
 
@@ -766,6 +830,7 @@ public sealed partial class MainViewModel : ObservableObject
         FormatStatA1Plus = FormatStatForLabel("A1+");
         FormatStatA0 = FormatStatForLabel("A0");
         FormatStatA0Plus = FormatStatForLabel("A0+");
+        RefreshBillingA0PricelistLine();
     }
 
     private string FormatStatForLabel(string label)

@@ -30,4 +30,5 @@
 
 - Размер страницы берётся из `PdfPig` (`Page.Width` / `Page.Height`, соответствуют выбранному приложением CropBox/MediaBox).
 - «Длина печати» в MVP = \(\max(W_{mm}, H_{mm}) / 1000\) на страницу (см. `MeasurementDefaults.PageLengthMeters`).
+- **Прайсовые «условные листы A0»**: суммируются метры по длинной стороне для выбранных ISO-меток (по умолчанию A0 и A0+ из сводки), переводится в суммарные мм, затем делится на знаменатель из настроек (по умолчанию \(1189\) мм — ISO A0) и округляется (`Ceiling` или `Nearest`). Это **отдельно** от фактического числа страниц PDF; параметры — `appsettings`: `PrintMeter:A0Equivalence*`.
 - Допуск форматов и округление настраиваются в `src/PrintMeter.Core/MeasurementDefaults.cs` и `appsettings.json` (`PrintMeter:FormatToleranceMm`).

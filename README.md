@@ -81,6 +81,9 @@ Windows UI + publish are verified in GitHub Actions (`windows-latest`).
 
 - `PrintMeter:MaxDegreeOfParallelism` — parallel PDF reads (default `4`)
 - `PrintMeter:FormatToleranceMm` — ISO match tolerance in mm (default `2`)
+- `PrintMeter:A0EquivalenceDivisorMm` — denominator for billing “A0 equivalents” from summed long-edge mm for selected formats (default `1189`, ISO A0 long side)
+- `PrintMeter:A0EquivalenceIncludedFormats` — formats whose `LengthMeters` contributions are summed for that equivalency block (default `A0`, `A0+`)
+- `PrintMeter:A0EquivalenceRounding` — `Ceiling` or `Nearest` (maps to midpoint away-from-zero)
 
 Logs: `%LocalAppData%/PrintMeter/logs/`.
 

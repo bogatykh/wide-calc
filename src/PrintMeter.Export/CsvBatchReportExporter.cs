@@ -54,6 +54,41 @@ public sealed class CsvBatchReportExporter : IReportExporter
             csv.NextRecord();
         }
 
+        if (options.BillingA0 is { } bill)
+        {
+            csv.NextRecord();
+            csv.WriteField("PricingA0Equivalence");
+            csv.WriteField("IncludedFormats");
+            csv.WriteField(bill.IncludedFormats);
+            csv.WriteField(string.Empty);
+            csv.NextRecord();
+            csv.WriteField("PricingA0Equivalence");
+            csv.WriteField(nameof(bill.CombinedLongMm));
+            csv.WriteField(bill.CombinedLongMm.ToString(culture));
+            csv.WriteField(string.Empty);
+            csv.NextRecord();
+            csv.WriteField("PricingA0Equivalence");
+            csv.WriteField(nameof(bill.DivisorMm));
+            csv.WriteField(bill.DivisorMm.ToString(culture));
+            csv.WriteField(string.Empty);
+            csv.NextRecord();
+            csv.WriteField("PricingA0Equivalence");
+            csv.WriteField(nameof(bill.RawSheetEquivalents));
+            csv.WriteField(bill.RawSheetEquivalents.ToString(culture));
+            csv.WriteField(string.Empty);
+            csv.NextRecord();
+            csv.WriteField("PricingA0Equivalence");
+            csv.WriteField(nameof(bill.BillingSheetCount));
+            csv.WriteField(bill.BillingSheetCount.ToString(culture));
+            csv.WriteField(string.Empty);
+            csv.NextRecord();
+            csv.WriteField("PricingA0Equivalence");
+            csv.WriteField(nameof(bill.RoundingModeKey));
+            csv.WriteField(bill.RoundingModeKey);
+            csv.WriteField(string.Empty);
+            csv.NextRecord();
+        }
+
         csv.NextRecord();
         csv.WriteField("Files");
         csv.WriteField("FilePath");

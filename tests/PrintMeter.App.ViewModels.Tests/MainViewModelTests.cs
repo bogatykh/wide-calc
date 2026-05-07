@@ -33,7 +33,11 @@ public sealed class MainViewModelTests
             return Task.CompletedTask;
         }
 
-        public Task WriteXlsxAsync(BatchReport report, string destinationPath, CancellationToken cancellationToken)
+        public Task WriteXlsxAsync(
+            BatchReport report,
+            string destinationPath,
+            ReportExportOptions options,
+            CancellationToken cancellationToken)
         {
             XlsxCalls++;
             LastXlsxPath = destinationPath;

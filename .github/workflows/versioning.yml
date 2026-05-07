@@ -52,7 +52,7 @@ jobs:
   publish-release-assets:
     needs: release-please
     if: needs.release-please.outputs.releases_created == 'true' || github.event.inputs.release_tag != ''
-    runs-on: windows-latest
+    runs-on: windows-2022
     permissions:
       contents: write
     steps:

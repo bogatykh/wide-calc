@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - "v*"
+  release:
+    types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -39,8 +42,13 @@ jobs:
         id: version
         shell: pwsh
         run: |
-          $v = "${{ github.ref_name }}".TrimStart('v')
+          $tag = "${{ github.ref_name }}"
+          if ([string]::IsNullOrWhiteSpace($tag)) {
+            $tag = "${{ github.event.release.tag_name }}"
+          }
+          $v = $tag.TrimStart('v')
           "value=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: Build Installer
         shell: pwsh
@@ -54,21 +62,13 @@ jobs:
           Compress-Archive -Path ./artifacts/publish/* -DestinationPath ./artifacts/PrintMeter-win-x64.zip
 
       - name: Attach artifacts to GitHub Release
-        shell: bash
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          files: |
+            artifacts/PrintMeter-win-x64.zip
+            artifacts/installer/PrintMeter-Setup-x64.exe
+          append_body: true
+          generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          TAG="${GITHUB_REF_NAME}"
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" \
-              artifacts/PrintMeter-win-x64.zip \
-              artifacts/installer/PrintMeter-Setup-x64.exe \
-              --clobber
-          else
-            gh release create "$TAG" \
-              artifacts/PrintMeter-win-x64.zip \
-              artifacts/installer/PrintMeter-Setup-x64.exe \
-              --title "$TAG" \
-              --notes "Automated release artifacts for $TAG."
-          fi

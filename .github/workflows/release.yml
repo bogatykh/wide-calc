@@ -28,10 +28,10 @@ jobs:
             PrintMeter.sln
 
       - name: Restore
-        run: dotnet restore PrintMeter.sln --nologo
+        run: dotnet restore PrintMeter.sln -r win-x64 --nologo
 
       - name: Build
-        run: dotnet build PrintMeter.sln -c Release --no-restore --nologo
+        run: dotnet build PrintMeter.sln -c Release -r win-x64 --no-restore --nologo
 
       - name: Publish
         run: >

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.2](https://github.com/bogatykh/wide-calc/compare/v0.2.1...v0.2.2) (2026-05-07)
+
+
+### Bug Fixes
+
+* publish release assets directly in versioning pipeline ([5586719](https://github.com/bogatykh/wide-calc/commit/5586719047105abe4370557f43ace245eb3c88f7))
+* publish release assets directly in versioning pipeline ([f432986](https://github.com/bogatykh/wide-calc/commit/f432986973597b103110d23d726ebaac7bd1082d))
+
 ## [0.2.1](https://github.com/bogatykh/wide-calc/compare/v0.2.0...v0.2.1) (2026-05-07)
 
 

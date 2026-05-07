@@ -19,6 +19,8 @@ dotnet build PrintMeter.sln -c Release
 dotnet test PrintMeter.sln -c Release --no-build
 ```
 
+This is what PR CI runs (fast quality gate only).
+
 ## Publish single-file self-contained `win-x64`
 
 ```bash
@@ -103,6 +105,10 @@ How it works:
 4. Workflow `.github/workflows/release.yml` builds and attaches:
    - `PrintMeter-Setup-x64.exe`
    - `PrintMeter-win-x64.zip`
+
+Release-only workflow responsibilities:
+
+- `release.yml` performs restore/build/publish, builds the Inno Setup installer, and uploads release assets.
 
 ## Commit message policy
 

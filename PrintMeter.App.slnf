@@ -5,6 +5,7 @@
       "src/PrintMeter.Core/PrintMeter.Core.csproj",
       "src/PrintMeter.Pdf/PrintMeter.Pdf.csproj",
       "src/PrintMeter.App.ViewModels/PrintMeter.App.ViewModels.csproj",
+      "src/PrintMeter.App/PrintMeter.App.csproj",
       "tests/PrintMeter.Core.Tests/PrintMeter.Core.Tests.csproj",
       "tests/PrintMeter.App.ViewModels.Tests/PrintMeter.App.ViewModels.Tests.csproj"
     ]

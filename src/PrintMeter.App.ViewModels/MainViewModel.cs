@@ -12,7 +12,6 @@ public sealed partial class MainViewModel : ObservableObject
 {
     private readonly IFormatRegistry _formatRegistry;
     private readonly BatchPdfAnalyzer _batchPdfAnalyzer;
-    private readonly IBatchReportWriter _reportWriter;
     private readonly IFileDialogService _fileDialogs;
     private readonly IOptions<PrintMeterOptions> _options;
     private readonly ILogger<MainViewModel> _logger;
@@ -22,14 +21,12 @@ public sealed partial class MainViewModel : ObservableObject
     public MainViewModel(
         IFormatRegistry formatRegistry,
         BatchPdfAnalyzer batchPdfAnalyzer,
-        IBatchReportWriter reportWriter,
         IFileDialogService fileDialogs,
         IOptions<PrintMeterOptions> options,
         ILogger<MainViewModel> logger)
     {
         _formatRegistry = formatRegistry;
         _batchPdfAnalyzer = batchPdfAnalyzer;
-        _reportWriter = reportWriter;
         _fileDialogs = fileDialogs;
         _options = options;
         _logger = logger;
@@ -65,9 +62,6 @@ public sealed partial class MainViewModel : ObservableObject
     private bool _recursiveFolders = true;
 
     [ObservableProperty]
-    private bool _utf8BomForCsv = true;
-
-    [ObservableProperty]
     private bool _formatA4 = true;
     [ObservableProperty]
     private bool _formatA3 = true;
@@ -81,8 +75,6 @@ public sealed partial class MainViewModel : ObservableObject
     private bool _formatA0 = true;
     [ObservableProperty]
     private bool _formatA0Plus = true;
-
-    private BatchReport? _lastReport;
 
     [RelayCommand]
     private async Task PickFilesAsync()
@@ -129,9 +121,6 @@ public sealed partial class MainViewModel : ObservableObject
         Rows.Clear();
         TotalLengthMeters = 0;
         SummaryByFormat = string.Empty;
-        _lastReport = null;
-        ExportCsvCommand.NotifyCanExecuteChanged();
-        ExportXlsxCommand.NotifyCanExecuteChanged();
 
         try
         {
@@ -165,13 +154,11 @@ public sealed partial class MainViewModel : ObservableObject
                     });
             }
 
-            _lastReport = PageAnalysisService.Combine(fileReports);
-            TotalLengthMeters = RoundMeters(_lastReport.TotalLengthMeters);
-            SummaryByFormat = BuildBatchSummary(_lastReport);
+            var combined = PageAnalysisService.Combine(fileReports);
+            TotalLengthMeters = RoundMeters(combined.TotalLengthMeters);
+            SummaryByFormat = BuildBatchSummary(combined);
             StatusText = "Готово.";
             ProgressValue = 100;
-            ExportCsvCommand.NotifyCanExecuteChanged();
-            ExportXlsxCommand.NotifyCanExecuteChanged();
         }
         catch (OperationCanceledException)
         {
@@ -193,68 +180,6 @@ public sealed partial class MainViewModel : ObservableObject
 
     private bool CanAnalyze() => !IsBusy && _selectedFiles.Count > 0;
 
-    [RelayCommand(CanExecute = nameof(CanExport))]
-    private async Task ExportCsvAsync()
-    {
-        if (_lastReport is null)
-        {
-            return;
-        }
-
-        var path = await _fileDialogs.SaveFileAsync("CSV (*.csv)|*.csv", "report.csv").ConfigureAwait(true);
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return;
-        }
-
-        try
-        {
-            await _reportWriter
-                .WriteCsvAsync(
-                    _lastReport,
-                    path,
-                    new ReportExportOptions(UseUtf8Bom: Utf8BomForCsv, CsvDelimiter: ';'),
-                    CancellationToken.None)
-                .ConfigureAwait(true);
-            StatusText = $"Экспорт CSV: {path}";
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "CSV export failed");
-            StatusText = $"Ошибка экспорта CSV: {ex.Message}";
-        }
-    }
-
-    [RelayCommand(CanExecute = nameof(CanExport))]
-    private async Task ExportXlsxAsync()
-    {
-        if (_lastReport is null)
-        {
-            return;
-        }
-
-        var path = await _fileDialogs.SaveFileAsync("Excel (*.xlsx)|*.xlsx", "report.xlsx").ConfigureAwait(true);
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return;
-        }
-
-        try
-        {
-            await _reportWriter
-                .WriteXlsxAsync(_lastReport, path, CancellationToken.None)
-                .ConfigureAwait(true);
-            StatusText = $"Экспорт XLSX: {path}";
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "XLSX export failed");
-            StatusText = $"Ошибка экспорта XLSX: {ex.Message}";
-        }
-    }
-
-    private bool CanExport() => _lastReport is not null && !IsBusy;
-
     [RelayCommand(CanExecute = nameof(CanCancel))]
     private void Cancel()
     {
@@ -266,8 +191,6 @@ public sealed partial class MainViewModel : ObservableObject
     partial void OnIsBusyChanged(bool value)
     {
         AnalyzeCommand.NotifyCanExecuteChanged();
-        ExportCsvCommand.NotifyCanExecuteChanged();
-        ExportXlsxCommand.NotifyCanExecuteChanged();
         CancelCommand.NotifyCanExecuteChanged();
     }
 

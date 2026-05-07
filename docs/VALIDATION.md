@@ -12,8 +12,7 @@
 - перевод PDF points → мм (`PdfUnitsTests`)
 - распознавание ISO A-форматов с допуском ±2 мм (`Iso216FormatRegistryTests`, константа `MeasurementDefaults.FormatToleranceMm`)
 - расчёт длины и агрегацию по файлам/батчу (`PageAnalysisServiceTests`, `BatchPdfAnalyzerTests`)
-- экспорт CSV с UTF-8 BOM и разделителем `;` (`CsvBatchReportExporterTests`)
-- сценарий ViewModel «выбрать файлы → считать → экспорт» (`MainViewModelTests`)
+- сценарий ViewModel «выбрать файлы → считать» (`MainViewModelTests`)
 
 ## Ручная приёмка на Windows (типография)
 

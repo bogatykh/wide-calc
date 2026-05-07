@@ -6,12 +6,13 @@ Desktop utility for typography workflows: batch-read PDF page sizes, compute lin
 
 - `src/PrintMeter.Core` — domain models, tolerance/rounding defaults, batch analysis
 - `src/PrintMeter.Pdf` — `PdfPig` page dimension reader
-- `src/PrintMeter.Export` — CSV (`;`, UTF-8 BOM) + XLSX export (`ClosedXML`)
 - `src/PrintMeter.App.ViewModels` — MVVM layer (testable on macOS/Linux)
-- `src/PrintMeter.App` — WPF UI + hosting + Serilog (Windows only)
+- `src/PrintMeter.App` — хост приложения **.NET MAUI** (Windows: `net10.0-windows10.0.*`, macOS: `net10.0-maccatalyst`). Пространства имён UI: `PrintMeter.App`; WinUI-слой: `PrintMeter.App.WinUI`; ViewModels по-прежнему в **`PrintMeter.App.ViewModels`** (отдельная сборка под тесты без MAUI workloads). Перед сборкой приложения: `dotnet workload install maui` и `dotnet workload restore`. Фильтр для приложения + зависимостей и тестов: `PrintMeter.App.slnf`.
 - `tests/*` — xUnit + FluentAssertions
 
 ## Build & test (Windows)
+
+Репозиторий ориентирован на **.NET SDK 10.0.x** (как в GitHub Actions).
 
 ```bash
 dotnet restore PrintMeter.sln
@@ -24,7 +25,10 @@ This is what PR CI runs (fast quality gate only).
 ## Publish single-file self-contained `win-x64`
 
 ```bash
-dotnet publish src/PrintMeter.App/PrintMeter.App.csproj -c Release -r win-x64 --self-contained true ^
+dotnet publish src/PrintMeter.App/PrintMeter.App.csproj ^
+  -f net10.0-windows10.0.19041.0 ^
+  -c Release -r win-x64 --self-contained true ^
+  -p:WindowsPackageType=None ^
   -p:PublishSingleFile=true ^
   -p:IncludeNativeLibrariesForSelfExtract=true ^
   -p:EnableCompressionInSingleFile=true ^
@@ -65,7 +69,7 @@ PrintMeter-Setup-x64.exe /VERYSILENT /NORESTART /SP- /TASKS="desktopicon"
 
 ## Develop on macOS
 
-WPF (`PrintMeter.App`) does not build on macOS. Use the solution filter:
+Экзешник MAUI можно собирать на macOS только с установленным **MAUI workload** и SDK 10. Для домена и MVVM без workload используй фильтр (без `PrintMeter.App`):
 
 ```bash
 dotnet restore PrintMeter.Mac.slnf
@@ -73,7 +77,7 @@ dotnet build PrintMeter.Mac.slnf -c Release
 dotnet test PrintMeter.Mac.slnf -c Release --no-build
 ```
 
-Windows UI + publish are verified in GitHub Actions (`windows-latest`).
+Сборку UI и артефактов под Windows см. в CI (`windows-latest`).
 
 ## Configuration
 

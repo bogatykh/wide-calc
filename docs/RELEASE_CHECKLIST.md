@@ -11,7 +11,8 @@ Use this checklist before publishing a production release for the typography wor
 ## 2) Quality gates
 
 - [ ] CI is green on latest `main` (`commitlint`, `ci`, tests).
-- [ ] `dotnet test PrintMeter.Mac.slnf -c Release` passes locally (core/viewmodels/export).
+- [ ] `dotnet test PrintMeter.Mac.slnf -c Release` проходит локально на macOS (без `PrintMeter.App` — там нужен MAUI workload).
+- [ ] При необходимости сборки приложения: `dotnet workload restore` и `dotnet build PrintMeter.App.slnf -c Release`.
 - [ ] Windows build job produced `PrintMeter.exe` and installer artifact.
 
 ## 3) Windows smoke test (real workstation)
@@ -21,7 +22,7 @@ Use this checklist before publishing a production release for the typography wor
 - [ ] Optional desktop shortcut works (if selected).
 - [ ] App starts and opens file/folder dialogs correctly.
 - [ ] Analyze 5–10 real PDF files from production.
-- [ ] CSV and XLSX export open in Excel correctly.
+- [ ] Сводка и таблица совпадают с ожидаемыми длинами по форматам.
 
 ## 4) Accuracy validation
 

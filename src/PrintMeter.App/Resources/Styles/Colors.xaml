@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+  <Color x:Key="Accent">#1565C0</Color>
+  <Color x:Key="AccentDark">#0D47A1</Color>
+  <Color x:Key="Danger">#C62828</Color>
+  <Color x:Key="SurfacePage">#F4F7FB</Color>
+  <Color x:Key="SurfaceCard">#FFFFFF</Color>
+  <Color x:Key="SurfaceRow">#ECEEF3</Color>
+  <Color x:Key="SurfaceCode">#E8ECF3</Color>
+  <Color x:Key="DividerSoft">#D6DDE6</Color>
+  <Color x:Key="TextPrimary">#1A2733</Color>
+  <Color x:Key="TextMuted">#5C6F80</Color>
+</ResourceDictionary>

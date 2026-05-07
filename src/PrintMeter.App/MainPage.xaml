@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PrintMeter.App.MainPage"
+             BackgroundColor="{StaticResource SurfacePage}">
+
+  <Grid RowDefinitions="Auto, *, 160"
+        Padding="16"
+        ColumnSpacing="0"
+        RowSpacing="14">
+
+    <ScrollView Grid.Row="0" VerticalOptions="Start">
+      <VerticalStackLayout Spacing="14">
+        <Border Style="{StaticResource CardBorder}">
+          <VerticalStackLayout Spacing="10" Padding="14,12">
+            <Label Text="Файлы и анализ" Style="{StaticResource SectionTitle}" />
+            <FlexLayout Direction="Row" Wrap="Wrap" AlignItems="Center">
+              <Button Style="{StaticResource AccentButton}" Text="Выбрать PDF…" Command="{Binding PickFilesCommand}" Margin="0,0,8,8" />
+              <Button Style="{StaticResource AccentButton}" Text="Выбрать папку…" Command="{Binding PickFolderCommand}" Margin="0,0,8,8" />
+              <Button Style="{StaticResource AccentButton}" Text="Считать" Command="{Binding AnalyzeCommand}" Margin="0,0,8,8" />
+              <Button Style="{StaticResource OutlineButton}" Text="Отмена" Command="{Binding CancelCommand}" Margin="0,0,0,8" />
+            </FlexLayout>
+          </VerticalStackLayout>
+        </Border>
+
+        <Border Style="{StaticResource CardBorder}">
+          <VerticalStackLayout Spacing="12" Padding="14,12">
+            <Label Text="Опции и форматы" Style="{StaticResource SectionTitle}" />
+            <CheckBox Content="Рекурсивно искать PDF в папке" IsChecked="{Binding RecursiveFolders}" Color="{StaticResource Accent}" />
+            <Label Text="Доступные форматы:" Style="{StaticResource MutedLabel}" />
+            <FlexLayout Direction="Row" Wrap="Wrap" AlignItems="Center">
+              <CheckBox Content="A4" IsChecked="{Binding FormatA4}" Color="{StaticResource Accent}" Margin="0,0,12,8" />
+              <CheckBox Content="A3" IsChecked="{Binding FormatA3}" Color="{StaticResource Accent}" Margin="0,0,12,8" />
+              <CheckBox Content="A2" IsChecked="{Binding FormatA2}" Color="{StaticResource Accent}" Margin="0,0,12,8" />
+              <CheckBox Content="A1+" IsChecked="{Binding FormatA1Plus}" Color="{StaticResource Accent}" Margin="0,0,12,8" />
+              <CheckBox Content="A0+" IsChecked="{Binding FormatA0Plus}" Color="{StaticResource Accent}" Margin="0,0,12,8" />
+              <CheckBox Content="A1" IsChecked="{Binding FormatA1}" Color="{StaticResource Accent}" Margin="0,0,12,8" />
+              <CheckBox Content="A0" IsChecked="{Binding FormatA0}" Color="{StaticResource Accent}" Margin="0,0,12,8" />
+            </FlexLayout>
+          </VerticalStackLayout>
+        </Border>
+
+        <Border Style="{StaticResource CardBorder}">
+          <VerticalStackLayout Spacing="8" Padding="14,12">
+            <Label Text="{Binding StatusText}" Style="{StaticResource BodyLabel}" LineBreakMode="WordWrap" />
+            <Label FontAttributes="Bold" Text="{Binding TotalLengthMeters, StringFormat='Всего, м: {0:F3}'}" TextColor="{StaticResource TextPrimary}" />
+            <ProgressBar Progress="{Binding ProgressValue, Converter={StaticResource PercentToFraction}}"
+                         ProgressColor="{StaticResource Accent}"
+                         HeightRequest="8" />
+          </VerticalStackLayout>
+        </Border>
+      </VerticalStackLayout>
+    </ScrollView>
+
+    <Border Grid.Row="1" Style="{StaticResource CardBorder}">
+      <Grid RowDefinitions="Auto, *" Padding="10,10" RowSpacing="6">
+        <Grid Grid.Row="0" ColumnDefinitions="2*, Auto, Auto, 2*, *" Padding="0,4" ColumnSpacing="8">
+          <Label Grid.Column="0" Text="Файл" Style="{StaticResource TableHeader}" />
+          <Label Grid.Column="1" Text="Стр." Style="{StaticResource TableHeader}" />
+          <Label Grid.Column="2" Text="Длина, м" Style="{StaticResource TableHeader}" />
+          <Label Grid.Column="3" Text="По форматам" Style="{StaticResource TableHeader}" />
+          <Label Grid.Column="4" Text="Ошибка" Style="{StaticResource TableHeader}" />
+        </Grid>
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Rows}" SelectionMode="None">
+          <CollectionView.EmptyView>
+            <Label Padding="12" Style="{StaticResource MutedLabel}" Text="Строк появятся после «Считать»." HorizontalTextAlignment="Center" VerticalOptions="Center" />
+          </CollectionView.EmptyView>
+          <CollectionView.ItemTemplate>
+            <DataTemplate>
+              <Border StrokeThickness="0"
+                      Margin="0,2"
+                      Padding="10,8"
+                      BackgroundColor="{StaticResource SurfaceRow}">
+                <Grid ColumnDefinitions="2*, Auto, Auto, 2*, *" ColumnSpacing="8">
+                  <Label Grid.Column="0" Text="{Binding FilePath}" MaxLines="2" LineBreakMode="MiddleTruncation" TextColor="{StaticResource TextPrimary}" />
+                  <Label Grid.Column="1" Text="{Binding PageCount}" TextColor="{StaticResource TextPrimary}" />
+                  <Label Grid.Column="2" Text="{Binding TotalLengthMeters, StringFormat='{0:F3}'}" TextColor="{StaticResource TextPrimary}" />
+                  <Label Grid.Column="3" Text="{Binding FormatsSummary}" MaxLines="2" LineBreakMode="TailTruncation" TextColor="{StaticResource TextPrimary}" />
+                  <Label Grid.Column="4" Text="{Binding Error}" TextColor="{StaticResource Danger}" MaxLines="2" LineBreakMode="TailTruncation" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </CollectionView.ItemTemplate>
+        </CollectionView>
+      </Grid>
+    </Border>
+
+    <Border Grid.Row="2" Style="{StaticResource CardBorder}">
+      <VerticalStackLayout Spacing="8" Padding="14,12">
+        <Label Text="Сводка по форматам" Style="{StaticResource SectionTitle}" />
+        <Editor Text="{Binding SummaryByFormat}"
+                IsReadOnly="True"
+                AutoSize="TextChanges"
+                MinimumHeightRequest="72"
+                FontFamily="Menlo,Courier New,monospace"
+                TextColor="{StaticResource TextPrimary}"
+                BackgroundColor="{StaticResource SurfaceCode}" />
+      </VerticalStackLayout>
+    </Border>
+  </Grid>
+</ContentPage>

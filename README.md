@@ -105,6 +105,7 @@ How it works:
 4. Workflow `.github/workflows/versioning.yml` (job `publish-release-assets`) builds artifacts and creates GitHub Release with:
    - `PrintMeter-Setup-x64.exe`
    - `PrintMeter-win-x64.zip`
+5. If assets are missing for an existing release (immutable releases), run `versioning` manually with `release_tag` (for example `v0.2.3`) to backfill assets.
 
 Manual release workflow responsibilities:
 

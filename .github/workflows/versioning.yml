@@ -95,12 +95,12 @@ jobs:
         id: version
         shell: pwsh
         run: |
-          $tag = "${{ needs.release-please.outputs.tag_name }}"
+          $tag = "${{ github.event.inputs.release_tag }}"
+          git fetch --tags --force
           if ([string]::IsNullOrWhiteSpace($tag)) {
-            $tag = "${{ github.event.inputs.release_tag }}"
+            $tag = git tag --points-at HEAD | Sort-Object | Select-Object -Last 1
           }
           if ([string]::IsNullOrWhiteSpace($tag)) {
-            git fetch --tags --force
             $tag = git tag --sort=-creatordate | Select-Object -First 1
           }
           $v = $tag.TrimStart('v')

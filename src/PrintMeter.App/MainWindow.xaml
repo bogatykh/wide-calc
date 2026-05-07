@@ -14,8 +14,7 @@
     <Grid
         MaxWidth="1320"
         Padding="28,20,28,24"
-        HorizontalAlignment="Stretch"
-        RowSpacing="20">
+        HorizontalAlignment="Stretch">
 
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto" />
@@ -24,11 +23,13 @@
       </Grid.RowDefinitions>
 
       <!-- Шапка страницы -->
-      <StackPanel Grid.Row="0" Spacing="10">
+      <StackPanel Grid.Row="0">
         <TextBlock
+            Margin="0,0,0,10"
             Text="PrintMeter"
             Style="{ThemeResource TitleTextBlockStyle}" />
         <TextBlock
+            Margin="0,0,0,10"
             Style="{StaticResource PageTagline}"
             Text="Оценка суммарной длины оттиска по листам PDF с классификацией по форматам ISO. Выберите файлы или папку — результат появится в таблице." />
         <Border
@@ -40,9 +41,7 @@
       </StackPanel>
 
       <!-- Основная зона: панель управления | таблица -->
-      <Grid
-          Grid.Row="1"
-          ColumnSpacing="20">
+      <Grid Grid.Row="1" Margin="0,20,0,0">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="380" MinWidth="320" />
           <ColumnDefinition Width="*" />
@@ -51,27 +50,30 @@
         <!-- Левая колонка -->
         <ScrollViewer
             Grid.Column="0"
+            Margin="0,0,10,0"
             VerticalScrollBarVisibility="Auto"
             HorizontalScrollBarVisibility="Disabled">
-          <StackPanel Spacing="16">
+          <StackPanel>
             <!-- Действия -->
             <Border Style="{StaticResource SectionCardBorder}">
-              <StackPanel Spacing="14">
+              <StackPanel>
                 <TextBlock Style="{StaticResource SectionTitleText}" Text="Действия" />
                 <TextBlock
+                    Margin="0,0,0,12"
                     Style="{StaticResource MutedText}"
                     Text="Источник данных и запуск расчёта. Экспорт CSV и Excel доступен после анализа."
                     TextWrapping="WrapWholeWords" />
 
                 <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Выбор" />
-                <StackPanel Spacing="8">
+                <StackPanel Margin="0,6,0,0">
                   <Button
                       AutomationProperties.AutomationId="PickPdfFilesButton"
                       AutomationProperties.Name="Выбрать PDF файлы"
                       Command="{Binding PickFilesCommand}"
                       Style="{StaticResource ToolbarPrimaryButton}">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
+                    <StackPanel Orientation="Horizontal">
                       <FontIcon
+                          Margin="0,0,10,0"
                           FontFamily="Segoe MDL2 Assets"
                           FontSize="16"
                           Glyph="&#xE8E5;" />
@@ -79,12 +81,14 @@
                     </StackPanel>
                   </Button>
                   <Button
+                      Margin="0,8,0,0"
                       AutomationProperties.AutomationId="PickFolderButton"
                       AutomationProperties.Name="Выбрать папку"
                       Command="{Binding PickFolderCommand}"
                       Style="{StaticResource ToolbarPrimaryButton}">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
+                    <StackPanel Orientation="Horizontal">
                       <FontIcon
+                          Margin="0,0,10,0"
                           FontFamily="Segoe MDL2 Assets"
                           FontSize="16"
                           Glyph="&#xE8B7;" />
@@ -95,19 +99,20 @@
 
                 <Border
                     Height="1"
-                    Margin="0,4,0,10"
+                    Margin="0,10,0,10"
                     Background="{ThemeResource ControlStrokeColorDefaultBrush}"
                     Opacity="0.65" />
 
                 <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Расчёт" />
-                <StackPanel Orientation="Horizontal" Spacing="8">
+                <StackPanel Margin="0,6,0,0" Orientation="Horizontal">
                   <Button
                       AutomationProperties.AutomationId="AnalyzeButton"
                       AutomationProperties.Name="Считать"
                       Command="{Binding AnalyzeCommand}"
                       Style="{StaticResource ToolbarPrimaryButton}">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
+                    <StackPanel Orientation="Horizontal">
                       <FontIcon
+                          Margin="0,0,10,0"
                           FontFamily="Segoe MDL2 Assets"
                           FontSize="16"
                           Glyph="&#xE768;" />
@@ -115,12 +120,14 @@
                     </StackPanel>
                   </Button>
                   <Button
+                      Margin="8,0,0,0"
                       AutomationProperties.AutomationId="CancelButton"
                       AutomationProperties.Name="Отмена действия"
                       Command="{Binding CancelCommand}"
                       Style="{StaticResource ToolbarSecondaryButton}">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
+                    <StackPanel Orientation="Horizontal">
                       <FontIcon
+                          Margin="0,0,10,0"
                           FontFamily="Segoe MDL2 Assets"
                           FontSize="16"
                           Glyph="&#xE711;" />
@@ -131,19 +138,20 @@
 
                 <Border
                     Height="1"
-                    Margin="0,4,0,10"
+                    Margin="0,10,0,10"
                     Background="{ThemeResource ControlStrokeColorDefaultBrush}"
                     Opacity="0.65" />
 
                 <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Экспорт" />
-                <StackPanel Orientation="Horizontal" Spacing="8">
+                <StackPanel Margin="0,6,0,0" Orientation="Horizontal">
                   <Button
                       AutomationProperties.AutomationId="ExportCsvButton"
                       AutomationProperties.Name="Экспорт в CSV"
                       Command="{Binding ExportCsvCommand}"
                       Style="{StaticResource ToolbarSecondaryButton}">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
+                    <StackPanel Orientation="Horizontal">
                       <FontIcon
+                          Margin="0,0,10,0"
                           FontFamily="Segoe MDL2 Assets"
                           FontSize="16"
                           Glyph="&#xE8A5;" />
@@ -151,12 +159,14 @@
                     </StackPanel>
                   </Button>
                   <Button
+                      Margin="8,0,0,0"
                       AutomationProperties.AutomationId="ExportXlsxButton"
                       AutomationProperties.Name="Экспорт в Excel"
                       Command="{Binding ExportXlsxCommand}"
                       Style="{StaticResource ToolbarSecondaryButton}">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
+                    <StackPanel Orientation="Horizontal">
                       <FontIcon
+                          Margin="0,0,10,0"
                           FontFamily="Segoe MDL2 Assets"
                           FontSize="16"
                           Glyph="&#xE9D9;" />
@@ -168,22 +178,28 @@
             </Border>
 
             <!-- Параметры -->
-            <Border Style="{StaticResource SectionCardBorder}">
-              <StackPanel Spacing="14">
+            <Border Margin="0,16,0,0" Style="{StaticResource SectionCardBorder}">
+              <StackPanel>
                 <TextBlock Style="{StaticResource SectionTitleText}" Text="Параметры" />
                 <ToggleSwitch
+                    Margin="0,0,0,8"
                     Header="Искать PDF рекурсивно во вложенных папках"
-                    IsOn="{Binding RecursiveFolders, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    IsOn="{Binding RecursiveFolders, Mode=TwoWay}"
                     OffContent="Выкл"
                     OnContent="Вкл" />
                 <ToggleSwitch
                     Header="UTF-8 BOM для CSV (Excel на Windows)"
-                    IsOn="{Binding Utf8BomForCsv, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    IsOn="{Binding Utf8BomForCsv, Mode=TwoWay}"
                     OffContent="Выкл"
                     OnContent="Вкл" />
 
-                <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Допуск по формату" />
                 <TextBlock
+                    Margin="0,12,0,0"
+                    Style="{ThemeResource CaptionTextBlockStyle}"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Text="Допуск по формату" />
+                <TextBlock
+                    Margin="0,6,0,10"
                     Style="{StaticResource MutedText}"
                     FontSize="12"
                     Text="Включите форматы листов, которые нужно учитывать при сопоставлении размеров страниц."
@@ -220,11 +236,12 @@
               </StackPanel>
             </Border>
 
-            <!-- Статус компактно -->
-            <Border Style="{StaticResource SectionCardBorder}">
-              <StackPanel Spacing="10">
+            <!-- Статус -->
+            <Border Margin="0,16,0,0" Style="{StaticResource SectionCardBorder}">
+              <StackPanel>
                 <TextBlock Style="{StaticResource SectionTitleText}" Text="Прогресс" />
                 <ProgressBar
+                    Margin="0,0,0,8"
                     Maximum="100"
                     Minimum="0"
                     Style="{StaticResource HeroProgress}"
@@ -239,8 +256,11 @@
         </ScrollViewer>
 
         <!-- Правая колонка: таблица -->
-        <Border Grid.Column="1" Style="{StaticResource ResultsCardBorder}">
-          <Grid RowSpacing="0">
+        <Border
+            Grid.Column="1"
+            Margin="10,0,0,0"
+            Style="{StaticResource ResultsCardBorder}">
+          <Grid>
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto" />
               <RowDefinition Height="*" />
@@ -297,21 +317,25 @@
       </Grid>
 
       <!-- Низ: KPI + сводка -->
-      <Border Grid.Row="2" Style="{StaticResource SectionCardBorder}">
-        <Grid ColumnSpacing="24" RowSpacing="12">
+      <Border
+          Grid.Row="2"
+          Margin="0,20,0,0"
+          Style="{StaticResource SectionCardBorder}">
+        <Grid>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" />
             <ColumnDefinition Width="*" MinWidth="280" />
           </Grid.ColumnDefinitions>
 
-          <StackPanel Spacing="4">
+          <StackPanel Grid.Column="0">
             <TextBlock Style="{StaticResource KpiLabel}" Text="Всего (метры)" />
             <TextBlock Style="{StaticResource KpiValue}" Text="{Binding TotalLengthMeters, Mode=OneWay}" />
           </StackPanel>
 
-          <StackPanel Grid.Column="1" Spacing="8">
+          <StackPanel Grid.Column="1" Margin="24,0,0,0">
             <TextBlock Style="{StaticResource SectionTitleText}" Text="Сводка по форматам" />
             <TextBox
+                Margin="0,4,0,0"
                 Style="{StaticResource SummaryTextBox}"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 ScrollViewer.VerticalScrollBarVisibility="Auto"

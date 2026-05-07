@@ -96,15 +96,16 @@ Versioning is automated with **Release Please**:
 - workflow: `.github/workflows/versioning.yml`
 - config: `release-please-config.json`
 - manifest state: `.release-please-manifest.json`
-- optional PAT secret: `RELEASE_PLEASE_TOKEN` (only if `GITHUB_TOKEN` is too limited for your org)
-- if Release Please fails with **Resource not accessible by integration** on **create release**: (1) **Settings → Actions → General → Workflow permissions** — enable **Read and write** for the repository (org policy must not force read-only only). (2) If you use `RELEASE_PLEASE_TOKEN`, use a **classic PAT** with `repo` scope, or a **fine-grained PAT** on this repo with **Contents** and **Pull requests** (and **Issues** if you use release notes comments) Read/Write, plus **Actions** Read-only ([release-please-action#1048](https://github.com/googleapis/release-please-action/issues/1048)); delete or rotate the secret if it was created with too few scopes. (3) Until the PAT is fixed, **remove** the `RELEASE_PLEASE_TOKEN` repository secret so the workflow falls back to `github.token`.
+- **Token:** `versioning.yml` uses the default **GITHUB_TOKEN** from `release-please-action@v4` (no `token:` override). Add `token: ${{ secrets.RELEASE_PLEASE_TOKEN }}` to that step **only** if your org forbids releases/PRs from `GITHUB_TOKEN`; use a **classic PAT** with `repo` scope (fine‑grained PATs often need **Contents** + **Pull requests** + **Issues** R/W and **Actions** read-only — see [release-please-action#1048](https://github.com/googleapis/release-please-action/issues/1048)). A bad `RELEASE_PLEASE_TOKEN` repo secret commonly causes **Resource not accessible by integration** — **delete** that secret and rely on GITHUB_TOKEN, or recreate the PAT / authorize SSO for the org account.
+- **Stuck merged release PR** (`autorelease: pending` blocking new bumps): run workflow **release-please-unstick** (dispatch) with the merged PR number, or edit labels on that PR manually.
+- If **create release** still fails with integration/403 even with **no** PAT secret: set **Settings → Actions → General → Workflow permissions** to **Read and write** for the repository (ensure the org policy is not capped at read‑only).
 
 How it works:
 
 1. Push commits to `main` using Conventional Commit style (`feat:`, `fix:`, `chore:`).
 2. Release Please opens/updates a release PR with next SemVer bump and changelog.
-3. When that PR is merged, Release Please creates git tag `vX.Y.Z` (without creating GitHub Release directly).
-4. Workflow `.github/workflows/versioning.yml` (job `publish-release-assets`) builds artifacts and creates GitHub Release with:
+3. When that PR is merged, the next run of Release Please on `main` creates the **GitHub Release** and **git tag** `vX.Y.Z`.
+4. Job **`publish-release-assets`** builds the installer/zip and **uploads assets** onto that existing release (`softprops/action-gh-release`).
    - `PrintMeter-Setup-x64.exe`
    - `PrintMeter-win-x64.zip`
 5. If assets are missing for an existing release (immutable releases), run `versioning` manually with `release_tag` (for example `v0.2.3`) to backfill assets.

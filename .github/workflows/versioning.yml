@@ -31,17 +31,16 @@ jobs:
       # Do not set skip-github-release: merged release PRs must get a GitHub release + tag
       # in this run, or autorelease:pending is never cleared and new release PRs are blocked
       # ("untagged, merged release PRs outstanding").
-      # Token: prefers RELEASE_PLEASE_TOKEN if set. A fine-grained PAT must include
-      # Contents + Pull requests (+ Issues) Read/Write and usually Actions Read (see README).
-      # If you see "Resource not accessible by integration" on create release: delete the
-      # broken secret so this falls back to github.token, or fix PAT scopes / repo Actions settings.
+      # Uses the action default token (GITHUB_TOKEN): see action.yml default on release-please-action@v4.
+      # Do NOT set RELEASE_PLEASE_TOKEN unless you really need it: a narrow fine‑grained PAT often
+      # returns "Resource not accessible by integration" on POST /releases. Then either delete that
+      # secret or recreate a classic PAT with `repo`. To opt into a PAT, add:
+      #   token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
       - name: Release Please
         id: release
         uses: googleapis/release-please-action@v4
         with:
-          command: manifest
           target-branch: main
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
 
       - name: Debug release outputs
         run: |

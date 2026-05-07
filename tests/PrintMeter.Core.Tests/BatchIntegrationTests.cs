@@ -24,7 +24,7 @@ public sealed class BatchIntegrationTests
                 {
                     // A4 landscape
                     new PageDimensions(1, 842, 595),
-                    // custom
+                    // Non-standard square page now grouped by width band (A3)
                     new PageDimensions(2, 700, 700),
                 },
                 _ => Array.Empty<PageDimensions>(),
@@ -57,8 +57,7 @@ public sealed class BatchIntegrationTests
         batch.SummaryByFormat.Should().ContainKey("A4");
         batch.SummaryByFormat["A4"].PageCount.Should().Be(2);
         batch.SummaryByFormat.Should().ContainKey("A3");
-        batch.SummaryByFormat["A3"].PageCount.Should().Be(1);
-        batch.SummaryByFormat.Keys.Should().Contain(k => k.StartsWith("Custom ", StringComparison.Ordinal));
+        batch.SummaryByFormat["A3"].PageCount.Should().Be(2);
         batch.TotalLengthMeters.Should().BeGreaterThan(1.0);
     }
 }

@@ -9,25 +9,33 @@ public sealed class Iso216FormatRegistryTests
     private readonly Iso216FormatRegistry _registry = new();
 
     [Theory]
-    [InlineData(297, 210, "A4")]
-    [InlineData(297.5, 209.5, "A4")]
-    [InlineData(420, 297, "A3")]
-    public void Resolves_known_sizes_within_tolerance(double longMm, double shortMm, string expected)
+    [InlineData(1200, 297, "A3")]
+    [InlineData(1200, 420, "A2")]
+    [InlineData(1200, 610, "A1+")]
+    [InlineData(1200, 910, "A0+")]
+    public void Groups_sizes_by_width_band_for_lekala_profile(double longMm, double shortMm, string expected)
     {
         _registry.ResolveLabel(longMm, shortMm, MeasurementDefaults.FormatToleranceMm).Should().Be(expected);
     }
 
     [Fact]
+    public void Distinguishes_a1_and_a0()
+    {
+        _registry.ResolveLabel(1200, 594, MeasurementDefaults.FormatToleranceMm).Should().Be("A1");
+        _registry.ResolveLabel(1200, 841, MeasurementDefaults.FormatToleranceMm).Should().Be("A0");
+    }
+
+    [Fact]
     public void Unknown_sizes_become_custom()
     {
-        var label = _registry.ResolveLabel(333, 222, MeasurementDefaults.FormatToleranceMm);
+        var label = _registry.ResolveLabel(1200, 1000, MeasurementDefaults.FormatToleranceMm);
         label.Should().StartWith("Custom");
     }
 
     [Fact]
-    public void Size_outside_tolerance_becomes_custom()
+    public void Disabled_a0_falls_back_to_a0_plus()
     {
-        var label = _registry.ResolveLabel(300.1, 210, 2.0);
-        label.Should().StartWith("Custom");
+        _registry.SetEnabledFormats(["A4", "A3", "A2", "A1", "A1+", "A0+"]);
+        _registry.ResolveLabel(1200, 841, MeasurementDefaults.FormatToleranceMm).Should().Be("A0+");
     }
 }

@@ -42,13 +42,6 @@ jobs:
         with:
           target-branch: main
 
-      - name: Debug release outputs
-        run: |
-          echo "ref_name=${{ github.ref_name }}"
-          echo "releases_created=${{ steps.release.outputs.releases_created }}"
-          echo "tag_name=${{ steps.release.outputs.tag_name }}"
-          echo "pr=${{ steps.release.outputs.pr }}"
-
   publish-release-assets:
     needs: release-please
     if: needs.release-please.outputs.releases_created == 'true' || github.event.inputs.release_tag != ''

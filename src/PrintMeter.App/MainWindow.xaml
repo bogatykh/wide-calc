@@ -2,7 +2,6 @@
     x:Class="PrintMeter.App.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="PrintMeter — длина печати по PDF"
@@ -205,34 +204,33 @@
                     Text="Включите форматы листов, которые нужно учитывать при сопоставлении размеров страниц."
                     TextWrapping="WrapWholeWords" />
 
-                <VariableSizedWrapGrid
-                    HorizontalChildrenAlignment="Left"
-                    ItemHeight="44"
-                    ItemWidth="92"
-                    MaximumRowsOrColumns="8"
-                    Orientation="Horizontal">
-                  <Border Style="{StaticResource FormatChipBorder}">
-                    <CheckBox Content="A4" IsChecked="{Binding FormatA4, Mode=TwoWay}" />
-                  </Border>
-                  <Border Style="{StaticResource FormatChipBorder}">
-                    <CheckBox Content="A3" IsChecked="{Binding FormatA3, Mode=TwoWay}" />
-                  </Border>
-                  <Border Style="{StaticResource FormatChipBorder}">
-                    <CheckBox Content="A2" IsChecked="{Binding FormatA2, Mode=TwoWay}" />
-                  </Border>
-                  <Border Style="{StaticResource FormatChipBorder}">
-                    <CheckBox Content="A1" IsChecked="{Binding FormatA1, Mode=TwoWay}" />
-                  </Border>
-                  <Border Style="{StaticResource FormatChipBorder}">
-                    <CheckBox Content="A1+" IsChecked="{Binding FormatA1Plus, Mode=TwoWay}" />
-                  </Border>
-                  <Border Style="{StaticResource FormatChipBorder}">
-                    <CheckBox Content="A0" IsChecked="{Binding FormatA0, Mode=TwoWay}" />
-                  </Border>
-                  <Border Style="{StaticResource FormatChipBorder}">
-                    <CheckBox Content="A0+" IsChecked="{Binding FormatA0Plus, Mode=TwoWay}" />
-                  </Border>
-                </VariableSizedWrapGrid>
+                <StackPanel>
+                  <StackPanel Orientation="Horizontal">
+                    <Border Style="{StaticResource FormatChipBorder}">
+                      <CheckBox Content="A4" IsChecked="{Binding FormatA4, Mode=TwoWay}" />
+                    </Border>
+                    <Border Style="{StaticResource FormatChipBorder}">
+                      <CheckBox Content="A3" IsChecked="{Binding FormatA3, Mode=TwoWay}" />
+                    </Border>
+                    <Border Style="{StaticResource FormatChipBorder}">
+                      <CheckBox Content="A2" IsChecked="{Binding FormatA2, Mode=TwoWay}" />
+                    </Border>
+                    <Border Style="{StaticResource FormatChipBorder}">
+                      <CheckBox Content="A1" IsChecked="{Binding FormatA1, Mode=TwoWay}" />
+                    </Border>
+                  </StackPanel>
+                  <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
+                    <Border Style="{StaticResource FormatChipBorder}">
+                      <CheckBox Content="A1+" IsChecked="{Binding FormatA1Plus, Mode=TwoWay}" />
+                    </Border>
+                    <Border Style="{StaticResource FormatChipBorder}">
+                      <CheckBox Content="A0" IsChecked="{Binding FormatA0, Mode=TwoWay}" />
+                    </Border>
+                    <Border Style="{StaticResource FormatChipBorder}">
+                      <CheckBox Content="A0+" IsChecked="{Binding FormatA0Plus, Mode=TwoWay}" />
+                    </Border>
+                  </StackPanel>
+                </StackPanel>
               </StackPanel>
             </Border>
 
@@ -255,7 +253,7 @@
           </StackPanel>
         </ScrollViewer>
 
-        <!-- Правая колонка: таблица -->
+        <!-- Правая колонка: список результатов (без CommunityToolkit DataGrid — надёжнее для XamlCompiler) -->
         <Border
             Grid.Column="1"
             Margin="10,0,0,0"
@@ -263,55 +261,115 @@
           <Grid>
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
               <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <TextBlock
                 Grid.Row="0"
                 Style="{StaticResource PanelSectionTitle}"
                 Text="Результаты по файлам" />
-            <controls:DataGrid
+
+            <!-- Заголовки «таблицы» -->
+            <Grid
                 Grid.Row="1"
-                x:Name="ResultsGrid"
+                Margin="8,0,8,4"
+                Padding="8,6"
+                Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                BorderThickness="0,0,0,1">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" MinWidth="160" />
+                <ColumnDefinition Width="64" />
+                <ColumnDefinition Width="88" />
+                <ColumnDefinition Width="2*" MinWidth="120" />
+                <ColumnDefinition Width="*" MinWidth="80" />
+              </Grid.ColumnDefinitions>
+              <TextBlock
+                  Grid.Column="0"
+                  FontWeight="SemiBold"
+                  Style="{ThemeResource CaptionTextBlockStyle}"
+                  Text="Файл" />
+              <TextBlock
+                  Grid.Column="1"
+                  HorizontalAlignment="Right"
+                  FontWeight="SemiBold"
+                  Style="{ThemeResource CaptionTextBlockStyle}"
+                  Text="Стр." />
+              <TextBlock
+                  Grid.Column="2"
+                  HorizontalAlignment="Right"
+                  FontWeight="SemiBold"
+                  Style="{ThemeResource CaptionTextBlockStyle}"
+                  Text="Длина" />
+              <TextBlock
+                  Grid.Column="3"
+                  FontWeight="SemiBold"
+                  Style="{ThemeResource CaptionTextBlockStyle}"
+                  Text="По форматам" />
+              <TextBlock
+                  Grid.Column="4"
+                  FontWeight="SemiBold"
+                  Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                  Style="{ThemeResource CaptionTextBlockStyle}"
+                  Text="Ошибка" />
+            </Grid>
+
+            <ListView
+                Grid.Row="2"
+                x:Name="ResultsList"
                 Margin="8,0,8,8"
-                Padding="4"
-                AlternatingRowBackground="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
-                AutoGenerateColumns="False"
-                CanUserReorderColumns="True"
-                CanUserResizeColumns="True"
-                CanUserSortColumns="True"
-                GridLinesVisibility="Horizontal"
-                HeadersVisibility="Column"
-                HorizontalScrollBarVisibility="Auto"
-                IsReadOnly="True"
+                HorizontalContentAlignment="Stretch"
+                IsItemClickEnabled="False"
+                IsSwipeEnabled="False"
                 ItemsSource="{Binding Rows}"
                 SelectionMode="Single"
-                VerticalScrollBarVisibility="Auto">
-              <controls:DataGrid.Columns>
-                <controls:DataGridTextColumn
-                    Binding="{Binding FilePath}"
-                    Header="Файл"
-                    MinWidth="200"
-                    Width="280" />
-                <controls:DataGridTextColumn
-                    Binding="{Binding PageCount}"
-                    Header="Стр."
-                    Width="64" />
-                <controls:DataGridTextColumn
-                    Binding="{Binding TotalLengthMeters}"
-                    Header="Длина, м"
-                    Width="88" />
-                <controls:DataGridTextColumn
-                    Binding="{Binding FormatsSummary}"
-                    Header="По форматам"
-                    MinWidth="140"
-                    Width="260" />
-                <controls:DataGridTextColumn
-                    Binding="{Binding Error}"
-                    Header="Ошибка"
-                    MinWidth="80"
-                    Width="160" />
-              </controls:DataGrid.Columns>
-            </controls:DataGrid>
+                ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                ScrollViewer.VerticalScrollBarVisibility="Auto">
+              <ListView.ItemTemplate>
+                <DataTemplate>
+                  <Grid Padding="8,6">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="2*" MinWidth="160" />
+                      <ColumnDefinition Width="64" />
+                      <ColumnDefinition Width="88" />
+                      <ColumnDefinition Width="2*" MinWidth="120" />
+                      <ColumnDefinition Width="*" MinWidth="80" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Text="{Binding FilePath}"
+                        TextTrimming="CharacterEllipsis"
+                        TextWrapping="NoWrap" />
+                    <TextBlock
+                        Grid.Column="1"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Text="{Binding PageCount}" />
+                    <TextBlock
+                        Grid.Column="2"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Text="{Binding TotalLengthMeters}" />
+                    <TextBlock
+                        Grid.Column="3"
+                        VerticalAlignment="Center"
+                        MaxLines="2"
+                        Text="{Binding FormatsSummary}"
+                        TextTrimming="CharacterEllipsis"
+                        TextWrapping="WrapWholeWords" />
+                    <TextBlock
+                        Grid.Column="4"
+                        VerticalAlignment="Center"
+                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                        MaxLines="2"
+                        Text="{Binding Error}"
+                        TextTrimming="CharacterEllipsis"
+                        TextWrapping="WrapWholeWords" />
+                  </Grid>
+                </DataTemplate>
+              </ListView.ItemTemplate>
+            </ListView>
           </Grid>
         </Border>
       </Grid>

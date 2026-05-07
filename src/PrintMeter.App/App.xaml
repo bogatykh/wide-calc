@@ -76,7 +76,6 @@
           BasedOn="{StaticResource AccentButtonStyle}">
         <Setter Property="Padding" Value="14,10" />
         <Setter Property="MinHeight" Value="40" />
-        <Setter Property="CornerRadius" Value="6" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
       </Style>
 
@@ -86,7 +85,6 @@
           BasedOn="{StaticResource DefaultButtonStyle}">
         <Setter Property="Padding" Value="14,10" />
         <Setter Property="MinHeight" Value="40" />
-        <Setter Property="CornerRadius" Value="6" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
       </Style>
 

@@ -34,7 +34,11 @@ jobs:
         run: dotnet build PrintMeter.sln -c Release --no-restore --nologo
 
       - name: Restore App with RID
-        run: dotnet restore src/PrintMeter.App/PrintMeter.App.csproj -r win-x64 --nologo
+        run: >
+          dotnet restore src/PrintMeter.App/PrintMeter.App.csproj
+          -r win-x64
+          -p:PublishReadyToRun=true
+          --nologo
 
       - name: Publish
         run: >

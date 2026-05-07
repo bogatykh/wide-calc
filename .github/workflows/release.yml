@@ -20,11 +20,21 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            **/*.props
+            **/*.targets
+            PrintMeter.sln
+
+      - name: Restore
+        run: dotnet restore PrintMeter.sln --nologo
 
       - name: Publish
         run: >
           dotnet publish src/PrintMeter.App/PrintMeter.App.csproj
           -c Release
+          --no-restore
           -r win-x64
           --self-contained true
           -p:PublishSingleFile=true

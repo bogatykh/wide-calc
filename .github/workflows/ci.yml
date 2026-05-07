@@ -14,9 +14,15 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            **/*.props
+            **/*.targets
+            PrintMeter.sln
 
       - name: Restore
-        run: dotnet restore PrintMeter.sln
+        run: dotnet restore PrintMeter.sln --nologo
 
       - name: Build
         run: dotnet build PrintMeter.sln -c Release --no-restore

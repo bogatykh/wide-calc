@@ -17,6 +17,8 @@
     <EnableMsixTooling>false</EnableMsixTooling>
     <!-- Позволяет restore/pack на Linux/macOS для CI и метаданных; сборка WinUI выполняется на Windows. -->
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <!-- Пакет ссылок WinRT для Windows App SDK 1.6 (нужен при .NET SDK &lt; 8.0.402 на агенте). -->
+    <WindowsSdkPackageVersion>10.0.22621.52</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>

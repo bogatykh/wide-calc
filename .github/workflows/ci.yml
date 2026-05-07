@@ -13,7 +13,8 @@ jobs:
 
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0.x"
+          # Windows App SDK 1.6 требует Microsoft.Windows.SDK.NET.Ref (SDK ≥ 8.0.402).
+          dotnet-version: "8.0.404"
           cache: true
           cache-dependency-path: |
             **/*.csproj

@@ -27,7 +27,7 @@
       <StackPanel Grid.Row="0" Spacing="10">
         <TextBlock
             Text="PrintMeter"
-            Style="{ThemeResource TitleLargeTextBlockStyle}" />
+            Style="{ThemeResource TitleTextBlockStyle}" />
         <TextBlock
             Style="{StaticResource PageTagline}"
             Text="Оценка суммарной длины оттиска по листам PDF с классификацией по форматам ISO. Выберите файлы или папку — результат появится в таблице." />
@@ -63,7 +63,7 @@
                     Text="Источник данных и запуск расчёта. Экспорт CSV и Excel доступен после анализа."
                     TextWrapping="WrapWholeWords" />
 
-                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Выбор" />
+                <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Выбор" />
                 <StackPanel Spacing="8">
                   <Button
                       AutomationProperties.AutomationId="PickPdfFilesButton"
@@ -72,7 +72,7 @@
                       Style="{StaticResource ToolbarPrimaryButton}">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                       <FontIcon
-                          FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                          FontFamily="Segoe MDL2 Assets"
                           FontSize="16"
                           Glyph="&#xE8E5;" />
                       <TextBlock VerticalAlignment="Center" Text="Выбрать PDF…" />
@@ -85,7 +85,7 @@
                       Style="{StaticResource ToolbarPrimaryButton}">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                       <FontIcon
-                          FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                          FontFamily="Segoe MDL2 Assets"
                           FontSize="16"
                           Glyph="&#xE8B7;" />
                       <TextBlock VerticalAlignment="Center" Text="Открыть папку…" />
@@ -96,10 +96,10 @@
                 <Border
                     Height="1"
                     Margin="0,4,0,10"
-                    Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                    Background="{ThemeResource ControlStrokeColorDefaultBrush}"
                     Opacity="0.65" />
 
-                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Расчёт" />
+                <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Расчёт" />
                 <StackPanel Orientation="Horizontal" Spacing="8">
                   <Button
                       AutomationProperties.AutomationId="AnalyzeButton"
@@ -108,7 +108,7 @@
                       Style="{StaticResource ToolbarPrimaryButton}">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                       <FontIcon
-                          FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                          FontFamily="Segoe MDL2 Assets"
                           FontSize="16"
                           Glyph="&#xE768;" />
                       <TextBlock VerticalAlignment="Center" Text="Считать" />
@@ -121,7 +121,7 @@
                       Style="{StaticResource ToolbarSecondaryButton}">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                       <FontIcon
-                          FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                          FontFamily="Segoe MDL2 Assets"
                           FontSize="16"
                           Glyph="&#xE711;" />
                       <TextBlock VerticalAlignment="Center" Text="Отмена" />
@@ -132,10 +132,10 @@
                 <Border
                     Height="1"
                     Margin="0,4,0,10"
-                    Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                    Background="{ThemeResource ControlStrokeColorDefaultBrush}"
                     Opacity="0.65" />
 
-                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Экспорт" />
+                <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Экспорт" />
                 <StackPanel Orientation="Horizontal" Spacing="8">
                   <Button
                       AutomationProperties.AutomationId="ExportCsvButton"
@@ -144,7 +144,7 @@
                       Style="{StaticResource ToolbarSecondaryButton}">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                       <FontIcon
-                          FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                          FontFamily="Segoe MDL2 Assets"
                           FontSize="16"
                           Glyph="&#xE8A5;" />
                       <TextBlock VerticalAlignment="Center" Text="CSV…" />
@@ -157,7 +157,7 @@
                       Style="{StaticResource ToolbarSecondaryButton}">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                       <FontIcon
-                          FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                          FontFamily="Segoe MDL2 Assets"
                           FontSize="16"
                           Glyph="&#xE9D9;" />
                       <TextBlock VerticalAlignment="Center" Text="XLSX…" />
@@ -182,7 +182,7 @@
                     OffContent="Выкл"
                     OnContent="Вкл" />
 
-                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Допуск по формату" />
+                <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Допуск по формату" />
                 <TextBlock
                     Style="{StaticResource MutedText}"
                     FontSize="12"
@@ -306,7 +306,7 @@
 
           <StackPanel Spacing="4">
             <TextBlock Style="{StaticResource KpiLabel}" Text="Всего (метры)" />
-            <TextBlock Style="{StaticResource KpiValue}" Text="{Binding TotalLengthMeters, StringFormat='{}{0:F3}'}" />
+            <TextBlock Style="{StaticResource KpiValue}" Text="{Binding TotalLengthMeters, Mode=OneWay}" />
           </StackPanel>
 
           <StackPanel Grid.Column="1" Spacing="8">

@@ -15,15 +15,19 @@
     <Setter Property="Padding" Value="0" />
   </Style>
 
-  <Style x:Key="PageTagline" TargetType="TextBlock">
-    <Setter Property="Style" Value="{ThemeResource BodyTextBlockStyle}" />
+  <Style
+      x:Key="PageTagline"
+      TargetType="TextBlock"
+      BasedOn="{ThemeResource BodyTextBlockStyle}">
     <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
     <Setter Property="TextWrapping" Value="WrapWholeWords" />
     <Setter Property="MaxWidth" Value="560" />
   </Style>
 
-  <Style x:Key="SectionTitleText" TargetType="TextBlock">
-    <Setter Property="Style" Value="{ThemeResource SubtitleTextBlockStyle}" />
+  <Style
+      x:Key="SectionTitleText"
+      TargetType="TextBlock"
+      BasedOn="{ThemeResource SubtitleTextBlockStyle}">
     <Setter Property="Margin" Value="0,0,0,12" />
     <Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}" />
   </Style>
@@ -32,7 +36,10 @@
     <Setter Property="Margin" Value="16,14,16,8" />
   </Style>
 
-  <Style x:Key="MutedText" TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
+  <Style
+      x:Key="MutedText"
+      TargetType="TextBlock"
+      BasedOn="{ThemeResource BodyTextBlockStyle}">
     <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
   </Style>
 
@@ -42,20 +49,29 @@
     <Setter Property="Foreground" Value="{ThemeResource AccentTextFillColorPrimaryBrush}" />
   </Style>
 
-  <Style x:Key="KpiLabel" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+  <Style
+      x:Key="KpiLabel"
+      TargetType="TextBlock"
+      BasedOn="{ThemeResource CaptionTextBlockStyle}">
     <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
     <Setter Property="Margin" Value="0,0,0,4" />
   </Style>
 
   <!-- Кнопки с иконкой -->
-  <Style x:Key="IconAccentButton" TargetType="Button" BasedOn="{StaticResource AccentButtonStyle}">
+  <Style
+      x:Key="IconAccentButton"
+      TargetType="Button"
+      BasedOn="{ThemeResource AccentButtonStyle}">
     <Setter Property="Padding" Value="14,10" />
     <Setter Property="MinHeight" Value="40" />
     <Setter Property="CornerRadius" Value="6" />
     <Setter Property="HorizontalContentAlignment" Value="Left" />
   </Style>
 
-  <Style x:Key="IconDefaultButton" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+  <Style
+      x:Key="IconDefaultButton"
+      TargetType="Button"
+      BasedOn="{ThemeResource DefaultButtonStyle}">
     <Setter Property="Padding" Value="14,10" />
     <Setter Property="MinHeight" Value="40" />
     <Setter Property="CornerRadius" Value="6" />

@@ -93,6 +93,7 @@ Versioning is automated with **Release Please**:
 - workflow: `.github/workflows/versioning.yml`
 - config: `release-please-config.json`
 - manifest state: `.release-please-manifest.json`
+- optional PAT secret: `RELEASE_PLEASE_TOKEN` (recommended if org blocks PR creation by `GITHUB_TOKEN`)
 
 How it works:
 

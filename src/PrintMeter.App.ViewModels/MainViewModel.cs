@@ -67,6 +67,9 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private double _totalLengthMeters;
 
+    public string TotalLengthMetersSummaryText =>
+        $"Всего по длинной стороне листов, м: {TotalLengthMeters:F3}";
+
     [ObservableProperty]
     private string _summaryByFormat = string.Empty;
 
@@ -232,7 +235,7 @@ public sealed partial class MainViewModel : ObservableObject
                         PageCount = report.Pages.Count,
                         TotalLengthMeters = RoundMeters(report.TotalLengthMeters),
                         FormatsSummary = BuildFormatsSummary(report),
-                        Error = report.Error,
+                        IssueText = report.Error,
                     });
             }
 
@@ -326,7 +329,7 @@ public sealed partial class MainViewModel : ObservableObject
                         PageCount = report.Pages.Count,
                         TotalLengthMeters = RoundMeters(report.TotalLengthMeters),
                         FormatsSummary = BuildFormatsSummary(report),
-                        Error = report.Error,
+                        IssueText = report.Error,
                     });
             }
 
@@ -524,6 +527,9 @@ public sealed partial class MainViewModel : ObservableObject
         CancelCommand.NotifyCanExecuteChanged();
         ClearAllCommand.NotifyCanExecuteChanged();
     }
+
+    partial void OnTotalLengthMetersChanged(double value) =>
+        OnPropertyChanged(nameof(TotalLengthMetersSummaryText));
 
     private static string BuildFormatsSummary(FileReport report)
     {

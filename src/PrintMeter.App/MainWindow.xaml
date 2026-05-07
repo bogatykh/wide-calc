@@ -280,7 +280,7 @@
                 <TextBlock
                     Margin="0,0,0,6"
                     FontWeight="SemiBold"
-                    Text="{Binding TotalLengthMeters, StringFormat='Всего по длинной стороне листов, м: {}{0:F3}'}"
+                    Text="{Binding TotalLengthMetersSummaryText}"
                     Style="{ThemeResource BodyTextBlockStyle}" />
                 <TextBlock
                     Text="{Binding BillingPricelistFormatsSummary}"
@@ -388,7 +388,7 @@
                       <TextBlock
                           Grid.Column="4"
                           VerticalAlignment="Center"
-                          Text="{Binding Path=Error}"
+                          Text="{Binding IssueText}"
                           TextTrimming="CharacterEllipsis" />
                     </Grid>
                   </DataTemplate>

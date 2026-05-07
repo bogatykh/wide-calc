@@ -210,7 +210,7 @@ public sealed class MainViewModelTests
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
 
         vm.Rows.Should().ContainSingle();
-        vm.Rows[0].Error.Should().Contain("bad pdf");
+        vm.Rows[0].IssueText.Should().Contain("bad pdf");
     }
 
     [Fact]

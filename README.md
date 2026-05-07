@@ -101,14 +101,14 @@ How it works:
 
 1. Push commits to `main` using Conventional Commit style (`feat:`, `fix:`, `chore:`).
 2. Release Please opens/updates a release PR with next SemVer bump and changelog.
-3. When that PR is merged, Release Please creates git tag `vX.Y.Z` and GitHub Release.
-4. Workflow `.github/workflows/versioning.yml` (job `publish-release-assets`) builds and attaches:
+3. When that PR is merged, Release Please creates git tag `vX.Y.Z` (without creating GitHub Release directly).
+4. Workflow `.github/workflows/versioning.yml` (job `publish-release-assets`) builds artifacts and creates GitHub Release with:
    - `PrintMeter-Setup-x64.exe`
    - `PrintMeter-win-x64.zip`
 
-Manual/tag release workflow responsibilities:
+Manual release workflow responsibilities:
 
-- `release.yml` remains available for tag/release/manual runs and also uploads installer + portable assets.
+- `release.yml` is kept as manual fallback (`workflow_dispatch`).
 
 ## Commit message policy
 

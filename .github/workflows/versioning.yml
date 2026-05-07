@@ -22,6 +22,7 @@ jobs:
         with:
           command: manifest
           token: ${{ secrets.RELEASE_PLEASE_TOKEN != '' && secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          skip-github-release: true
 
   publish-release-assets:
     needs: release-please
@@ -94,14 +95,15 @@ jobs:
         run: |
           Compress-Archive -Path ./artifacts/publish/* -DestinationPath ./artifacts/PrintMeter-win-x64.zip
 
-      - name: Attach assets to Release Please release
+      - name: Create release with assets
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
+          name: ${{ needs.release-please.outputs.tag_name }}
           files: |
             artifacts/PrintMeter-win-x64.zip
             artifacts/installer/PrintMeter-Setup-x64.exe
-          append_body: true
-          generate_release_notes: false
+          generate_release_notes: true
+          append_body: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

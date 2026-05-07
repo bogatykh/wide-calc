@@ -81,6 +81,7 @@ Windows UI + publish are verified in GitHub Actions (`windows-latest`).
 
 - `PrintMeter:MaxDegreeOfParallelism` — parallel PDF reads (default `4`)
 - `PrintMeter:FormatToleranceMm` — ISO match tolerance in mm (default `2`)
+- Pricelist-style “billing sheet count” uses built-in nominal long-edge mm per ISO label (`PricelistFormatEquivalence.IsoNominalLongEdgeMm`) and rounding from `PricelistFormatEquivalence.DefaultRounding` — not configured via appsettings unless you extend the code
 
 Logs: `%LocalAppData%/PrintMeter/logs/`.
 

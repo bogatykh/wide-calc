@@ -6,8 +6,10 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AnalysisLevel>latest</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- Allows restore/analyze Win-targeted projects (e.g. WPF app) when SDK host is Unix -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
-  <!-- net8 test host on a machine with only .NET 10+ runtime -->
+  <!-- Test host rolls forward when only a newer .NET runtime is installed -->
   <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
     <RollForward>LatestMajor</RollForward>
   </PropertyGroup>

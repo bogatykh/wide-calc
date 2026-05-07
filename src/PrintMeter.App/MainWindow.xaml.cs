@@ -1,12 +1,13 @@
-using System.Windows;
+using Microsoft.UI.Xaml;
+using PrintMeter.App.ViewModels;
 
 namespace PrintMeter.App;
 
-public partial class MainWindow : Window
+public sealed partial class MainWindow : Window
 {
-    public MainWindow(ViewModels.MainViewModel viewModel)
+    public MainWindow(MainViewModel viewModel)
     {
-        DataContext = viewModel;
         InitializeComponent();
+        RootGrid.DataContext = viewModel;
     }
 }

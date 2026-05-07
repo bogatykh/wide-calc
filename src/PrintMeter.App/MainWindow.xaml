@@ -18,7 +18,7 @@
 
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto" />
-        <RowDefinition Height="*" MinHeight="220" />
+        <RowDefinition Height="*" />
         <RowDefinition Height="Auto" />
       </Grid.RowDefinitions>
 
@@ -319,8 +319,8 @@
                   <ColumnDefinition Width="280" />
                   <ColumnDefinition Width="72" />
                   <ColumnDefinition Width="100" />
-                  <ColumnDefinition Width="*" MinWidth="160" />
-                  <ColumnDefinition Width="*" MinWidth="100" />
+                  <ColumnDefinition Width="240" />
+                  <ColumnDefinition Width="200" />
                 </Grid.ColumnDefinitions>
                 <TextBlock
                     Grid.Column="0"
@@ -364,8 +364,8 @@
                         <ColumnDefinition Width="280" />
                         <ColumnDefinition Width="72" />
                         <ColumnDefinition Width="100" />
-                        <ColumnDefinition Width="*" MinWidth="160" />
-                        <ColumnDefinition Width="*" MinWidth="100" />
+                        <ColumnDefinition Width="240" />
+                        <ColumnDefinition Width="200" />
                       </Grid.ColumnDefinitions>
                       <TextBlock
                           Grid.Column="0"

@@ -18,10 +18,11 @@
         <Setter Property="Padding" Value="20" />
       </Style>
 
-      <Style
-          x:Key="ResultsCardBorder"
-          TargetType="Border"
-          BasedOn="{StaticResource SectionCardBorder}">
+      <Style x:Key="ResultsCardBorder" TargetType="Border">
+        <Setter Property="Background" Value="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
         <Setter Property="Padding" Value="0" />
       </Style>
 

@@ -10,6 +10,8 @@ namespace PrintMeter.App.ViewModels;
 
 public sealed partial class MainViewModel : ObservableObject
 {
+    private static readonly StringComparer PathComparer = StringComparer.OrdinalIgnoreCase;
+
     private readonly IFormatRegistry _formatRegistry;
     private readonly BatchPdfAnalyzer _batchPdfAnalyzer;
     private readonly IBatchReportWriter _reportWriter;
@@ -19,6 +21,9 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly bool _autoAnalyzeAfterFileSelection;
     private CancellationTokenSource? _cts;
     private readonly List<string> _selectedFiles = [];
+    private readonly HashSet<string> _selectedSet = new(PathComparer);
+    /// <summary>Нормализованные пути PDF, попавшие в выбор из последнего выбора папки (для замены при смене папки / рекурсии).</summary>
+    private readonly HashSet<string> _canonicalFromLastFolder = new(PathComparer);
     private string? _lastFolderPath;
 
     public MainViewModel(
@@ -58,7 +63,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private string _statusText =
-        "Добавьте PDF через «Выбрать PDF» или папку. Новый выбор заменяет список и запускает расчёт заново.";
+        "Добавляйте PDF по одному или папкой — строки накапливаются. «Считать заново» пересчитывает весь список. «Очистить» сбрасывает всё.";
 
     [ObservableProperty]
     private double _totalLengthMeters;
@@ -119,18 +124,35 @@ public sealed partial class MainViewModel : ObservableObject
             return;
         }
 
-        _lastFolderPath = null;
-        ReplaceSelectedPdfFiles([..picked]);
+        var newlyAdded = new List<string>();
+        foreach (var raw in picked)
+        {
+            if (TryAddUniquePdf(raw, out var canon))
+            {
+                newlyAdded.Add(canon);
+            }
+        }
+
         AnalyzeCommand.NotifyCanExecuteChanged();
+        ClearAllCommand.NotifyCanExecuteChanged();
+
+        if (newlyAdded.Count == 0)
+        {
+            StatusText =
+                $"Все выбранные файлы уже есть в списке ({_selectedFiles.Count} PDF). Добавьте другие или нажмите «Считать заново».";
+            return;
+        }
+
         if (_autoAnalyzeAfterFileSelection)
         {
-            StatusText = $"Файлов: {_selectedFiles.Count}. Запуск расчёта…";
-            await AnalyzeAsync().ConfigureAwait(true);
+            StatusText =
+                $"Добавлено файлов: {newlyAdded.Count}. Всего в списке: {_selectedFiles.Count}. Запуск расчёта…";
+            await AnalyzeAppendAsync(newlyAdded).ConfigureAwait(true);
             return;
         }
 
         StatusText =
-            $"Выбрано файлов: {_selectedFiles.Count}. Нажмите «Считать», чтобы посчитать метраж (новый выбор заменяет список).";
+            $"Добавлено файлов: {newlyAdded.Count}. Всего в списке: {_selectedFiles.Count}. Нажмите «Считать» для новых файлов или «Считать заново» для всего списка.";
     }
 
     [RelayCommand]
@@ -150,7 +172,9 @@ public sealed partial class MainViewModel : ObservableObject
     {
         _cts?.Cancel();
         _lastFolderPath = null;
+        _canonicalFromLastFolder.Clear();
         _selectedFiles.Clear();
+        _selectedSet.Clear();
         ResetOutputsAfterSelectionChange();
         StatusText =
             "Список файлов и результаты очищены. Добавьте PDF через «Выбрать PDF» или укажите папку.";
@@ -163,6 +187,11 @@ public sealed partial class MainViewModel : ObservableObject
 
     [RelayCommand(CanExecute = nameof(CanAnalyze))]
     private async Task AnalyzeAsync()
+    {
+        await AnalyzeFullAsync().ConfigureAwait(true);
+    }
+
+    private async Task AnalyzeFullAsync()
     {
         if (_selectedFiles.Count == 0)
         {
@@ -250,6 +279,124 @@ public sealed partial class MainViewModel : ObservableObject
             AnalyzeCommand.NotifyCanExecuteChanged();
             ClearAllCommand.NotifyCanExecuteChanged();
         }
+    }
+
+    /// <summary>Обрабатывает только переданные пути и дополняет таблицу и сводку (без очистки существующих строк).</summary>
+    private async Task AnalyzeAppendAsync(IReadOnlyList<string> canonicalPathsToAnalyze)
+    {
+        var todo = canonicalPathsToAnalyze
+            .Where(c => !HasRowForNormalizedPath(c))
+            .Distinct(PathComparer)
+            .ToList();
+
+        if (todo.Count == 0)
+        {
+            StatusText = $"Эти файлы уже обработаны. В таблице {Rows.Count} строк(и). Всего в списке: {_selectedFiles.Count}.";
+            return;
+        }
+
+        _cts = new CancellationTokenSource();
+        IsBusy = true;
+        ProgressValue = 0;
+        ExportCsvCommand.NotifyCanExecuteChanged();
+        ExportXlsxCommand.NotifyCanExecuteChanged();
+
+        var priorReports = (_lastReport?.Files ?? []).ToArray();
+        var rowCountBefore = Rows.Count;
+
+        try
+        {
+            var collected = new List<FileReport>();
+            var progress = new Progress<BatchProgress>(p =>
+            {
+                if (p.TotalFiles > 0)
+                {
+                    ProgressValue = 100.0 * p.CompletedFiles / p.TotalFiles;
+                }
+
+                StatusText = $"Обработка ({p.CompletedFiles}/{p.TotalFiles}): {p.CurrentFile}";
+            });
+
+            await foreach (var report in _batchPdfAnalyzer.AnalyzeFilesAsync(
+                               todo,
+                               progress,
+                               _cts.Token,
+                               _options.Value.FormatToleranceMm)
+                           .ConfigureAwait(true))
+            {
+                collected.Add(report);
+                Rows.Add(
+                    new FileReportRowViewModel
+                    {
+                        FilePath = report.FilePath,
+                        PageCount = report.Pages.Count,
+                        TotalLengthMeters = RoundMeters(report.TotalLengthMeters),
+                        FormatsSummary = BuildFormatsSummary(report),
+                        Error = report.Error,
+                    });
+            }
+
+            var mergedFileReports = new List<FileReport>(priorReports.Length + collected.Count);
+            mergedFileReports.AddRange(priorReports);
+            mergedFileReports.AddRange(collected);
+            _lastReport = PageAnalysisService.Combine(mergedFileReports);
+            TotalLengthMeters = RoundMeters(_lastReport.TotalLengthMeters);
+            SummaryByFormat = BuildBatchSummary(_lastReport);
+            UpdateFormatStatLines();
+            StatusText =
+                $"Готово: добавлено {collected.Count} файл(ов). В таблице {Rows.Count} строк(и), суммарно {TotalLengthMeters:F3} м.";
+            ProgressValue = 100;
+            ExportCsvCommand.NotifyCanExecuteChanged();
+            ExportXlsxCommand.NotifyCanExecuteChanged();
+        }
+        catch (OperationCanceledException)
+        {
+            RollbackAppend(rowCountBefore, priorReports);
+            StatusText = "Отменено.";
+            ExportCsvCommand.NotifyCanExecuteChanged();
+            ExportXlsxCommand.NotifyCanExecuteChanged();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Incremental analysis failed");
+            RollbackAppend(rowCountBefore, priorReports);
+            StatusText = $"Ошибка: {ex.Message}";
+            ExportCsvCommand.NotifyCanExecuteChanged();
+            ExportXlsxCommand.NotifyCanExecuteChanged();
+        }
+        finally
+        {
+            IsBusy = false;
+            _cts?.Dispose();
+            _cts = null;
+            AnalyzeCommand.NotifyCanExecuteChanged();
+            ClearAllCommand.NotifyCanExecuteChanged();
+        }
+    }
+
+    private void RollbackAppend(int rowCountBefore, IReadOnlyList<FileReport> priorReports)
+    {
+        while (Rows.Count > rowCountBefore)
+        {
+            Rows.RemoveAt(Rows.Count - 1);
+        }
+
+        _lastReport = priorReports.Count > 0 ? PageAnalysisService.Combine(priorReports) : null;
+        if (_lastReport is null)
+        {
+            TotalLengthMeters = 0;
+            SummaryByFormat = string.Empty;
+            ResetFormatStatLines();
+        }
+        else
+        {
+            TotalLengthMeters = RoundMeters(_lastReport.TotalLengthMeters);
+            SummaryByFormat = BuildBatchSummary(_lastReport);
+            UpdateFormatStatLines();
+        }
+
+        ProgressValue = 0;
+        ClearAllCommand.NotifyCanExecuteChanged();
     }
 
     private bool CanAnalyze() => !IsBusy && _selectedFiles.Count > 0;
@@ -371,7 +518,7 @@ public sealed partial class MainViewModel : ObservableObject
         _formatRegistry.SetEnabledFormats(enabled);
         if (_selectedFiles.Count > 0 && !IsBusy)
         {
-            _ = AnalyzeAsync();
+            _ = AnalyzeFullAsync();
         }
     }
 
@@ -399,7 +546,7 @@ public sealed partial class MainViewModel : ObservableObject
         {
             var folder = _lastFolderPath!;
             var files = PdfFileDiscovery.EnumeratePdfFilesInFolder(folder, RecursiveFolders);
-            ReplaceSelectedPdfFiles(files);
+            ApplyFolderPdfSelection(files);
 
             if (_selectedFiles.Count == 0)
             {
@@ -412,13 +559,13 @@ public sealed partial class MainViewModel : ObservableObject
             AnalyzeCommand.NotifyCanExecuteChanged();
             if (_autoAnalyzeAfterFileSelection)
             {
-                StatusText = $"Папка: {folder}. PDF: {_selectedFiles.Count}. Запуск расчёта…";
-                await AnalyzeAsync().ConfigureAwait(true);
+                StatusText = $"Папка: {folder}. PDF в выборе: {_selectedFiles.Count}. Запуск расчёта…";
+                await AnalyzeNewAndOrphanRowsAsync().ConfigureAwait(true);
                 return;
             }
 
             StatusText =
-                $"Папка: {folder}. PDF: {_selectedFiles.Count}. Список обновлён — нажмите «Считать».";
+                $"Папка: {folder}. PDF в выборе: {_selectedFiles.Count}. Нажмите «Считать» для новых файлов или «Считать заново».";
         }
         catch (Exception ex)
         {
@@ -427,19 +574,11 @@ public sealed partial class MainViewModel : ObservableObject
         }
     }
 
-    /// <summary>Заполняет <see cref="_selectedFiles"/> и сбрасывает результаты анализа (до нового расчёта).</summary>
-    private void ReplaceSelectedPdfFiles(IReadOnlyList<string> pdfPaths)
-    {
-        _selectedFiles.Clear();
-        _selectedFiles.AddRange(pdfPaths);
-        ResetOutputsAfterSelectionChange();
-    }
-
     private async Task ApplyFolderAndAnalyzeAsync(string folder)
     {
         _lastFolderPath = folder;
         var files = PdfFileDiscovery.EnumeratePdfFilesInFolder(folder, RecursiveFolders);
-        ReplaceSelectedPdfFiles(files);
+        ApplyFolderPdfSelection(files);
 
         if (_selectedFiles.Count == 0)
         {
@@ -452,13 +591,139 @@ public sealed partial class MainViewModel : ObservableObject
         AnalyzeCommand.NotifyCanExecuteChanged();
         if (_autoAnalyzeAfterFileSelection)
         {
-            StatusText = $"Папка: {folder}. PDF: {_selectedFiles.Count}. Запуск расчёта…";
-            await AnalyzeAsync().ConfigureAwait(true);
+            StatusText = $"Папка: {folder}. PDF в выборе: {_selectedFiles.Count}. Запуск расчёта…";
+            await AnalyzeNewAndOrphanRowsAsync().ConfigureAwait(true);
             return;
         }
 
         StatusText =
-            $"Папка: {folder}. PDF: {_selectedFiles.Count}. Нажмите «Считать». Переключатель «Рекурсивно» подхватывает ту же папку.";
+            $"Папка: {folder}. PDF в выборе: {_selectedFiles.Count}. Нажмите «Считать» или «Считать заново». Переключатель «Рекурсивно» обновляет состав из той же папки.";
+    }
+
+    /// <summary>Убирает из выбора PDF из прошлого перечисления папки, добавляет новый список и подчищает устаревшие строки.</summary>
+    private void ApplyFolderPdfSelection(IReadOnlyList<string> rawPdfPathsFromFolder)
+    {
+        var newCanonSet = new HashSet<string>(PathComparer);
+        foreach (var p in rawPdfPathsFromFolder)
+        {
+            newCanonSet.Add(NormalizePath(p));
+        }
+
+        RemoveSelectionPaths(_canonicalFromLastFolder);
+        _canonicalFromLastFolder.Clear();
+        foreach (var c in newCanonSet)
+        {
+            _canonicalFromLastFolder.Add(c);
+        }
+
+        foreach (var raw in rawPdfPathsFromFolder)
+        {
+            TryAddUniquePdf(raw, out _);
+        }
+
+        PruneRowsAndReportToMatchSelection();
+    }
+
+    private void RemoveSelectionPaths(IEnumerable<string> normalizedPaths)
+    {
+        foreach (var c in normalizedPaths)
+        {
+            if (_selectedSet.Remove(c))
+            {
+                _selectedFiles.RemoveAll(p => PathComparer.Equals(p, c));
+            }
+        }
+    }
+
+    private void PruneRowsAndReportToMatchSelection()
+    {
+        for (var i = Rows.Count - 1; i >= 0; i--)
+        {
+            var rowPath = NormalizePath(Rows[i].FilePath);
+            if (!_selectedSet.Contains(rowPath))
+            {
+                Rows.RemoveAt(i);
+            }
+        }
+
+        if (_lastReport is null)
+        {
+            UpdateFormatStatLines();
+            ClearAllCommand.NotifyCanExecuteChanged();
+            return;
+        }
+
+        var kept = _lastReport.Files
+            .Where(f => _selectedSet.Contains(NormalizePath(f.FilePath)))
+            .ToList();
+        _lastReport = kept.Count > 0 ? PageAnalysisService.Combine(kept) : null;
+        if (_lastReport is null)
+        {
+            TotalLengthMeters = 0;
+            SummaryByFormat = string.Empty;
+            ResetFormatStatLines();
+        }
+        else
+        {
+            TotalLengthMeters = RoundMeters(_lastReport.TotalLengthMeters);
+            SummaryByFormat = BuildBatchSummary(_lastReport);
+            UpdateFormatStatLines();
+        }
+
+        ExportCsvCommand.NotifyCanExecuteChanged();
+        ExportXlsxCommand.NotifyCanExecuteChanged();
+        ClearAllCommand.NotifyCanExecuteChanged();
+    }
+
+    /// <summary>Анализирует файлы из списка, по которым ещё нет строки (после смены папки / рекурсии).</summary>
+    private async Task AnalyzeNewAndOrphanRowsAsync()
+    {
+        var missing = _selectedFiles.Where(f => !HasRowForNormalizedPath(f)).ToList();
+        if (missing.Count == 0)
+        {
+            StatusText =
+                $"Состав папки обновлён. В таблице {Rows.Count} файл(ов), суммарно {TotalLengthMeters:F3} м (по длинной стороне).";
+            return;
+        }
+
+        await AnalyzeAppendAsync(missing).ConfigureAwait(true);
+    }
+
+    private bool HasRowForNormalizedPath(string canonicalPath)
+    {
+        foreach (var row in Rows)
+        {
+            if (PathComparer.Equals(NormalizePath(row.FilePath), canonicalPath))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool TryAddUniquePdf(string rawPath, out string normalized)
+    {
+        normalized = NormalizePath(rawPath);
+        if (!_selectedSet.Add(normalized))
+        {
+            return false;
+        }
+
+        _selectedFiles.Add(normalized);
+        return true;
+    }
+
+    private static string NormalizePath(string path)
+    {
+        try
+        {
+            return Path.GetFullPath(path);
+        }
+        catch
+        {
+            return path.Trim();
+        }
     }
 
     private void ResetOutputsAfterSelectionChange()
@@ -470,7 +735,7 @@ public sealed partial class MainViewModel : ObservableObject
         ExportXlsxCommand.NotifyCanExecuteChanged();
     }
 
-    /// <summary>Очищает таблицу и сводные поля перед новым расчётом (без затрагивания выбора файлов).</summary>
+    /// <summary>Очищает таблицу и сводные поля перед полным пересчётом (без затрагивания выбора файлов).</summary>
     private void ResetOutputsBeforeRun()
     {
         Rows.Clear();

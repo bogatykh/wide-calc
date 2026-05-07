@@ -52,14 +52,24 @@ public sealed class MainViewModelTests
 
     private sealed class RecordingDialogs : IFileDialogService
     {
+        /// <summary>Если не пустая, при каждом вызове диалога файлов извлекается следующий набор путей.</summary>
+        public Queue<IReadOnlyList<string>> PickPdfQueue { get; } = new();
+
         public IReadOnlyList<string>? PickFilesResult { get; set; }
 
         public string? PickFolderResult { get; set; }
 
         public string? SaveFileResult { get; set; }
 
-        public Task<IReadOnlyList<string>?> PickPdfFilesAsync(CancellationToken cancellationToken = default) =>
-            Task.FromResult(PickFilesResult);
+        public Task<IReadOnlyList<string>?> PickPdfFilesAsync(CancellationToken cancellationToken = default)
+        {
+            if (PickPdfQueue.Count > 0)
+            {
+                return Task.FromResult<IReadOnlyList<string>?>(PickPdfQueue.Dequeue());
+            }
+
+            return Task.FromResult(PickFilesResult);
+        }
 
         public Task<string?> PickFolderAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(PickFolderResult);
@@ -88,6 +98,39 @@ public sealed class MainViewModelTests
         vm.Rows[0].FormatsSummary.Should().Contain("A4");
         vm.Rows[0].PageCount.Should().Be(1);
         vm.TotalLengthMeters.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task Repeated_file_picks_append_rows_without_clearing_prior_results()
+    {
+        var pathA = Path.GetFullPath(Path.Combine(Path.GetTempPath(), "printmeter-append-a.pdf"));
+        var pathB = Path.GetFullPath(Path.Combine(Path.GetTempPath(), "printmeter-append-b.pdf"));
+        var reader = new FakePdfPageReader(
+            path =>
+                string.Equals(Path.GetFullPath(path), pathA, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(Path.GetFullPath(path), pathB, StringComparison.OrdinalIgnoreCase)
+                    ? new[] { new PageDimensions(1, 595, 842) }
+                    : Array.Empty<PageDimensions>());
+
+        var analyzer = new BatchPdfAnalyzer(reader, new PageAnalysisService(new Iso216FormatRegistry()), 2);
+        var writer = new RecordingWriter();
+        var dialogs = new RecordingDialogs();
+        dialogs.PickPdfQueue.Enqueue(new[] { Path.Combine(Path.GetTempPath(), "printmeter-append-a.pdf") });
+        dialogs.PickPdfQueue.Enqueue(new[] { Path.Combine(Path.GetTempPath(), "printmeter-append-b.pdf") });
+        var vm = new MainViewModel(
+            new Iso216FormatRegistry(),
+            analyzer,
+            writer,
+            dialogs,
+            Options.Create(new PrintMeterOptions()),
+            NullLogger<MainViewModel>.Instance);
+
+        await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
+        await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
+
+        vm.Rows.Should().HaveCount(2);
+        vm.Rows.Should().OnlyContain(r => r.PageCount == 1);
+        vm.TotalLengthMeters.Should().BeApproximately(0.594, 0.02);
     }
 
     [Fact]

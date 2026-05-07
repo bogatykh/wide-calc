@@ -22,6 +22,15 @@
         <CheckBox Content="Рекурсивно искать PDF в папке" IsChecked="{Binding RecursiveFolders}" VerticalAlignment="Center" Margin="0,0,16,0" />
         <CheckBox Content="UTF-8 BOM для CSV (Excel RU)" IsChecked="{Binding Utf8BomForCsv}" VerticalAlignment="Center" />
       </StackPanel>
+      <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+        <TextBlock Text="Доступные форматы:" VerticalAlignment="Center" Margin="0,0,8,0" />
+        <CheckBox Content="A2" IsChecked="{Binding FormatA2}" VerticalAlignment="Center" Margin="0,0,8,0" />
+        <CheckBox Content="A3" IsChecked="{Binding FormatA3}" VerticalAlignment="Center" Margin="0,0,8,0" />
+        <CheckBox Content="A1+" IsChecked="{Binding FormatA1Plus}" VerticalAlignment="Center" Margin="0,0,8,0" />
+        <CheckBox Content="A0+" IsChecked="{Binding FormatA0Plus}" VerticalAlignment="Center" Margin="0,0,8,0" />
+        <CheckBox Content="A1" IsChecked="{Binding FormatA1}" VerticalAlignment="Center" Margin="0,0,8,0" />
+        <CheckBox Content="A0" IsChecked="{Binding FormatA0}" VerticalAlignment="Center" Margin="0,0,8,0" />
+      </StackPanel>
       <TextBlock Text="{Binding StatusText}" TextWrapping="Wrap" />
       <TextBlock Margin="0,6,0,0" FontWeight="SemiBold" Text="{Binding TotalLengthMeters, StringFormat='Всего, м: {0:F3}'}" />
       <ProgressBar Height="16" Margin="0,8,0,0" Minimum="0" Maximum="100" Value="{Binding ProgressValue}" />

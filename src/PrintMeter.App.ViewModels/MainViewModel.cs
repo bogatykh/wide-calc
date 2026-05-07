@@ -10,6 +10,7 @@ namespace PrintMeter.App.ViewModels;
 
 public sealed partial class MainViewModel : ObservableObject
 {
+    private readonly IFormatRegistry _formatRegistry;
     private readonly BatchPdfAnalyzer _batchPdfAnalyzer;
     private readonly IBatchReportWriter _reportWriter;
     private readonly IFileDialogService _fileDialogs;
@@ -19,17 +20,28 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly List<string> _selectedFiles = [];
 
     public MainViewModel(
+        IFormatRegistry formatRegistry,
         BatchPdfAnalyzer batchPdfAnalyzer,
         IBatchReportWriter reportWriter,
         IFileDialogService fileDialogs,
         IOptions<PrintMeterOptions> options,
         ILogger<MainViewModel> logger)
     {
+        _formatRegistry = formatRegistry;
         _batchPdfAnalyzer = batchPdfAnalyzer;
         _reportWriter = reportWriter;
         _fileDialogs = fileDialogs;
         _options = options;
         _logger = logger;
+
+        var enabled = _formatRegistry.EnabledFormats;
+        _formatA4 = enabled.Contains("A4");
+        _formatA3 = enabled.Contains("A3");
+        _formatA2 = enabled.Contains("A2");
+        _formatA1 = enabled.Contains("A1");
+        _formatA1Plus = enabled.Contains("A1+");
+        _formatA0 = enabled.Contains("A0");
+        _formatA0Plus = enabled.Contains("A0+");
     }
 
     public ObservableCollection<FileReportRowViewModel> Rows { get; } = new();
@@ -54,6 +66,21 @@ public sealed partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _utf8BomForCsv = true;
+
+    [ObservableProperty]
+    private bool _formatA4 = true;
+    [ObservableProperty]
+    private bool _formatA3 = true;
+    [ObservableProperty]
+    private bool _formatA2 = true;
+    [ObservableProperty]
+    private bool _formatA1 = true;
+    [ObservableProperty]
+    private bool _formatA1Plus = true;
+    [ObservableProperty]
+    private bool _formatA0 = true;
+    [ObservableProperty]
+    private bool _formatA0Plus = true;
 
     private BatchReport? _lastReport;
 
@@ -267,6 +294,32 @@ public sealed partial class MainViewModel : ObservableObject
 
     private static double RoundMeters(double m) =>
         Math.Round(m, MeasurementDefaults.LengthMetersDecimalPlaces, MidpointRounding.AwayFromZero);
+
+    private void ApplyEnabledFormatsAndRecalculate()
+    {
+        var enabled = new List<string>(7);
+        if (FormatA4) enabled.Add("A4");
+        if (FormatA3) enabled.Add("A3");
+        if (FormatA2) enabled.Add("A2");
+        if (FormatA1) enabled.Add("A1");
+        if (FormatA1Plus) enabled.Add("A1+");
+        if (FormatA0) enabled.Add("A0");
+        if (FormatA0Plus) enabled.Add("A0+");
+
+        _formatRegistry.SetEnabledFormats(enabled);
+        if (_selectedFiles.Count > 0 && !IsBusy)
+        {
+            _ = AnalyzeAsync();
+        }
+    }
+
+    partial void OnFormatA4Changed(bool value) => ApplyEnabledFormatsAndRecalculate();
+    partial void OnFormatA3Changed(bool value) => ApplyEnabledFormatsAndRecalculate();
+    partial void OnFormatA2Changed(bool value) => ApplyEnabledFormatsAndRecalculate();
+    partial void OnFormatA1Changed(bool value) => ApplyEnabledFormatsAndRecalculate();
+    partial void OnFormatA1PlusChanged(bool value) => ApplyEnabledFormatsAndRecalculate();
+    partial void OnFormatA0Changed(bool value) => ApplyEnabledFormatsAndRecalculate();
+    partial void OnFormatA0PlusChanged(bool value) => ApplyEnabledFormatsAndRecalculate();
 
     partial void OnRecursiveFoldersChanged(bool value)
     {

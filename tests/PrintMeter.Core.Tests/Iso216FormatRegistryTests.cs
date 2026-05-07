@@ -31,4 +31,11 @@ public sealed class Iso216FormatRegistryTests
         var label = _registry.ResolveLabel(1200, 1000, MeasurementDefaults.FormatToleranceMm);
         label.Should().StartWith("Custom");
     }
+
+    [Fact]
+    public void Disabled_a0_falls_back_to_a0_plus()
+    {
+        _registry.SetEnabledFormats(["A4", "A3", "A2", "A1", "A1+", "A0+"]);
+        _registry.ResolveLabel(1200, 841, MeasurementDefaults.FormatToleranceMm).Should().Be("A0+");
+    }
 }

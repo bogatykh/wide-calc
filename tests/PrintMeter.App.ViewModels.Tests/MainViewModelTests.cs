@@ -80,7 +80,7 @@ public sealed class MainViewModelTests
         var writer = new RecordingWriter();
         var dialogs = new RecordingDialogs { PickFilesResult = new[] { @"C:\demo\a.pdf" } };
         var options = Options.Create(new PrintMeterOptions());
-        var vm = new MainViewModel(analyzer, writer, dialogs, options, NullLogger<MainViewModel>.Instance);
+        var vm = new MainViewModel(new Iso216FormatRegistry(), analyzer, writer, dialogs, options, NullLogger<MainViewModel>.Instance);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
         await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
@@ -104,7 +104,7 @@ public sealed class MainViewModelTests
         };
 
         var options = Options.Create(new PrintMeterOptions());
-        var vm = new MainViewModel(analyzer, writer, dialogs, options, NullLogger<MainViewModel>.Instance);
+        var vm = new MainViewModel(new Iso216FormatRegistry(), analyzer, writer, dialogs, options, NullLogger<MainViewModel>.Instance);
 
         await ((IAsyncRelayCommand)vm.PickFilesCommand).ExecuteAsync(null);
         await ((IAsyncRelayCommand)vm.AnalyzeCommand).ExecuteAsync(null);
@@ -131,6 +131,7 @@ public sealed class MainViewModelTests
         };
 
         var vm = new MainViewModel(
+            new Iso216FormatRegistry(),
             analyzer,
             writer,
             dialogs,
@@ -155,6 +156,7 @@ public sealed class MainViewModelTests
         var reader = new FakePdfPageReader(_ => throw new InvalidOperationException("bad pdf"));
         var analyzer = new BatchPdfAnalyzer(reader, new PageAnalysisService(new Iso216FormatRegistry()), 1);
         var vm = new MainViewModel(
+            new Iso216FormatRegistry(),
             analyzer,
             new RecordingWriter(),
             new RecordingDialogs { PickFilesResult = new[] { @"C:\demo\bad.pdf" } },
@@ -172,6 +174,7 @@ public sealed class MainViewModelTests
     public async Task AnalyzeCommand_disabled_when_no_files_selected()
     {
         var vm = new MainViewModel(
+            new Iso216FormatRegistry(),
             new BatchPdfAnalyzer(
                 new FakePdfPageReader(_ => Array.Empty<PageDimensions>()),
                 new PageAnalysisService(new Iso216FormatRegistry()),
@@ -190,6 +193,7 @@ public sealed class MainViewModelTests
     public async Task CancelCommand_toggles_while_analysis_running()
     {
         var vm = new MainViewModel(
+            new Iso216FormatRegistry(),
             new BatchPdfAnalyzer(
                 new DelayedPdfPageReader(TimeSpan.FromMilliseconds(200)),
                 new PageAnalysisService(new Iso216FormatRegistry()),
@@ -224,6 +228,7 @@ public sealed class MainViewModelTests
     {
         var writer = new RecordingWriter();
         var vm = new MainViewModel(
+            new Iso216FormatRegistry(),
             new BatchPdfAnalyzer(
                 new FakePdfPageReader(_ => new[] { new PageDimensions(1, 595, 842) }),
                 new PageAnalysisService(new Iso216FormatRegistry()),
@@ -249,6 +254,7 @@ public sealed class MainViewModelTests
     {
         var writer = new RecordingWriter();
         var vm = new MainViewModel(
+            new Iso216FormatRegistry(),
             new BatchPdfAnalyzer(
                 new FakePdfPageReader(_ => new[] { new PageDimensions(1, 595, 842) }),
                 new PageAnalysisService(new Iso216FormatRegistry()),
@@ -273,6 +279,7 @@ public sealed class MainViewModelTests
     public async Task ExportCommands_can_execute_only_after_analysis()
     {
         var vm = new MainViewModel(
+            new Iso216FormatRegistry(),
             new BatchPdfAnalyzer(
                 new FakePdfPageReader(_ => new[] { new PageDimensions(1, 595, 842) }),
                 new PageAnalysisService(new Iso216FormatRegistry()),

@@ -16,12 +16,33 @@ public sealed class Iso216FormatRegistry : IFormatRegistry
         new SizeBand("A0+", 914),
     ];
 
+    private readonly HashSet<string> _enabledFormats = new(
+        FormatBands.Select(b => b.Label),
+        StringComparer.Ordinal);
+
+    public IReadOnlyList<string> SupportedFormats => FormatBands.Select(b => b.Label).ToArray();
+
+    public IReadOnlyCollection<string> EnabledFormats => _enabledFormats.ToArray();
+
+    public void SetEnabledFormats(IEnumerable<string> formats)
+    {
+        var requested = new HashSet<string>(formats, StringComparer.Ordinal);
+        _enabledFormats.Clear();
+        foreach (var band in FormatBands)
+        {
+            if (requested.Contains(band.Label))
+            {
+                _enabledFormats.Add(band.Label);
+            }
+        }
+    }
+
     public string ResolveLabel(double longMm, double shortMm, double toleranceMm)
     {
         var widthMm = shortMm;
         foreach (var band in FormatBands)
         {
-            if (widthMm <= band.MaxWidthMm + toleranceMm)
+            if (widthMm <= band.MaxWidthMm + toleranceMm && _enabledFormats.Contains(band.Label))
             {
                 return band.Label;
             }

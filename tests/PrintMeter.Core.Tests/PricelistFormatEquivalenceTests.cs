@@ -7,11 +7,11 @@ namespace PrintMeter.Core.Tests;
 public sealed class PricelistFormatEquivalenceTests
 {
     [Fact]
-    public void Iso_row_uses_built_in_divisor_ceiling_partial_counts_as_full()
+    public void A0_row_uses_iso_long_divisor_ceiling_partial_counts_as_full()
     {
         var summary = new Dictionary<string, FormatAggregate>(StringComparer.Ordinal)
         {
-            ["A0+"] = new FormatAggregate(1, 1100 / 1000.0),
+            ["A0"] = new FormatAggregate(1, 1100 / 1000.0),
         };
 
         var rows = PricelistFormatEquivalence.ComputeRows(
@@ -21,8 +21,8 @@ public sealed class PricelistFormatEquivalenceTests
 
         rows.Should().ContainSingle();
         var r = rows[0];
-        r.FormatLabel.Should().Be("A0+");
-        r.DivisorMm.Should().Be(PricelistFormatEquivalence.IsoNominalLongEdgeMm["A0+"]);
+        r.FormatLabel.Should().Be("A0");
+        r.DivisorMm.Should().Be(1189);
         r.CombinedLongMm.Should().BeApproximately(1100, 1e-6);
         r.BillingSheets.Should().Be(1);
     }

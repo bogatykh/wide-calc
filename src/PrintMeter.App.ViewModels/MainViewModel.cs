@@ -49,9 +49,7 @@ public sealed partial class MainViewModel : ObservableObject
         _formatA3 = enabled.Contains("A3");
         _formatA2 = enabled.Contains("A2");
         _formatA1 = enabled.Contains("A1");
-        _formatA1Plus = enabled.Contains("A1+");
         _formatA0 = enabled.Contains("A0");
-        _formatA0Plus = enabled.Contains("A0+");
     }
 
     public ObservableCollection<FileReportRowViewModel> Rows { get; } = new();
@@ -87,11 +85,7 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _formatA1 = true;
     [ObservableProperty]
-    private bool _formatA1Plus = true;
-    [ObservableProperty]
     private bool _formatA0 = true;
-    [ObservableProperty]
-    private bool _formatA0Plus = true;
 
     [ObservableProperty]
     private string _formatStatA4 = "—";
@@ -106,13 +100,7 @@ public sealed partial class MainViewModel : ObservableObject
     private string _formatStatA1 = "—";
 
     [ObservableProperty]
-    private string _formatStatA1Plus = "—";
-
-    [ObservableProperty]
     private string _formatStatA0 = "—";
-
-    [ObservableProperty]
-    private string _formatStatA0Plus = "—";
 
     /// <summary>Условные листы по прайсу: по каждому ISO-формату Σ мм длинной стороны ÷ номинал (зашит в <see cref="PricelistFormatEquivalence.IsoNominalLongEdgeMm"/>).</summary>
     [ObservableProperty]
@@ -435,7 +423,7 @@ public sealed partial class MainViewModel : ObservableObject
         if (rows.Count == 0)
         {
             BillingPricelistFormatsSummary =
-                "Прайс по форматам: нет ISO-меток в сводке (или только Custom / нулевой метраж). Номиналы A4…A0+ заданы в коде.";
+                "Прайс по форматам: нет ISO-меток в сводке (или только Custom / нулевой метраж). Номиналы A4…A0 заданы в коде.";
             return;
         }
 
@@ -563,14 +551,12 @@ public sealed partial class MainViewModel : ObservableObject
 
     private void ApplyEnabledFormatsAndRecalculate()
     {
-        var enabled = new List<string>(7);
+        var enabled = new List<string>(5);
         if (FormatA4) enabled.Add("A4");
         if (FormatA3) enabled.Add("A3");
         if (FormatA2) enabled.Add("A2");
         if (FormatA1) enabled.Add("A1");
-        if (FormatA1Plus) enabled.Add("A1+");
         if (FormatA0) enabled.Add("A0");
-        if (FormatA0Plus) enabled.Add("A0+");
 
         _formatRegistry.SetEnabledFormats(enabled);
         if (_selectedFiles.Count > 0 && !IsBusy)
@@ -583,9 +569,7 @@ public sealed partial class MainViewModel : ObservableObject
     partial void OnFormatA3Changed(bool value) => ApplyEnabledFormatsAndRecalculate();
     partial void OnFormatA2Changed(bool value) => ApplyEnabledFormatsAndRecalculate();
     partial void OnFormatA1Changed(bool value) => ApplyEnabledFormatsAndRecalculate();
-    partial void OnFormatA1PlusChanged(bool value) => ApplyEnabledFormatsAndRecalculate();
     partial void OnFormatA0Changed(bool value) => ApplyEnabledFormatsAndRecalculate();
-    partial void OnFormatA0PlusChanged(bool value) => ApplyEnabledFormatsAndRecalculate();
 
     partial void OnRecursiveFoldersChanged(bool value)
     {
@@ -810,9 +794,7 @@ public sealed partial class MainViewModel : ObservableObject
         FormatStatA3 = "—";
         FormatStatA2 = "—";
         FormatStatA1 = "—";
-        FormatStatA1Plus = "—";
         FormatStatA0 = "—";
-        FormatStatA0Plus = "—";
     }
 
     private void UpdateFormatStatLines()
@@ -821,9 +803,7 @@ public sealed partial class MainViewModel : ObservableObject
         FormatStatA3 = FormatStatForLabel("A3");
         FormatStatA2 = FormatStatForLabel("A2");
         FormatStatA1 = FormatStatForLabel("A1");
-        FormatStatA1Plus = FormatStatForLabel("A1+");
         FormatStatA0 = FormatStatForLabel("A0");
-        FormatStatA0Plus = FormatStatForLabel("A0+");
         RefreshBillingPricelistFormatsSummary();
     }
 

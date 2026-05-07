@@ -17,7 +17,10 @@ public static class PricelistFormatEquivalence
         NearestAwayFromZero,
     }
 
-    /// <summary>Номинальная длинная сторона (мм) для ISO-меток из реестра приложения.</summary>
+    /// <summary>
+    /// Номинальная длинная сторона (мм) для строки прайса. Классификация A1/A0 охватывает бывшие A1+/A0+ по ширине,
+    /// но здесь считаются стандартные длины базовых форматов.
+    /// </summary>
     public static readonly IReadOnlyDictionary<string, double> IsoNominalLongEdgeMm = new Dictionary<string, double>(
         StringComparer.Ordinal)
     {
@@ -25,9 +28,7 @@ public static class PricelistFormatEquivalence
         ["A3"] = 420,
         ["A2"] = 594,
         ["A1"] = 841,
-        ["A1+"] = 914,
         ["A0"] = 1189,
-        ["A0+"] = 1292,
     };
 
     public sealed record FormatRow(string FormatLabel, double CombinedLongMm, double DivisorMm, double RawSheets, int BillingSheets);

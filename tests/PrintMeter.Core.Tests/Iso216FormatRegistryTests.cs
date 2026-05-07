@@ -11,8 +11,8 @@ public sealed class Iso216FormatRegistryTests
     [Theory]
     [InlineData(1200, 297, "A3")]
     [InlineData(1200, 420, "A2")]
-    [InlineData(1200, 610, "A1+")]
-    [InlineData(1200, 910, "A0+")]
+    [InlineData(1200, 610, "A1")]
+    [InlineData(1200, 910, "A0")]
     public void Groups_sizes_by_width_band_for_lekala_profile(double longMm, double shortMm, string expected)
     {
         _registry.ResolveLabel(longMm, shortMm, MeasurementDefaults.FormatToleranceMm).Should().Be(expected);
@@ -33,9 +33,9 @@ public sealed class Iso216FormatRegistryTests
     }
 
     [Fact]
-    public void Disabled_a0_falls_back_to_a0_plus()
+    public void With_only_smaller_formats_enabled_wide_sheet_is_custom_not_a_plus_bucket()
     {
-        _registry.SetEnabledFormats(["A4", "A3", "A2", "A1", "A1+", "A0+"]);
-        _registry.ResolveLabel(1200, 841, MeasurementDefaults.FormatToleranceMm).Should().Be("A0+");
+        _registry.SetEnabledFormats(["A4", "A3", "A2", "A1"]);
+        _registry.ResolveLabel(1200, 841, MeasurementDefaults.FormatToleranceMm).Should().StartWith("Custom");
     }
 }

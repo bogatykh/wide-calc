@@ -77,8 +77,6 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
               </Grid.RowDefinitions>
 
               <CheckBox Grid.Row="0" Grid.Column="0" Content="A4" IsChecked="{Binding FormatA4}" VerticalAlignment="Center" Margin="0,0,12,8" />
@@ -90,17 +88,11 @@
               <CheckBox Grid.Row="2" Grid.Column="0" Content="A2" IsChecked="{Binding FormatA2}" VerticalAlignment="Center" Margin="0,0,12,8" />
               <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding FormatStatA2}" VerticalAlignment="Center" Margin="0,0,0,8" Foreground="#333" />
 
-              <CheckBox Grid.Row="3" Grid.Column="0" Content="A1" IsChecked="{Binding FormatA1}" VerticalAlignment="Center" Margin="0,0,12,8" />
+              <CheckBox Grid.Row="3" Grid.Column="0" Content="A1" IsChecked="{Binding FormatA1}" ToolTip="Короткая сторона до 610 mm (все бывшие A1+ считаются как A1)." VerticalAlignment="Center" Margin="0,0,12,8" />
               <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding FormatStatA1}" VerticalAlignment="Center" Margin="0,0,0,8" Foreground="#333" />
 
-              <CheckBox Grid.Row="4" Grid.Column="0" Content="A1+" IsChecked="{Binding FormatA1Plus}" VerticalAlignment="Center" Margin="0,0,12,8" />
-              <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding FormatStatA1Plus}" VerticalAlignment="Center" Margin="0,0,0,8" Foreground="#333" />
-
-              <CheckBox Grid.Row="5" Grid.Column="0" Content="A0" IsChecked="{Binding FormatA0}" VerticalAlignment="Center" Margin="0,0,12,8" />
-              <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding FormatStatA0}" VerticalAlignment="Center" Margin="0,0,0,8" Foreground="#333" />
-
-              <CheckBox Grid.Row="6" Grid.Column="0" Content="A0+" IsChecked="{Binding FormatA0Plus}" VerticalAlignment="Center" Margin="0,0,12,0" />
-              <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding FormatStatA0Plus}" VerticalAlignment="Center" Foreground="#333" />
+              <CheckBox Grid.Row="4" Grid.Column="0" Content="A0" IsChecked="{Binding FormatA0}" ToolTip="Короткая сторона до 914 mm (все бывшие A0+ считаются как A0)." VerticalAlignment="Center" Margin="0,0,12,0" />
+              <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding FormatStatA0}" VerticalAlignment="Center" Foreground="#333" />
             </Grid>
           </StackPanel>
         </Border>

@@ -14,8 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: microsoft/setup-msbuild@v2
-
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
@@ -28,6 +26,8 @@ jobs:
 
       - name: Restore
         run: dotnet restore PrintMeter.sln --nologo
+
+      - uses: microsoft/setup-msbuild@v2
 
       - name: Build
         shell: pwsh

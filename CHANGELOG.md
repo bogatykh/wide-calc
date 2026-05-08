@@ -1,5 +1,40 @@
 # Changelog
 
+## [0.4.0](https://github.com/bogatykh/wide-calc/compare/v0.3.0...v0.4.0) (2026-05-08)
+
+
+### Features
+
+* **dotnet:** migrate solution and workflows to .NET 10 ([961be13](https://github.com/bogatykh/wide-calc/commit/961be13ec02ee9f25422cab3475072a99d60484d))
+* migrate desktop app to WinUI 3 and refresh UI ([f779104](https://github.com/bogatykh/wide-calc/commit/f77910480ca4dc5b7f198f38a0d70b022d0e6821))
+* restore CommunityToolkit WinUI DataGrid for results ([ffd68ec](https://github.com/bogatykh/wide-calc/commit/ffd68eccfbb5d8dbb1e01a07a6fa6e0011d5c5d1))
+
+
+### Bug Fixes
+
+* **build:** minimal WinUI XAML to bisect XamlCompiler CI failure ([2c42e55](https://github.com/bogatykh/wide-calc/commit/2c42e5531fbe8962e7476d77335f037eeb65fe15))
+* **build:** pin Windows App SDK 1.8 for WinUI toolkit compatibility ([965104d](https://github.com/bogatykh/wide-calc/commit/965104d3a2052e7580de1392524d0618f8fb52f1))
+* **build:** remove Export reference from WinUI app to slim XAML compile graph ([8b12690](https://github.com/bogatykh/wide-calc/commit/8b1269055c554cf0f80ddf0d0c22e8c3b45261d6))
+* **build:** remove Pdf project reference from WinUI compile graph ([55ffecd](https://github.com/bogatykh/wide-calc/commit/55ffecd450578470ddb326cbe8f2d86167286cbc))
+* **build:** remove star column grids, inline Results border, pin WinUI 1.8 ([3e7a420](https://github.com/bogatykh/wide-calc/commit/3e7a4206379cd321a1b3120fd1dba1b4516f04f6))
+* **build:** retarget WinUI app and libs to .NET 8 for CI XAML toolchain ([ece4562](https://github.com/bogatykh/wide-calc/commit/ece45626f06202567617fee46d1cb2aa5ae7c76c))
+* **build:** run WinUI XAML compiler in-proc on CI ([76a3ac3](https://github.com/bogatykh/wide-calc/commit/76a3ac30129d87afb94cfd7106ad1de169102f6e))
+* **build:** use WinApp SDK 1.6 and windows-2022 for XamlCompiler CI ([701de63](https://github.com/bogatykh/wide-calc/commit/701de63faf3d397d5dda48ac3b2cf3e88457e960))
+* **build:** WinUI TFM 22621, pin Windows SDK ref, CI uses .NET 9 SDK ([eec06df](https://github.com/bogatykh/wide-calc/commit/eec06dff75e8f90054edb6914fe650151d27c01a))
+* **winui:** disable generated app bootstrap Program to avoid Main conflict ([22a133d](https://github.com/bogatykh/wide-calc/commit/22a133d41211078795bf9f0f4e5fe9fd2a2a1136))
+* **winui:** escape Binding StringFormat placeholder in MainWindow.xaml ([7f04c93](https://github.com/bogatykh/wide-calc/commit/7f04c93e67efeb1556aa4467b8d973f080085706))
+* **winui:** fallback to minimal XAML after pass1 compile failures ([79be4b1](https://github.com/bogatykh/wide-calc/commit/79be4b130ce3207d4c7e2cde2f02eea77ae0e180))
+* **winui:** move formatted totals out of XAML; rename row Error binding ([df7e92a](https://github.com/bogatykh/wide-calc/commit/df7e92a020ec09cfb8118620543b99ad309bd69b))
+* **winui:** remove manual Program entrypoint to avoid duplicate Main ([6c46701](https://github.com/bogatykh/wide-calc/commit/6c4670157a13e3eafe86e924803843cf5dff25f6))
+* **winui:** remove unsupported Window size properties from XAML ([66c7ec9](https://github.com/bogatykh/wide-calc/commit/66c7ec96efbd1d7f7aa81cf1e2e3c9407b3bf20e))
+* **winui:** replace invalid ListView.View GridView with ItemTemplate ([39a6cd9](https://github.com/bogatykh/wide-calc/commit/39a6cd9661e06a7833b0cb1c28ebea403a41b4ac))
+* **winui:** replace toolkit DataGrid with ListView for CI XAML compile ([d8be343](https://github.com/bogatykh/wide-calc/commit/d8be3438d6b33744c9215fcbc1a918dceeb07a08))
+* **winui:** replace unsupported Window MinWidth/MinHeight in XAML ([43a3fe9](https://github.com/bogatykh/wide-calc/commit/43a3fe9b7c71ece87ae579739d89fcdeffb3d22c))
+* **winui:** restore full app stack after CI diagnostics ([5abe2fc](https://github.com/bogatykh/wide-calc/commit/5abe2fccf5cd9662136f90994f66d3efb418f81d))
+* **winui:** use string overload for filter split in file dialog service ([72981cb](https://github.com/bogatykh/wide-calc/commit/72981cba3a171d0cd7e385023700b32b2d7ddc80))
+* **winui:** use string StartsWith for extension prefix check ([5aee335](https://github.com/bogatykh/wide-calc/commit/5aee335fbd9ea1316704ef0114ec9fadf30852d4))
+* **winui:** use string StartsWith overload in filter parser ([d685207](https://github.com/bogatykh/wide-calc/commit/d685207aee7b551b075422edad2f49661b1c3b98))
+
 ## [0.3.0](https://github.com/bogatykh/wide-calc/compare/v0.2.6...v0.3.0) (2026-05-07)
 
 

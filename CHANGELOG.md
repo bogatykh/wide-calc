@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.0](https://github.com/bogatykh/wide-calc/compare/v0.4.0...v0.5.0) (2026-05-08)
+
+
+### Features
+
+* **winui:** redesign main workspace UX and format controls ([1707e86](https://github.com/bogatykh/wide-calc/commit/1707e868ab9de913b44e41864f3082969848e125))
+* **winui:** redesign main workspace UX and format controls ([18a9ba9](https://github.com/bogatykh/wide-calc/commit/18a9ba9ab165ca8cad7f725ebf67b669a787a4e2))
+
+
+### Bug Fixes
+
+* **winui:** remove unsupported XAML members for CI build ([72b242b](https://github.com/bogatykh/wide-calc/commit/72b242bff86f46a3e922ddaf72799c4fe8e41aed))
+* **winui:** use Windows.UI.Color in format brush converter ([aafc9e2](https://github.com/bogatykh/wide-calc/commit/aafc9e2ec3f94bb3191289bd74eb5444d054c492))
+
 ## [0.4.0](https://github.com/bogatykh/wide-calc/compare/v0.3.0...v0.4.0) (2026-05-08)
 
 

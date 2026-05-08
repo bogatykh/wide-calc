@@ -7,7 +7,10 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
+    env:
+      DOTNET_MULTILEVEL_LOOKUP: "0"
+      MSBuildEnableWorkloadResolver: false
     steps:
       - uses: actions/checkout@v4
 
@@ -24,8 +27,19 @@ jobs:
       - name: Restore
         run: dotnet restore PrintMeter.sln --nologo
 
+      - uses: microsoft/setup-msbuild@v2
+
       - name: Build
-        run: dotnet build PrintMeter.sln -c Release --no-restore
+        shell: pwsh
+        run: |
+          msbuild src/PrintMeter.App/PrintMeter.App.csproj `
+            /t:Build `
+            /p:Configuration=Release `
+            /p:Platform=x64 `
+            /p:Restore=false `
+            /m `
+            /v:m
 
       - name: Test
-        run: dotnet test PrintMeter.sln -c Release --no-build --collect:"XPlat Code Coverage"
+        run: dotnet test PrintMeter.Mac.slnf -c Release --collect:"XPlat Code Coverage"
+

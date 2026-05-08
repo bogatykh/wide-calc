@@ -1,14 +1,9 @@
 using System.IO;
-using WpfApplication = System.Windows.Application;
-using StartupEventArgs = System.Windows.StartupEventArgs;
-using ExitEventArgs = System.Windows.ExitEventArgs;
-using MessageBox = System.Windows.MessageBox;
-using MessageBoxButton = System.Windows.MessageBoxButton;
-using MessageBoxImage = System.Windows.MessageBoxImage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.UI.Xaml;
 using PrintMeter.App.ViewModels;
 using PrintMeter.Core;
 using PrintMeter.Export;
@@ -17,17 +12,23 @@ using Serilog;
 
 namespace PrintMeter.App;
 
-public partial class App : WpfApplication
+public partial class App : Application
 {
     private IHost? _host;
+
+    /// <summary>Ссылка для WinRT pickers (HWND главного окна).</summary>
+    internal static Window? MainWindowRef { get; private set; }
+
+    public App()
+    {
+        InitializeComponent();
+    }
 
     public static IServiceProvider Services =>
         ((App)Current)._host?.Services ?? throw new InvalidOperationException("Host not initialized.");
 
-    protected override async void OnStartup(StartupEventArgs e)
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
-        base.OnStartup(e);
-
         var logDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "PrintMeter",
@@ -74,7 +75,7 @@ public partial class App : WpfApplication
                         services.AddSingleton<CsvBatchReportExporter>();
                         services.AddSingleton<XlsxBatchReportExporter>();
                         services.AddSingleton<IBatchReportWriter, BatchReportWriter>();
-                        services.AddSingleton<IFileDialogService, Win32FileDialogService>();
+                        services.AddSingleton<IFileDialogService, WinUiFileDialogService>();
                         services.AddSingleton<MainViewModel>();
                         services.AddSingleton<MainWindow>();
                     })
@@ -83,32 +84,46 @@ public partial class App : WpfApplication
             await _host.StartAsync().ConfigureAwait(true);
 
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
-            MainWindow = mainWindow;
-            mainWindow.Show();
+            MainWindowRef = mainWindow;
+            mainWindow.Closed += MainWindowOnClosed;
+            mainWindow.Activate();
         }
         catch (Exception ex)
         {
             Log.Fatal(ex, "Application failed to start");
-            MessageBox.Show(ex.ToString(), "PrintMeter — ошибка запуска", MessageBoxButton.OK, MessageBoxImage.Error);
-            Shutdown(1);
+            Log.CloseAndFlush();
+            Environment.Exit(1);
         }
     }
 
-    protected override async void OnExit(ExitEventArgs e)
+    private async void MainWindowOnClosed(object sender, WindowEventArgs args)
     {
         try
         {
-            if (_host is not null)
-            {
-                await _host.StopAsync().ConfigureAwait(true);
-                _host.Dispose();
-            }
+            await StopApplicationServicesAsync().ConfigureAwait(true);
         }
         finally
         {
             Log.CloseAndFlush();
         }
+    }
 
-        base.OnExit(e);
+    internal async Task StopApplicationServicesAsync()
+    {
+        if (_host is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _host.StopAsync().ConfigureAwait(true);
+        }
+        finally
+        {
+            _host.Dispose();
+            _host = null;
+            MainWindowRef = null;
+        }
     }
 }

@@ -17,5 +17,5 @@ public sealed partial class FileReportRowViewModel : ObservableObject
     private string _formatsSummary = string.Empty;
 
     [ObservableProperty]
-    private string? _error;
+    private string? _issueText;
 }

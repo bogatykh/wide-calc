@@ -37,7 +37,6 @@ jobs:
         run: >
           dotnet restore src/PrintMeter.App/PrintMeter.App.csproj
           -r win-x64
-          -p:PublishReadyToRun=true
           --nologo
 
       - name: Publish
@@ -52,7 +51,6 @@ jobs:
             /p:SelfContained=true `
             /p:WindowsAppSDKSelfContained=true `
             /p:PublishTrimmed=false `
-            /p:PublishReadyToRun=true `
             /p:PublishDir=${{ github.workspace }}/artifacts/publish/ `
             /m `
             /v:m

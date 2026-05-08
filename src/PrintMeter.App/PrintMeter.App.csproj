@@ -52,4 +52,14 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <!-- SelfContained.targets clears PriIndexName before MarkupCompile; empty index breaks LoadComponent / PRI mapping for unpackaged self-contained installs (see Windows App SDK + WinUI PRI issues). -->
+  <Target Name="_RestorePriIndexNameAfterSelfContainedOverride"
+          AfterTargets="_OverrideGetPriIndexName"
+          BeforeTargets="MarkupCompilePass1"
+          Condition="'$(WindowsAppSDKSelfContained)' == 'true'">
+    <PropertyGroup>
+      <PriIndexName>$(AssemblyName)</PriIndexName>
+    </PropertyGroup>
+  </Target>
 </Project>

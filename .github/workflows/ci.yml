@@ -53,6 +53,37 @@ jobs:
       - name: Test
         run: dotnet test PrintMeter.sln -c Release --no-build --collect:"XPlat Code Coverage"
 
+      - name: Dump XAML compiler context on failure
+        if: failure()
+        shell: pwsh
+        run: |
+          $objRoot = "src/PrintMeter.App/obj/Release/net8.0-windows10.0.22621.0"
+          $inputJson = Join-Path $objRoot "input.json"
+          $outputJson = Join-Path $objRoot "output.json"
+
+          Write-Host "== XAML compiler context =="
+          Write-Host "objRoot: $objRoot"
+          if (Test-Path $inputJson) {
+            Write-Host "input.json exists: yes"
+            Write-Host "--- input.json (first 300 lines) ---"
+            Get-Content $inputJson | Select-Object -First 300
+          } else {
+            Write-Host "input.json exists: no"
+          }
+
+          if (Test-Path $outputJson) {
+            Write-Host "output.json exists: yes"
+            Write-Host "--- output.json (first 300 lines) ---"
+            Get-Content $outputJson | Select-Object -First 300
+          } else {
+            Write-Host "output.json exists: no"
+          }
+
+          Write-Host "--- obj error/log candidates ---"
+          Get-ChildItem -Path $objRoot -File -Recurse -ErrorAction SilentlyContinue |
+            Where-Object { $_.Extension -in @(".err", ".log", ".txt", ".json") } |
+            Select-Object FullName, Length
+
       - name: Upload Windows diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4

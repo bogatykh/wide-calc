@@ -120,6 +120,10 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
+            Log.Fatal(
+                "Application failed to start (HR {Hr}, BaseDirectory {Dir})",
+                $"0x{ex.HResult:X8}",
+                AppContext.BaseDirectory);
             Log.Fatal(ex, "Application failed to start");
             Log.CloseAndFlush();
             NativeUi.ShowError("PrintMeter", $"Ошибка запуска: {ex.Message}");

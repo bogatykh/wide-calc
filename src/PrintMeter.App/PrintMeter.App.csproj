@@ -23,6 +23,8 @@
     <WindowsSdkPackageVersion>10.0.22621.56</WindowsSdkPackageVersion>
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     <StartupObject>PrintMeter.App.Program</StartupObject>
+    <CopyBuildOutputToPublishDirectory>true</CopyBuildOutputToPublishDirectory>
+    <EnablePriGenTooling>true</EnablePriGenTooling>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(WindowsAppSDKSelfContained)' == 'true'">
@@ -52,4 +54,22 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <!-- .NET publish иногда не подхватывает project PRI; без него LoadComponent(ms-appx:///...) падает с XamlParseException. -->
+  <Target Name="_PrintMeterEnsureAppPriInPublish" BeforeTargets="CopyFilesToPublishDirectory">
+    <ItemGroup>
+      <_AppPriCandidate Include="$(TargetDir)PrintMeter.pri" Condition="Exists('$(TargetDir)PrintMeter.pri')" />
+      <_AppPriCandidate Include="$(TargetDir)resources.pri" Condition="Exists('$(TargetDir)resources.pri')" />
+    </ItemGroup>
+    <ItemGroup>
+      <ResolvedFileToPublish Include="@(_AppPriCandidate)">
+        <RelativePath>%(_AppPriCandidate.Filename)%(_AppPriCandidate.Extension)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+    <Warning
+        Code="PM1001"
+        Text="PrintMeter: не найден ни PrintMeter.pri, ни resources.pri в $(TargetDir) — проверьте GenerateProjectPriFile / MRT."
+        Condition="'@(_AppPriCandidate)' == ''" />
+  </Target>
 </Project>

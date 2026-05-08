@@ -59,6 +59,10 @@ jobs:
         shell: pwsh
         run: |
           Get-ChildItem -Path ./artifacts/publish -Filter *.pri -Recurse | ForEach-Object { $_.FullName }
+          if (-not (Test-Path ./artifacts/publish/PrintMeter.pri) -and -not (Test-Path ./artifacts/publish/resources.pri)) {
+            Write-Error 'Expected PrintMeter.pri or resources.pri in publish root (app MRT map).'
+            exit 1
+          }
 
       - name: Install Inno Setup
         shell: pwsh

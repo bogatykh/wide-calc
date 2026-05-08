@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.5.2](https://github.com/bogatykh/wide-calc/compare/v0.5.1...v0.5.2) (2026-05-08)
+
+
+### Bug Fixes
+
+* **winui:** allow unsafe blocks for LibraryImport MessageBox P/Invoke ([72ede45](https://github.com/bogatykh/wide-calc/commit/72ede45e85e332eb98dc899b980764b2529ac960))
+* **winui:** disable XAML-generated Program to fix CS0101 duplicate class ([33322ef](https://github.com/bogatykh/wide-calc/commit/33322efb0ab12cc2744b5e8e46a6d953ac894bd4))
+* **winui:** fix Program bootstrap types and Application.Start discard clash ([9fb494d](https://github.com/bogatykh/wide-calc/commit/9fb494da44f9b149158f9c9ff1b9813da3fe0263))
+* **winui:** replace silent bootstrap Exit with handled TryInitialize before Main ([03ecfaa](https://github.com/bogatykh/wide-calc/commit/03ecfaaa1ed59de56598fac89b67932ffa43e568))
+* **winui:** restore explicit Program.Main with DispatcherQueue sync context ([a71cdc1](https://github.com/bogatykh/wide-calc/commit/a71cdc13321178b236e607a4aca8894a764241fa))
+
 ## [0.5.1](https://github.com/bogatykh/wide-calc/compare/v0.5.0...v0.5.1) (2026-05-08)
 
 

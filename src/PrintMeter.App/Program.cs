@@ -12,11 +12,12 @@ public static class Program
 #if !PRINTMETER_WINDOWS_APPSDK_SELF_CONTAINED
     private const uint SdkMajorMinor = 0x00010006;
 
-    private static readonly Windows.ApplicationModel.PackageVersion s_minRuntimeVersion = new(0x1770020701490000UL);
+    private static readonly PackageVersion s_minRuntimeVersion =
+        new(global::Microsoft.WindowsAppSDK.Runtime.Version.UInt64);
 #endif
 
     [STAThread]
-    private static void Main(string[] _)
+    private static void Main()
     {
 #if !PRINTMETER_WINDOWS_APPSDK_SELF_CONTAINED
         if (
@@ -38,8 +39,9 @@ public static class Program
 
         global::WinRT.ComWrappersSupport.InitializeComWrappers();
 
-        Application.Start(static _ =>
+        Application.Start(static p =>
         {
+            _ = p;
             var dq = DispatcherQueue.GetForCurrentThread();
             var sync = new DispatcherQueueSynchronizationContext(dq);
             System.Threading.SynchronizationContext.SetSynchronizationContext(sync);

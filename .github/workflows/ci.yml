@@ -25,7 +25,20 @@ jobs:
         run: dotnet restore PrintMeter.sln --nologo
 
       - name: Build
-        run: dotnet build PrintMeter.sln -c Release --no-restore
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts | Out-Null
+          dotnet build PrintMeter.sln -c Release --no-restore -v:d -bl:artifacts/ci.binlog
 
       - name: Test
         run: dotnet test PrintMeter.sln -c Release --no-build --collect:"XPlat Code Coverage"
+
+      - name: Upload Windows diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-diagnostics-${{ github.run_attempt }}-${{ github.run_id }}
+          if-no-files-found: warn
+          path: |
+            artifacts/ci.binlog
+            src/PrintMeter.App/obj/**/*

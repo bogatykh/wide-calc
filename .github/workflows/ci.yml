@@ -24,6 +24,20 @@ jobs:
             **/*.targets
             PrintMeter.sln
 
+      - name: Pin .NET SDK to 9.x for this run
+        shell: pwsh
+        run: |
+          @'
+          {
+            "sdk": {
+              "version": "9.0.100",
+              "rollForward": "latestFeature"
+            }
+          }
+          '@ | Out-File -FilePath global.json -Encoding utf8
+          dotnet --version
+          dotnet --list-sdks
+
       - name: Dotnet info
         run: dotnet --info
 

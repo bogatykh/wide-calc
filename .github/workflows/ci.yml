@@ -41,5 +41,5 @@ jobs:
             /v:m
 
       - name: Test
-        run: dotnet test PrintMeter.Mac.slnf -c Release --collect:"XPlat Code Coverage"
+        run: dotnet test PrintMeter.Mac.slnf -c Release --no-restore --nologo
 

@@ -29,7 +29,7 @@ jobs:
         run: dotnet restore PrintMeter.sln --nologo
 
       - name: Test
-        run: dotnet test PrintMeter.Mac.slnf -c Release --no-restore --collect:"XPlat Code Coverage"
+        run: dotnet test PrintMeter.Mac.slnf -c Release --no-restore --nologo
 
       - uses: microsoft/setup-msbuild@v2
 

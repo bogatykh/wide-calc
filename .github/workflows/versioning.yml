@@ -42,13 +42,6 @@ jobs:
         with:
           target-branch: main
 
-      - name: Debug release outputs
-        run: |
-          echo "ref_name=${{ github.ref_name }}"
-          echo "releases_created=${{ steps.release.outputs.releases_created }}"
-          echo "tag_name=${{ steps.release.outputs.tag_name }}"
-          echo "pr=${{ steps.release.outputs.pr }}"
-
   publish-release-assets:
     needs: release-please
     if: needs.release-please.outputs.releases_created == 'true' || github.event.inputs.release_tag != ''
@@ -77,7 +70,7 @@ jobs:
         run: dotnet restore PrintMeter.sln --nologo
 
       - name: Test
-        run: dotnet test PrintMeter.Mac.slnf -c Release --no-restore --collect:"XPlat Code Coverage"
+        run: dotnet test PrintMeter.Mac.slnf -c Release --no-restore --nologo
 
       - uses: microsoft/setup-msbuild@v2
 

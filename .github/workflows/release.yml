@@ -55,6 +55,11 @@ jobs:
             /m `
             /v:m
 
+      - name: Verify PRI next to publish output
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path ./artifacts/publish -Filter *.pri -Recurse | ForEach-Object { $_.FullName }
+
       - name: Install Inno Setup
         shell: pwsh
         run: choco install innosetup --no-progress -y

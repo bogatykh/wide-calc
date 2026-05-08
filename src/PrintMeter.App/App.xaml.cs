@@ -1,4 +1,5 @@
 using System.IO;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,6 +23,35 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
+        UnhandledException += OnUnhandledException;
+    }
+
+    private static void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+    {
+        try
+        {
+            var logDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "PrintMeter",
+                "logs");
+            Directory.CreateDirectory(logDir);
+            var path = Path.Combine(logDir, "last-ui-crash.txt");
+            var lines = new List<string>
+            {
+                DateTimeOffset.Now.ToString("O"),
+                e.Exception?.ToString() ?? "(null exception)",
+            };
+            if (e.Exception is COMException cx)
+            {
+                lines.Add($"HRESULT: 0x{(uint)cx.HResult:X8}");
+            }
+
+            File.WriteAllLines(path, lines);
+        }
+        catch
+        {
+            // ignore
+        }
     }
 
     public static IServiceProvider Services =>

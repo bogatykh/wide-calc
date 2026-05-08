@@ -92,6 +92,7 @@ public partial class App : Application
         {
             Log.Fatal(ex, "Application failed to start");
             Log.CloseAndFlush();
+            NativeUi.ShowError("PrintMeter", $"Ошибка запуска: {ex.Message}");
             Environment.Exit(1);
         }
     }

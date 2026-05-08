@@ -8,15 +8,25 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseWinUI>true</UseWinUI>
     <Platforms>x64</Platforms>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <WindowsAppSDKSelfContained Condition="'$(WindowsAppSDKSelfContained)' == ''">false</WindowsAppSDKSelfContained>
+    <WindowsAppSdkBootstrapInitialize>false</WindowsAppSdkBootstrapInitialize>
+    <WindowsAppSdkIncludeVersionInfo>true</WindowsAppSdkIncludeVersionInfo>
+    <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
     <UseXamlCompilerExecutable>false</UseXamlCompilerExecutable>
     <WindowsPackageType>None</WindowsPackageType>
     <EnableMsixTooling>false</EnableMsixTooling>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <WindowsSdkPackageVersion>10.0.22621.56</WindowsSdkPackageVersion>
+    <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+    <StartupObject>PrintMeter.App.Program</StartupObject>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(WindowsAppSDKSelfContained)' == 'true'">
+    <DefineConstants>$(DefineConstants);PRINTMETER_WINDOWS_APPSDK_SELF_CONTAINED</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

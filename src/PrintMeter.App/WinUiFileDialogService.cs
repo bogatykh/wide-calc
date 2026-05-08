@@ -78,7 +78,7 @@ public sealed class WinUiFileDialogService : IFileDialogService
 
     private static IEnumerable<(string Label, string Extension)> ParseWin32Filter(string filter)
     {
-        var parts = filter.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var parts = filter.Split("|", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         for (var i = 0; i + 1 < parts.Length; i += 2)
         {
             var label = parts[i];

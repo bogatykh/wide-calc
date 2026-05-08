@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
@@ -44,15 +45,11 @@ public sealed partial class MainViewModel : ObservableObject
         _logger = logger;
         _autoAnalyzeAfterFileSelection = autoAnalyzeAfterFileSelection;
 
-        var enabled = _formatRegistry.EnabledFormats;
-        _formatA4 = enabled.Contains("A4");
-        _formatA3 = enabled.Contains("A3");
-        _formatA2 = enabled.Contains("A2");
-        _formatA1 = enabled.Contains("A1");
-        _formatA0 = enabled.Contains("A0");
+        InitializeFormatRows(_formatRegistry.EnabledFormats);
     }
 
     public ObservableCollection<FileReportRowViewModel> Rows { get; } = new();
+    public ObservableCollection<FormatToggleRowViewModel> FormatRows { get; } = new();
 
     [ObservableProperty]
     private bool _isBusy;
@@ -78,32 +75,6 @@ public sealed partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _utf8BomForCsv = true;
-
-    [ObservableProperty]
-    private bool _formatA4 = true;
-    [ObservableProperty]
-    private bool _formatA3 = true;
-    [ObservableProperty]
-    private bool _formatA2 = true;
-    [ObservableProperty]
-    private bool _formatA1 = true;
-    [ObservableProperty]
-    private bool _formatA0 = true;
-
-    [ObservableProperty]
-    private string _formatStatA4 = "—";
-
-    [ObservableProperty]
-    private string _formatStatA3 = "—";
-
-    [ObservableProperty]
-    private string _formatStatA2 = "—";
-
-    [ObservableProperty]
-    private string _formatStatA1 = "—";
-
-    [ObservableProperty]
-    private string _formatStatA0 = "—";
 
     /// <summary>Условные листы по прайсу: по каждому ISO-формату Σ мм длинной стороны ÷ номинал (зашит в <see cref="PricelistFormatEquivalence.IsoNominalLongEdgeMm"/>).</summary>
     [ObservableProperty]
@@ -557,12 +528,10 @@ public sealed partial class MainViewModel : ObservableObject
 
     private void ApplyEnabledFormatsAndRecalculate()
     {
-        var enabled = new List<string>(5);
-        if (FormatA4) enabled.Add("A4");
-        if (FormatA3) enabled.Add("A3");
-        if (FormatA2) enabled.Add("A2");
-        if (FormatA1) enabled.Add("A1");
-        if (FormatA0) enabled.Add("A0");
+        var enabled = FormatRows
+            .Where(row => row.IsEnabled)
+            .Select(row => row.Key)
+            .ToList();
 
         _formatRegistry.SetEnabledFormats(enabled);
         if (_selectedFiles.Count > 0 && !IsBusy)
@@ -570,12 +539,6 @@ public sealed partial class MainViewModel : ObservableObject
             _ = AnalyzeFullAsync();
         }
     }
-
-    partial void OnFormatA4Changed(bool value) => ApplyEnabledFormatsAndRecalculate();
-    partial void OnFormatA3Changed(bool value) => ApplyEnabledFormatsAndRecalculate();
-    partial void OnFormatA2Changed(bool value) => ApplyEnabledFormatsAndRecalculate();
-    partial void OnFormatA1Changed(bool value) => ApplyEnabledFormatsAndRecalculate();
-    partial void OnFormatA0Changed(bool value) => ApplyEnabledFormatsAndRecalculate();
 
     partial void OnRecursiveFoldersChanged(bool value)
     {
@@ -796,21 +759,47 @@ public sealed partial class MainViewModel : ObservableObject
 
     private void ResetFormatStatLines()
     {
-        FormatStatA4 = "—";
-        FormatStatA3 = "—";
-        FormatStatA2 = "—";
-        FormatStatA1 = "—";
-        FormatStatA0 = "—";
+        foreach (var row in FormatRows)
+        {
+            row.StatText = "—";
+        }
     }
 
     private void UpdateFormatStatLines()
     {
-        FormatStatA4 = FormatStatForLabel("A4");
-        FormatStatA3 = FormatStatForLabel("A3");
-        FormatStatA2 = FormatStatForLabel("A2");
-        FormatStatA1 = FormatStatForLabel("A1");
-        FormatStatA0 = FormatStatForLabel("A0");
+        foreach (var row in FormatRows)
+        {
+            row.StatText = FormatStatForLabel(row.Key);
+        }
+
         RefreshBillingPricelistFormatsSummary();
+    }
+
+    private void InitializeFormatRows(IReadOnlyCollection<string> enabledFormats)
+    {
+        AddFormatRow("A4", "A4", enabledFormats.Contains("A4"), 13);
+        AddFormatRow("A3", "A3", enabledFormats.Contains("A3"), 15);
+        AddFormatRow("A2", "A2", enabledFormats.Contains("A2"), 17);
+        AddFormatRow("A1", "A1", enabledFormats.Contains("A1"), 19, "Короткая сторона до 610 mm (бывшие A1+ считаются как A1).");
+        AddFormatRow("A0", "A0", enabledFormats.Contains("A0"), 21, "Короткая сторона до 914 mm (бывшие A0+ считаются как A0).");
+    }
+
+    private void AddFormatRow(string key, string label, bool isEnabled, double iconSize, string? tooltip = null)
+    {
+        var row = new FormatToggleRowViewModel(key, label, iconSize, tooltip)
+        {
+            IsEnabled = isEnabled
+        };
+        row.PropertyChanged += OnFormatRowPropertyChanged;
+        FormatRows.Add(row);
+    }
+
+    private void OnFormatRowPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(FormatToggleRowViewModel.IsEnabled))
+        {
+            ApplyEnabledFormatsAndRecalculate();
+        }
     }
 
     private string FormatStatForLabel(string label)

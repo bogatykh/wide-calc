@@ -57,6 +57,8 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private double _progressValue;
 
+    public string ProgressPercentText => $"Прогресс: {Math.Round(ProgressValue, 0):F0}%";
+
     [ObservableProperty]
     private string _statusText =
         "Добавляйте PDF по одному или папкой — строки накапливаются. «Считать заново» пересчитывает весь список. «Очистить» сбрасывает всё.";
@@ -501,6 +503,9 @@ public sealed partial class MainViewModel : ObservableObject
 
     partial void OnTotalLengthMetersChanged(double value) =>
         OnPropertyChanged(nameof(TotalLengthMetersSummaryText));
+
+    partial void OnProgressValueChanged(double value) =>
+        OnPropertyChanged(nameof(ProgressPercentText));
 
     private static string BuildFormatsSummary(FileReport report)
     {

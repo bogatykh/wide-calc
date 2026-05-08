@@ -119,3 +119,6 @@ Manual release workflow responsibilities:
 - Conventional Commits are required (`feat:`, `fix:`, `chore:`, etc.).
 - Workflow `.github/workflows/commitlint.yml` validates commit messages on PRs and pushes to `main`.
 - Cursor project rule for this is stored in `.cursor/rules/release-versioning.mdc`.
+- PR titles should also follow Conventional Commit format (`fix(winui): ...`, `feat(dotnet): ...`) because squash-merge uses the PR title as the resulting commit message on `main`.
+- For merges into `main`, use **Squash and merge** (preferred) or **Rebase and merge**.
+- Avoid plain merge commits (`Merge pull request #...`), as they are not Conventional Commits and can break Release Please parsing.

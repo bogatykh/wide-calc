@@ -53,7 +53,7 @@ jobs:
             /p:WindowsAppSDKSelfContained=true `
             /p:PublishTrimmed=false `
             /p:PublishReadyToRun=true `
-            /p:PublishDir=artifacts/publish\ `
+            /p:PublishDir=${{ github.workspace }}/artifacts/publish/ `
             /m `
             /v:m
 

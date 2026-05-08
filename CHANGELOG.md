@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.4](https://github.com/bogatykh/wide-calc/compare/v0.5.3...v0.5.4) (2026-05-08)
+
+
+### Bug Fixes
+
+* **winui:** revert incorrect PriIndexName override; log UI XAML failures to file ([aecb7f8](https://github.com/bogatykh/wide-calc/commit/aecb7f8845ed8c680554336861bfa4e2fbcad80f))
+
 ## [0.5.3](https://github.com/bogatykh/wide-calc/compare/v0.5.2...v0.5.3) (2026-05-08)
 
 

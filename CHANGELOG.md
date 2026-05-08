@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.3](https://github.com/bogatykh/wide-calc/compare/v0.5.2...v0.5.3) (2026-05-08)
+
+
+### Bug Fixes
+
+* **winui:** restore PriIndexName for self-contained PRI/XAML load; si… ([f0a682e](https://github.com/bogatykh/wide-calc/commit/f0a682e7683ab463019ecc7e7813d239a94ba3eb))
+* **winui:** restore PriIndexName for self-contained PRI/XAML load; simplify CI publish ([442cd00](https://github.com/bogatykh/wide-calc/commit/442cd0077806c09baceef882a66331f546099a8b))
+
 ## [0.5.2](https://github.com/bogatykh/wide-calc/compare/v0.5.1...v0.5.2) (2026-05-08)
 
 

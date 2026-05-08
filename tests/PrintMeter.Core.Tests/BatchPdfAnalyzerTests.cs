@@ -7,6 +7,12 @@ namespace PrintMeter.Core.Tests;
 
 public sealed class BatchPdfAnalyzerTests
 {
+    /// <summary><see cref="Progress{T}"/> может отложить колбэк на пул потоков — для детерминированных проверок нужна синхронная отчётность.</summary>
+    private sealed class ImmediateProgress(Action<BatchProgress> handler) : IProgress<BatchProgress>
+    {
+        public void Report(BatchProgress value) => handler(value);
+    }
+
     private sealed class FakeReader(Func<string, IReadOnlyList<PageDimensions>> factory) : IPdfPageReader
     {
         public Task<IReadOnlyList<PageDimensions>> ReadPageDimensionsAsync(string filePath, CancellationToken cancellationToken) =>
@@ -59,7 +65,7 @@ public sealed class BatchPdfAnalyzerTests
         var analyzer = new BatchPdfAnalyzer(reader, new PageAnalysisService(new Iso216FormatRegistry()), 2);
         var progress = new List<BatchProgress>();
         var sync = new object();
-        var reporter = new Progress<BatchProgress>(
+        var reporter = new ImmediateProgress(
             p =>
             {
                 lock (sync)

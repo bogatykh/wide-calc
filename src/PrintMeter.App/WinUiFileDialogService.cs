@@ -84,7 +84,7 @@ public sealed class WinUiFileDialogService : IFileDialogService
             var label = parts[i];
             var pattern = parts[i + 1];
             var ext = pattern.StartsWith("*", StringComparison.Ordinal) ? pattern[1..] : pattern;
-            if (!ext.StartsWith('.', StringComparison.Ordinal))
+            if (!ext.StartsWith(".", StringComparison.Ordinal))
             {
                 ext = "." + ext;
             }

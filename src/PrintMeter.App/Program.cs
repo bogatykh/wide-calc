@@ -7,7 +7,7 @@ using Microsoft.UI.Xaml;
 
 namespace PrintMeter.App;
 
-internal static class Program
+public static class Program
 {
 #if !PRINTMETER_WINDOWS_APPSDK_SELF_CONTAINED
     private const uint SdkMajorMinor = 0x00010006;

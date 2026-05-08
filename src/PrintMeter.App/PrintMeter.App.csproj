@@ -19,6 +19,8 @@
     <EnableMsixTooling>false</EnableMsixTooling>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <WindowsSdkPackageVersion>10.0.22621.56</WindowsSdkPackageVersion>
+    <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+    <StartupObject>PrintMeter.App.Program</StartupObject>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(WindowsAppSDKSelfContained)' == 'true'">

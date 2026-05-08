@@ -8,6 +8,9 @@ on:
 jobs:
   build:
     runs-on: windows-2022
+    env:
+      DOTNET_MULTILEVEL_LOOKUP: "0"
+      MSBuildEnableWorkloadResolver: false
     steps:
       - uses: actions/checkout@v4
 
@@ -20,6 +23,9 @@ jobs:
             **/*.props
             **/*.targets
             PrintMeter.sln
+
+      - name: Dotnet info
+        run: dotnet --info
 
       - name: Restore
         run: dotnet restore PrintMeter.sln --nologo

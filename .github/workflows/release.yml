@@ -28,8 +28,10 @@ jobs:
       - name: Restore
         run: dotnet restore PrintMeter.sln --nologo
 
-      - name: Build
-        run: dotnet build PrintMeter.sln -c Release --no-restore --nologo
+      - name: Test
+        run: dotnet test PrintMeter.Mac.slnf -c Release --no-restore --collect:"XPlat Code Coverage"
+
+      - uses: microsoft/setup-msbuild@v2
 
       - name: Restore App with RID
         run: >
@@ -39,17 +41,21 @@ jobs:
           --nologo
 
       - name: Publish
-        run: >
-          dotnet publish src/PrintMeter.App/PrintMeter.App.csproj
-          -c Release
-          --no-restore
-          -r win-x64
-          -p:Platform=x64
-          --self-contained true
-          -p:WindowsAppSDKSelfContained=true
-          -p:PublishTrimmed=false
-          -p:PublishReadyToRun=true
-          -o ./artifacts/publish
+        shell: pwsh
+        run: |
+          msbuild src/PrintMeter.App/PrintMeter.App.csproj `
+            /t:Publish `
+            /p:Configuration=Release `
+            /p:Platform=x64 `
+            /p:Restore=false `
+            /p:RuntimeIdentifier=win-x64 `
+            /p:SelfContained=true `
+            /p:WindowsAppSDKSelfContained=true `
+            /p:PublishTrimmed=false `
+            /p:PublishReadyToRun=true `
+            /p:PublishDir=artifacts/publish\ `
+            /m `
+            /v:m
 
       - name: Install Inno Setup
         shell: pwsh

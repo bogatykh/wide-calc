@@ -60,29 +60,35 @@ jobs:
           $objRoot = "src/PrintMeter.App/obj/Release/net8.0-windows10.0.22621.0"
           $inputJson = Join-Path $objRoot "input.json"
           $outputJson = Join-Path $objRoot "output.json"
+          New-Item -ItemType Directory -Force artifacts | Out-Null
+          $inputHead = "artifacts/xaml-input-head.txt"
+          $outputHead = "artifacts/xaml-output-head.txt"
+          $objListing = "artifacts/xaml-obj-files.txt"
 
           Write-Host "== XAML compiler context =="
           Write-Host "objRoot: $objRoot"
           if (Test-Path $inputJson) {
             Write-Host "input.json exists: yes"
             Write-Host "--- input.json (first 300 lines) ---"
-            Get-Content $inputJson | Select-Object -First 300
+            Get-Content $inputJson | Select-Object -First 300 | Tee-Object -FilePath $inputHead
           } else {
             Write-Host "input.json exists: no"
+            "input.json not found at $inputJson" | Out-File -FilePath $inputHead -Encoding utf8
           }
 
           if (Test-Path $outputJson) {
             Write-Host "output.json exists: yes"
             Write-Host "--- output.json (first 300 lines) ---"
-            Get-Content $outputJson | Select-Object -First 300
+            Get-Content $outputJson | Select-Object -First 300 | Tee-Object -FilePath $outputHead
           } else {
             Write-Host "output.json exists: no"
+            "output.json not found at $outputJson" | Out-File -FilePath $outputHead -Encoding utf8
           }
 
           Write-Host "--- obj error/log candidates ---"
           Get-ChildItem -Path $objRoot -File -Recurse -ErrorAction SilentlyContinue |
             Where-Object { $_.Extension -in @(".err", ".log", ".txt", ".json") } |
-            Select-Object FullName, Length
+            Select-Object FullName, Length | Tee-Object -FilePath $objListing
 
       - name: Upload Windows diagnostics on failure
         if: failure()
@@ -92,4 +98,5 @@ jobs:
           if-no-files-found: warn
           path: |
             artifacts/ci.binlog
+            artifacts/xaml-*.txt
             src/PrintMeter.App/obj/**/*

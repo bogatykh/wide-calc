@@ -10,10 +10,14 @@ alwaysApply: true
 - Write commit messages in imperative mood and keep the subject concise.
 - For user-visible changes, prefer `feat` or `fix` so Release Please can bump versions correctly.
 - Do not use arbitrary commit prefixes (for example `update`, `misc`, `wip`).
+- Use Conventional Commit format for PR titles too, because squash-merge uses the PR title as the final commit on `main`.
 - Branch strategy is mandatory:
   - create a feature branch for each task (`feature/*`, `fix/*`, `chore/*`)
   - do not push implementation commits directly to `main`
   - open a PR and merge via PR flow
+- Merge strategy for `main`:
+  - use **Squash and merge** (preferred) or **Rebase and merge**
+  - do not use merge commits like `Merge pull request #...`, they break Release Please parsing
 - When asked to create a release, rely on automated versioning:
   - merge release PR created by Release Please
   - let GitHub Actions build and attach `PrintMeter-Setup-x64.exe` and portable zip

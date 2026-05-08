@@ -12,8 +12,6 @@
     <Platforms>x64</Platforms>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <WindowsAppSDKSelfContained Condition="'$(WindowsAppSDKSelfContained)' == ''">false</WindowsAppSDKSelfContained>
-    <WindowsAppSdkBootstrapInitialize>false</WindowsAppSdkBootstrapInitialize>
-    <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
     <UseXamlCompilerExecutable>false</UseXamlCompilerExecutable>
     <WindowsPackageType>None</WindowsPackageType>
     <EnableMsixTooling>false</EnableMsixTooling>

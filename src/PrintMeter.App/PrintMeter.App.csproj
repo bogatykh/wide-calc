@@ -20,6 +20,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.WinUI" Version="7.1.2" />
+    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250602001" />
@@ -31,6 +33,8 @@
   <ItemGroup>
     <ProjectReference Include="..\PrintMeter.App.ViewModels\PrintMeter.App.ViewModels.csproj" />
     <ProjectReference Include="..\PrintMeter.Core\PrintMeter.Core.csproj" />
+    <ProjectReference Include="..\PrintMeter.Export\PrintMeter.Export.csproj" />
+    <ProjectReference Include="..\PrintMeter.Pdf\PrintMeter.Pdf.csproj" />
   </ItemGroup>
 
   <ItemGroup>

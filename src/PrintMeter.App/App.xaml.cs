@@ -6,6 +6,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.UI.Xaml;
 using PrintMeter.App.ViewModels;
 using PrintMeter.Core;
+using PrintMeter.Export;
+using PrintMeter.Pdf;
 using Serilog;
 
 namespace PrintMeter.App;
@@ -60,7 +62,7 @@ public partial class App : Application
 
                         services.AddSingleton<IFormatRegistry>(_ => new Iso216FormatRegistry());
                         services.AddSingleton<PageAnalysisService>();
-                        services.AddSingleton<IPdfPageReader, WinRtPdfPageReader>();
+                        services.AddSingleton<IPdfPageReader, PdfPigPageReader>();
                         services.AddSingleton(
                             sp =>
                             {
@@ -70,7 +72,9 @@ public partial class App : Application
                                     sp.GetRequiredService<PageAnalysisService>(),
                                     opt.MaxDegreeOfParallelism);
                             });
-                        services.AddSingleton<IBatchReportWriter, LightweightBatchReportWriter>();
+                        services.AddSingleton<CsvBatchReportExporter>();
+                        services.AddSingleton<XlsxBatchReportExporter>();
+                        services.AddSingleton<IBatchReportWriter, BatchReportWriter>();
                         services.AddSingleton<IFileDialogService, WinUiFileDialogService>();
                         services.AddSingleton<MainViewModel>();
                         services.AddSingleton<MainWindow>();

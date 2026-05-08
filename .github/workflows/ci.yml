@@ -26,88 +26,20 @@ jobs:
             **/*.targets
             PrintMeter.sln
 
-      - name: Pin .NET SDK to 9.x for this run
-        shell: pwsh
-        run: |
-          @'
-          {
-            "sdk": {
-              "version": "9.0.100",
-              "rollForward": "latestFeature"
-            }
-          }
-          '@ | Out-File -FilePath global.json -Encoding utf8
-          dotnet --version
-          dotnet --list-sdks
-
-      - name: Dotnet info
-        run: dotnet --info
-
       - name: Restore
         run: dotnet restore PrintMeter.sln --nologo
 
       - name: Build
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force artifacts | Out-Null
           msbuild src/PrintMeter.App/PrintMeter.App.csproj `
             /t:Build `
             /p:Configuration=Release `
             /p:Platform=x64 `
             /p:Restore=false `
             /m `
-            /bl:artifacts/ci.binlog `
-            /v:d
+            /v:m
 
       - name: Test
         run: dotnet test PrintMeter.Mac.slnf -c Release --collect:"XPlat Code Coverage"
 
-      - name: Dump XAML compiler context on failure
-        if: failure()
-        shell: pwsh
-        run: |
-          $objRoot = "src/PrintMeter.App/obj"
-          $inputJson = Get-ChildItem -Path $objRoot -Filter input.json -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-          $outputJson = Get-ChildItem -Path $objRoot -Filter output.json -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-          New-Item -ItemType Directory -Force artifacts | Out-Null
-          $inputHead = "artifacts/xaml-input-head.txt"
-          $outputHead = "artifacts/xaml-output-head.txt"
-          $objListing = "artifacts/xaml-obj-files.txt"
-
-          Write-Host "== XAML compiler context =="
-          Write-Host "objRoot: $objRoot"
-          if ($inputJson) {
-            Write-Host "input.json exists: yes"
-            Write-Host "input.json path: $($inputJson.FullName)"
-            Write-Host "--- input.json (first 300 lines) ---"
-            Get-Content $inputJson.FullName | Select-Object -First 300 | Tee-Object -FilePath $inputHead
-          } else {
-            Write-Host "input.json exists: no"
-            "input.json not found under $objRoot" | Out-File -FilePath $inputHead -Encoding utf8
-          }
-
-          if ($outputJson) {
-            Write-Host "output.json exists: yes"
-            Write-Host "output.json path: $($outputJson.FullName)"
-            Write-Host "--- output.json (first 300 lines) ---"
-            Get-Content $outputJson.FullName | Select-Object -First 300 | Tee-Object -FilePath $outputHead
-          } else {
-            Write-Host "output.json exists: no"
-            "output.json not found under $objRoot" | Out-File -FilePath $outputHead -Encoding utf8
-          }
-
-          Write-Host "--- obj error/log candidates ---"
-          Get-ChildItem -Path $objRoot -File -Recurse -ErrorAction SilentlyContinue |
-            Where-Object { $_.Extension -in @(".err", ".log", ".txt", ".json") } |
-            Select-Object FullName, Length | Tee-Object -FilePath $objListing
-
-      - name: Upload Windows diagnostics on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-build-diagnostics-${{ github.run_attempt }}-${{ github.run_id }}
-          if-no-files-found: warn
-          path: |
-            artifacts/ci.binlog
-            artifacts/xaml-*.txt
-            src/PrintMeter.App/obj/**/*

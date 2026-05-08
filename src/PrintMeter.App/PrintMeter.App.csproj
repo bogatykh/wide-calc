@@ -31,7 +31,6 @@
   <ItemGroup>
     <ProjectReference Include="..\PrintMeter.App.ViewModels\PrintMeter.App.ViewModels.csproj" />
     <ProjectReference Include="..\PrintMeter.Core\PrintMeter.Core.csproj" />
-    <ProjectReference Include="..\PrintMeter.Export\PrintMeter.Export.csproj" />
     <ProjectReference Include="..\PrintMeter.Pdf\PrintMeter.Pdf.csproj" />
   </ItemGroup>
 

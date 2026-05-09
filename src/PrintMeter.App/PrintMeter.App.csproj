@@ -23,6 +23,10 @@
     <WindowsSdkPackageVersion>10.0.22621.56</WindowsSdkPackageVersion>
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     <StartupObject>PrintMeter.App.Program</StartupObject>
+    <CopyBuildOutputToPublishDirectory>true</CopyBuildOutputToPublishDirectory>
+    <EnablePriGenTooling>true</EnablePriGenTooling>
+    <!-- Явно: иначе CalculateAppxGenerateProjectPriEnabled может оставить false и проектный PRI не соберётся. -->
+    <AppxGeneratePriEnabled>true</AppxGeneratePriEnabled>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(WindowsAppSDKSelfContained)' == 'true'">
@@ -52,4 +56,26 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <!--
+    Публикация .NET по умолчанию не всегда подхватывает project PRI; без него LoadComponent падает.
+    PrepareForRun тянет _GenerateProjectPriFile (MRT): PRI оказывается в $(TargetDir) как PrintMeter.pri или resources.pri.
+  -->
+  <Target Name="_PrintMeterAddAppPriToResolvedPublish"
+          BeforeTargets="ComputeResolvedFilesToPublishList"
+          DependsOnTargets="PrepareForRun">
+    <ItemGroup>
+      <_AppPriForPublish Include="$(TargetDir)PrintMeter.pri" Condition="Exists('$(TargetDir)PrintMeter.pri')" />
+      <_AppPriForPublish Include="$(TargetDir)resources.pri" Condition="Exists('$(TargetDir)resources.pri')" />
+    </ItemGroup>
+    <Error
+        Text="PrintMeter: нет PrintMeter.pri и resources.pri в $(TargetDir) после PrepareForRun — MRT/PRI не сгенерировался (MakePri, AppxGeneratePriEnabled, XAML items)."
+        Condition="'@(_AppPriForPublish)' == ''" />
+    <ItemGroup>
+      <ResolvedFileToPublish Include="@(_AppPriForPublish)">
+        <RelativePath>%(_AppPriForPublish.Filename)%(_AppPriForPublish.Extension)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
 </Project>

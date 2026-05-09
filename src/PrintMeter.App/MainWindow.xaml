@@ -37,7 +37,7 @@
                 TextWrapping="WrapWholeWords" />
             <TextBlock
                 Style="{StaticResource MutedCaption}"
-                Text="Горячие клавиши: Ctrl+O (PDF), Ctrl+Shift+O (папка), F5 (пересчёт), Esc (отмена), Ctrl+E (CSV), Ctrl+Shift+E (XLSX)."
+                Text="Горячие клавиши: Ctrl+O (PDF), Ctrl+Shift+O (папка), F5 (пересчёт), Esc (отмена)."
                 TextWrapping="WrapWholeWords" />
           </StackPanel>
 
@@ -106,64 +106,24 @@
                 <TextBlock VerticalAlignment="Center" Text="Очистить" />
               </StackPanel>
             </Button>
-            <Border
-                Width="1"
-                Height="26"
-                Margin="2,0"
-                VerticalAlignment="Center"
-                Background="{ThemeResource ControlStrokeColorDefaultBrush}"
-                Opacity="0.7" />
-            <Button
-                AutomationProperties.AutomationId="ExportCsvButton"
-                Command="{Binding ExportCsvCommand}"
-                Style="{StaticResource ToolbarSecondaryButton}">
-              <Button.KeyboardAccelerators>
-                <KeyboardAccelerator Key="E" Modifiers="Control" />
-              </Button.KeyboardAccelerators>
-              <StackPanel Orientation="Horizontal" Spacing="8">
-                <FontIcon Style="{StaticResource ToolbarFontIcon}" Glyph="&#xE8A5;" />
-                <TextBlock VerticalAlignment="Center" Text="CSV…" />
-              </StackPanel>
-            </Button>
-            <Button
-                AutomationProperties.AutomationId="ExportXlsxButton"
-                Command="{Binding ExportXlsxCommand}"
-                Style="{StaticResource ToolbarSecondaryButton}">
-              <Button.KeyboardAccelerators>
-                <KeyboardAccelerator Key="E" Modifiers="Control,Shift" />
-              </Button.KeyboardAccelerators>
-              <StackPanel Orientation="Horizontal" Spacing="8">
-                <FontIcon Style="{StaticResource ToolbarFontIcon}" Glyph="&#xE9D9;" />
-                <TextBlock VerticalAlignment="Center" Text="XLSX…" />
-              </StackPanel>
-            </Button>
           </StackPanel>
         </Grid>
       </Border>
 
       <Grid Grid.Row="1" Margin="0,14,0,0">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="1.3*" />
-          <ColumnDefinition Width="1.2*" />
+          <ColumnDefinition Width="1.15*" />
           <ColumnDefinition Width="2*" />
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0" Margin="0,0,10,0" Style="{StaticResource SectionCardBorder}">
-          <StackPanel>
+          <StackPanel Spacing="8">
             <TextBlock Style="{StaticResource KpiLabel}" Text="Текущий статус" />
             <TextBlock
                 Style="{ThemeResource BodyStrongTextBlockStyle}"
                 Text="{Binding StatusText}"
                 TextWrapping="WrapWholeWords" />
-          </StackPanel>
-        </Border>
-
-        <Border Grid.Column="1" Margin="0,0,10,0" Style="{StaticResource SectionCardBorder}">
-          <StackPanel>
-            <TextBlock Style="{StaticResource KpiLabel}" Text="Суммарная длина" />
-            <TextBlock Style="{StaticResource KpiValue}" Text="{Binding TotalLengthMetersSummaryText}" />
             <ProgressBar
-                Margin="0,8,0,0"
                 Maximum="100"
                 Minimum="0"
                 Style="{StaticResource HeroProgress}"
@@ -171,14 +131,14 @@
           </StackPanel>
         </Border>
 
-        <Border Grid.Column="2" Style="{StaticResource SectionCardBorder}">
+        <Border Grid.Column="1" Style="{StaticResource SectionCardBorder}">
           <StackPanel>
-            <TextBlock Style="{StaticResource KpiLabel}" Text="Прайс-сводка по ISO форматам" />
+            <TextBlock Style="{StaticResource KpiLabel}" Text="Прайс: условные листы по ISO" />
             <TextBlock
                 Style="{StaticResource MutedText}"
                 Text="{Binding BillingPricelistFormatsSummary}"
                 TextWrapping="WrapWholeWords"
-                ToolTipService.ToolTip="По каждой ISO-метке в сводке: сумма мм по длинной стороне делится на номинал из справочника в коде." />
+                ToolTipService.ToolTip="Соответствует итоговой сводке по форматам внизу окна: для каждой ISO-метки суммируется мм по длинной стороне, затем деление на номинал из кода." />
           </StackPanel>
         </Border>
       </Grid>
@@ -203,10 +163,6 @@
                     Header="Рекурсивный поиск PDF во вложенных папках"
                     IsOn="{Binding RecursiveFolders, Mode=TwoWay}"
                     ToolTipService.ToolTip="Если последний выбор был папкой, переключение обновляет список PDF из той же папки и снова запускает расчёт." />
-                <ToggleSwitch
-                    Style="{StaticResource SettingsToggle}"
-                    Header="UTF-8 BOM для CSV (Excel в RU-локали)"
-                    IsOn="{Binding Utf8BomForCsv, Mode=TwoWay}" />
 
                 <TextBlock
                     Margin="0,0,0,8"
@@ -305,10 +261,10 @@
                       RowBackground="{ThemeResource ControlAltFillColorTertiaryBrush}"
                       SelectionMode="Single">
                     <controls:DataGrid.Columns>
-                      <controls:DataGridTextColumn Width="2*" Binding="{Binding FilePath}" Header="Файл" />
+                      <controls:DataGridTextColumn Width="1.4*" Binding="{Binding FileDisplayName}" Header="Файл" />
                       <controls:DataGridTextColumn Width="96" Binding="{Binding PageCount}" Header="Листов" />
                       <controls:DataGridTextColumn Width="132" Binding="{Binding TotalLengthMeters}" Header="Длина, м" />
-                      <controls:DataGridTextColumn Width="2*" Binding="{Binding FormatsSummary}" Header="По форматам" />
+                      <controls:DataGridTextColumn Width="2.4*" MinWidth="220" Binding="{Binding FormatsSummary}" Header="Форматы (листы · м)" />
                       <controls:DataGridTextColumn Width="2*" Binding="{Binding IssueText}" Header="Ошибка" />
                     </controls:DataGrid.Columns>
                   </controls:DataGrid>
@@ -329,7 +285,7 @@
                           FontFamily="Segoe MDL2 Assets"
                           FontSize="28"
                           Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                          Glyph="&#xE8A5;" />
+                          Glyph="&#xE8EA;" />
                       <TextBlock
                           Style="{ThemeResource BodyStrongTextBlockStyle}"
                           Text="Пока нет данных для отображения"
@@ -369,9 +325,14 @@
 
           <Border Grid.Row="1" Margin="0,10,0,0" Style="{StaticResource SectionCardBorder}">
             <StackPanel>
-              <TextBlock Style="{StaticResource SectionTitleText}" Text="Текстовая сводка по форматам" />
+              <TextBlock Style="{StaticResource SectionTitleText}" Text="Итого по форматам" />
+              <TextBlock
+                  Margin="0,2,0,6"
+                  Style="{StaticResource MutedCaption}"
+                  Text="Моноширинная таблица: листы PDF и суммарный метраж по длинной стороне для каждой метки. Совпадает с включёнными форматами слева."
+                  TextWrapping="WrapWholeWords" />
               <TextBox
-                  Margin="0,4,0,0"
+                  Margin="0,0,0,0"
                   Style="{StaticResource SummaryTextBox}"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"

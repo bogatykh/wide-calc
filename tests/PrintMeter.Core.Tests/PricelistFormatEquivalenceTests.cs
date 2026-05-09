@@ -109,41 +109,6 @@ public sealed class PricelistFormatEquivalenceTests
     }
 
     [Fact]
-    public void BuildExportAttachment_is_null_when_nothing_billable()
-    {
-        var empty = new Dictionary<string, FormatAggregate>(StringComparer.Ordinal);
-        PricelistFormatEquivalence.BuildExportAttachment(empty, null, PricelistFormatEquivalence.RoundingMode.Ceiling)
-            .Should()
-            .BeNull();
-
-        var onlyZero = new Dictionary<string, FormatAggregate>(StringComparer.Ordinal)
-        {
-            ["A4"] = new FormatAggregate(1, 0),
-        };
-        PricelistFormatEquivalence.BuildExportAttachment(onlyZero, null, PricelistFormatEquivalence.RoundingMode.Ceiling)
-            .Should()
-            .BeNull();
-    }
-
-    [Fact]
-    public void BuildExportAttachment_carries_rows_and_rounding_key()
-    {
-        var summary = new Dictionary<string, FormatAggregate>(StringComparer.Ordinal)
-        {
-            ["A4"] = new FormatAggregate(1, 0.297),
-        };
-
-        var att = PricelistFormatEquivalence.BuildExportAttachment(
-            summary,
-            null,
-            PricelistFormatEquivalence.RoundingMode.NearestAwayFromZero);
-
-        att.Should().NotBeNull();
-        att!.RoundingModeKey.Should().Be("NearestAwayFromZero");
-        att.PerFormatRows.Should().ContainSingle();
-    }
-
-    [Fact]
     public void ComputeRows_skips_non_positive_page_count_or_length()
     {
         var summary = new Dictionary<string, FormatAggregate>(StringComparer.Ordinal)

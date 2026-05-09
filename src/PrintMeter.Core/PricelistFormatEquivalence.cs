@@ -92,14 +92,4 @@ public static class PricelistFormatEquivalence
 
         return rows;
     }
-
-    /// <summary>Строку для блока экспорта: суммарно по строкам таблицы + режим округления.</summary>
-    public static PricelistEquivalenceExportAttachment? BuildExportAttachment(
-        IReadOnlyDictionary<string, FormatAggregate> summary,
-        IReadOnlyDictionary<string, double>? divisorOverridesMm,
-        RoundingMode rounding)
-    {
-        var rows = ComputeRows(summary, divisorOverridesMm, rounding);
-        return rows.Count == 0 ? null : new PricelistEquivalenceExportAttachment(rows, rounding.ToString());
-    }
 }

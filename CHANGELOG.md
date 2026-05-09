@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.5](https://github.com/bogatykh/wide-calc/compare/v0.5.4...v0.5.5) (2026-05-09)
+
+
+### Bug Fixes
+
+* **winui:** force AppxGeneratePriEnabled and append app PRI to publish list ([b41e101](https://github.com/bogatykh/wide-calc/commit/b41e101ce3cac49a62761e950e87a3c1b30bd1d2))
+
 ## [0.5.4](https://github.com/bogatykh/wide-calc/compare/v0.5.3...v0.5.4) (2026-05-08)
 
 

@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/bogatykh/wide-calc/compare/v0.5.5...v1.0.0) (2026-05-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove CSV/XLSX export and improve format breakdown
+
+### Features
+
+* remove CSV/XLSX export and improve format breakdown ([7863eaa](https://github.com/bogatykh/wide-calc/commit/7863eaa37dd5a4d2f7be78358927e9280b37132a))
+
 ## [0.5.5](https://github.com/bogatykh/wide-calc/compare/v0.5.4...v0.5.5) (2026-05-09)
 
 

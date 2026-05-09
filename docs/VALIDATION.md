@@ -4,7 +4,7 @@
 
 На каждом PR/push в `main` GitHub Actions на `windows-latest` выполняет:
 
-- `dotnet restore/build/test` для всего решения `PrintMeter.sln`
+- `dotnet restore` для `PrintMeter.sln`, сборка WinUI через MSBuild, `dotnet test` по `PrintMeter.Mac.slnf`
 - `dotnet publish` self-contained single-file `win-x64`
 
 Юнит-тесты фиксируют:
@@ -12,8 +12,7 @@
 - перевод PDF points → мм (`PdfUnitsTests`)
 - распознавание ISO A-форматов с допуском ±2 мм (`Iso216FormatRegistryTests`, константа `MeasurementDefaults.FormatToleranceMm`)
 - расчёт длины и агрегацию по файлам/батчу (`PageAnalysisServiceTests`, `BatchPdfAnalyzerTests`)
-- экспорт CSV с UTF-8 BOM и разделителем `;` (`CsvBatchReportExporterTests`)
-- сценарий ViewModel «выбрать файлы → считать → экспорт» (`MainViewModelTests`)
+- сценарии ViewModel: выбор файлов, инкрементальный расчёт, отмена (`MainViewModelTests`)
 
 ## Ручная приёмка на Windows (типография)
 

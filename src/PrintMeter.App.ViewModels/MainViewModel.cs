@@ -16,7 +16,6 @@ public sealed partial class MainViewModel : ObservableObject
 
     private readonly IFormatRegistry _formatRegistry;
     private readonly BatchPdfAnalyzer _batchPdfAnalyzer;
-    private readonly IBatchReportWriter _reportWriter;
     private readonly IFileDialogService _fileDialogs;
     private readonly IOptions<PrintMeterOptions> _options;
     private readonly ILogger<MainViewModel> _logger;
@@ -31,7 +30,6 @@ public sealed partial class MainViewModel : ObservableObject
     public MainViewModel(
         IFormatRegistry formatRegistry,
         BatchPdfAnalyzer batchPdfAnalyzer,
-        IBatchReportWriter reportWriter,
         IFileDialogService fileDialogs,
         IOptions<PrintMeterOptions> options,
         ILogger<MainViewModel> logger,
@@ -39,7 +37,6 @@ public sealed partial class MainViewModel : ObservableObject
     {
         _formatRegistry = formatRegistry;
         _batchPdfAnalyzer = batchPdfAnalyzer;
-        _reportWriter = reportWriter;
         _fileDialogs = fileDialogs;
         _options = options;
         _logger = logger;
@@ -66,17 +63,11 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private double _totalLengthMeters;
 
-    public string TotalLengthMetersSummaryText =>
-        $"Всего по длинной стороне листов, м: {TotalLengthMeters:F3}";
-
     [ObservableProperty]
     private string _summaryByFormat = string.Empty;
 
     [ObservableProperty]
     private bool _recursiveFolders = true;
-
-    [ObservableProperty]
-    private bool _utf8BomForCsv = true;
 
     /// <summary>Условные листы по прайсу: по каждому ISO-формату Σ мм длинной стороны ÷ номинал (зашит в <see cref="PricelistFormatEquivalence.IsoNominalLongEdgeMm"/>).</summary>
     [ObservableProperty]
@@ -148,8 +139,6 @@ public sealed partial class MainViewModel : ObservableObject
         StatusText =
             "Список файлов и результаты очищены. Добавьте PDF через «Выбрать PDF» или укажите папку.";
         AnalyzeCommand.NotifyCanExecuteChanged();
-        ExportCsvCommand.NotifyCanExecuteChanged();
-        ExportXlsxCommand.NotifyCanExecuteChanged();
     }
 
     private bool CanClear() => !IsBusy && (_selectedFiles.Count > 0 || Rows.Count > 0 || _lastReport is not null);
@@ -167,8 +156,6 @@ public sealed partial class MainViewModel : ObservableObject
             _lastReport = null;
             ResetOutputsBeforeRun();
             UpdateFormatStatLines();
-            ExportCsvCommand.NotifyCanExecuteChanged();
-            ExportXlsxCommand.NotifyCanExecuteChanged();
             return;
         }
 
@@ -177,8 +164,6 @@ public sealed partial class MainViewModel : ObservableObject
         ProgressValue = 0;
         _lastReport = null;
         ResetOutputsBeforeRun();
-        ExportCsvCommand.NotifyCanExecuteChanged();
-        ExportXlsxCommand.NotifyCanExecuteChanged();
 
         try
         {
@@ -219,8 +204,6 @@ public sealed partial class MainViewModel : ObservableObject
             StatusText =
                 $"Готово: {_selectedFiles.Count} файл(ов), суммарно {TotalLengthMeters:F3} м по длинной стороне листов.";
             ProgressValue = 100;
-            ExportCsvCommand.NotifyCanExecuteChanged();
-            ExportXlsxCommand.NotifyCanExecuteChanged();
         }
         catch (OperationCanceledException)
         {
@@ -228,8 +211,6 @@ public sealed partial class MainViewModel : ObservableObject
             _lastReport = null;
             UpdateFormatStatLines();
             StatusText = "Отменено.";
-            ExportCsvCommand.NotifyCanExecuteChanged();
-            ExportXlsxCommand.NotifyCanExecuteChanged();
         }
         catch (Exception ex)
         {
@@ -238,8 +219,6 @@ public sealed partial class MainViewModel : ObservableObject
             _lastReport = null;
             UpdateFormatStatLines();
             StatusText = $"Ошибка: {ex.Message}";
-            ExportCsvCommand.NotifyCanExecuteChanged();
-            ExportXlsxCommand.NotifyCanExecuteChanged();
         }
         finally
         {
@@ -268,8 +247,6 @@ public sealed partial class MainViewModel : ObservableObject
         _cts = new CancellationTokenSource();
         IsBusy = true;
         ProgressValue = 0;
-        ExportCsvCommand.NotifyCanExecuteChanged();
-        ExportXlsxCommand.NotifyCanExecuteChanged();
 
         var priorReports = (_lastReport?.Files ?? []).ToArray();
         var rowCountBefore = Rows.Count;
@@ -316,23 +293,17 @@ public sealed partial class MainViewModel : ObservableObject
             StatusText =
                 $"Готово: добавлено {collected.Count} файл(ов). В таблице {Rows.Count} строк(и), суммарно {TotalLengthMeters:F3} м.";
             ProgressValue = 100;
-            ExportCsvCommand.NotifyCanExecuteChanged();
-            ExportXlsxCommand.NotifyCanExecuteChanged();
         }
         catch (OperationCanceledException)
         {
             RollbackAppend(rowCountBefore, priorReports);
             StatusText = "Отменено.";
-            ExportCsvCommand.NotifyCanExecuteChanged();
-            ExportXlsxCommand.NotifyCanExecuteChanged();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Incremental analysis failed");
             RollbackAppend(rowCountBefore, priorReports);
             StatusText = $"Ошибка: {ex.Message}";
-            ExportCsvCommand.NotifyCanExecuteChanged();
-            ExportXlsxCommand.NotifyCanExecuteChanged();
         }
         finally
         {
@@ -369,19 +340,6 @@ public sealed partial class MainViewModel : ObservableObject
         ClearAllCommand.NotifyCanExecuteChanged();
     }
 
-    private ReportExportOptions BuildExportOptions()
-    {
-        var pricelist =
-            _lastReport is null
-                ? null
-                : PricelistFormatEquivalence.BuildExportAttachment(
-                    _lastReport.SummaryByFormat,
-                    null,
-                    PricelistFormatEquivalence.DefaultRounding);
-
-        return new ReportExportOptions(Utf8BomForCsv, ';', pricelist);
-    }
-
     private void RefreshBillingPricelistFormatsSummary()
     {
         if (_lastReport is null)
@@ -411,78 +369,22 @@ public sealed partial class MainViewModel : ObservableObject
             _ => mode.ToString(),
         };
 
+        var labelW = rows.Max(r => r.FormatLabel.Length);
+        labelW = Math.Max(labelW, 4);
+
         var lines = rows.Select(
             r =>
-                $"{r.FormatLabel}: {r.BillingSheets.ToString(inv)} условн. ({r.CombinedLongMm.ToString("0.#", inv)} мм ÷ {r.DivisorMm.ToString("0.#", inv)} мм → {r.RawSheets.ToString("0.###", inv)}, {roundRu})");
+                $"  {r.FormatLabel.PadRight(labelW)}  {r.BillingSheets.ToString(inv),4} усл.   Σ {r.CombinedLongMm.ToString("0.#", inv),7} мм ÷ {r.DivisorMm.ToString("0.#", inv)} мм  →  {r.RawSheets.ToString("0.###", inv)} сыр.");
 
         BillingPricelistFormatsSummary =
-            "Условные листы под прайс (знаменатель = номинальная длинная сторона формата из ISO, см. код):" +
-            Environment.NewLine + string.Join(Environment.NewLine, lines);
+            "Условные листы для прайса: по каждому ISO-формату суммарные мм по длинной стороне ÷ номинал из справочника в коде."
+            + Environment.NewLine
+            + $"Округление: {roundRu}."
+            + Environment.NewLine
+            + string.Join(Environment.NewLine, lines);
     }
 
     private bool CanAnalyze() => !IsBusy && _selectedFiles.Count > 0;
-
-    [RelayCommand(CanExecute = nameof(CanExport))]
-    private async Task ExportCsvAsync()
-    {
-        if (_lastReport is null)
-        {
-            return;
-        }
-
-        var path = await _fileDialogs.SaveFileAsync("CSV (*.csv)|*.csv", "report.csv").ConfigureAwait(true);
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return;
-        }
-
-        try
-        {
-            await _reportWriter
-                .WriteCsvAsync(
-                    _lastReport,
-                    path,
-                    BuildExportOptions(),
-                    CancellationToken.None)
-                .ConfigureAwait(true);
-            StatusText = $"Экспорт CSV: {path}";
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "CSV export failed");
-            StatusText = $"Ошибка экспорта CSV: {ex.Message}";
-        }
-    }
-
-    [RelayCommand(CanExecute = nameof(CanExport))]
-    private async Task ExportXlsxAsync()
-    {
-        if (_lastReport is null)
-        {
-            return;
-        }
-
-        var path = await _fileDialogs.SaveFileAsync("Excel (*.xlsx)|*.xlsx", "report.xlsx").ConfigureAwait(true);
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return;
-        }
-
-        try
-        {
-            await _reportWriter
-                .WriteXlsxAsync(_lastReport, path, BuildExportOptions(), CancellationToken.None)
-                .ConfigureAwait(true);
-            StatusText = $"Экспорт XLSX: {path}";
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "XLSX export failed");
-            StatusText = $"Ошибка экспорта XLSX: {ex.Message}";
-        }
-    }
-
-    private bool CanExport() => _lastReport is not null && !IsBusy;
 
     [RelayCommand(CanExecute = nameof(CanCancel))]
     private void Cancel()
@@ -495,14 +397,9 @@ public sealed partial class MainViewModel : ObservableObject
     partial void OnIsBusyChanged(bool value)
     {
         AnalyzeCommand.NotifyCanExecuteChanged();
-        ExportCsvCommand.NotifyCanExecuteChanged();
-        ExportXlsxCommand.NotifyCanExecuteChanged();
         CancelCommand.NotifyCanExecuteChanged();
         ClearAllCommand.NotifyCanExecuteChanged();
     }
-
-    partial void OnTotalLengthMetersChanged(double value) =>
-        OnPropertyChanged(nameof(TotalLengthMetersSummaryText));
 
     partial void OnProgressValueChanged(double value) =>
         OnPropertyChanged(nameof(ProgressPercentText));
@@ -515,17 +412,27 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         return string.Join(
-            ", ",
+            " · ",
             report.ByFormat.OrderBy(k => k.Key, StringComparer.Ordinal)
-                .Select(kv => $"{kv.Key}: {RoundMeters(kv.Value.LengthMeters)} м"));
+                .Select(kv => $"{kv.Key}: {kv.Value.PageCount} л. · {RoundMeters(kv.Value.LengthMeters)} м"));
     }
 
     private static string BuildBatchSummary(BatchReport report)
     {
-        return string.Join(
-            Environment.NewLine,
-            report.SummaryByFormat.OrderBy(k => k.Key, StringComparer.Ordinal)
-                .Select(kv => $"{kv.Key}: {kv.Value.PageCount} л., {RoundMeters(kv.Value.LengthMeters)} м"));
+        var inv = CultureInfo.InvariantCulture;
+        var ordered = report.SummaryByFormat.OrderBy(k => k.Key, StringComparer.Ordinal).ToList();
+        if (ordered.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var labelW = Math.Max(ordered.Max(kv => kv.Key.Length), 6);
+        var head =
+            $"{("Формат").PadRight(labelW)}    Листов    Метры (длинная сторона)";
+        var body = ordered.Select(
+            kv =>
+                $"{kv.Key.PadRight(labelW)}  {kv.Value.PageCount.ToString(inv).PadLeft(5)} л.  {RoundMeters(kv.Value.LengthMeters).ToString("F3", inv).PadLeft(8)} м");
+        return string.Join(Environment.NewLine, new[] { head }.Concat(body));
     }
 
     private static double RoundMeters(double m) =>
@@ -685,8 +592,6 @@ public sealed partial class MainViewModel : ObservableObject
 
         UpdateFormatStatLines();
 
-        ExportCsvCommand.NotifyCanExecuteChanged();
-        ExportXlsxCommand.NotifyCanExecuteChanged();
         ClearAllCommand.NotifyCanExecuteChanged();
     }
 
@@ -746,8 +651,6 @@ public sealed partial class MainViewModel : ObservableObject
         _lastReport = null;
         ResetOutputsBeforeRun();
         UpdateFormatStatLines();
-        ExportCsvCommand.NotifyCanExecuteChanged();
-        ExportXlsxCommand.NotifyCanExecuteChanged();
     }
 
     /// <summary>Очищает таблицу и сводные поля перед полным пересчётом (без затрагивания выбора файлов).</summary>

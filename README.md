@@ -6,9 +6,8 @@ Desktop utility for typography workflows: batch-read PDF page sizes, compute lin
 
 - `src/PrintMeter.Core` — domain models, tolerance/rounding defaults, batch analysis
 - `src/PrintMeter.Pdf` — `PdfPig` page dimension reader
-- `src/PrintMeter.Export` — CSV (`;`, UTF-8 BOM) + XLSX export (`ClosedXML`)
 - `src/PrintMeter.App.ViewModels` — MVVM layer (testable on macOS/Linux)
-- `src/PrintMeter.App` — WPF UI + hosting + Serilog (Windows only)
+- `src/PrintMeter.App` — WinUI + hosting + Serilog (Windows only)
 - `tests/*` — xUnit + FluentAssertions
 
 ## Build & test (Windows)

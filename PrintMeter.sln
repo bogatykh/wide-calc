@@ -6,15 +6,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintMeter.Core", "src\Prin
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintMeter.Pdf", "src\PrintMeter.Pdf\PrintMeter.Pdf.csproj", "{22222222-2222-2222-2222-222222222222}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintMeter.Export", "src\PrintMeter.Export\PrintMeter.Export.csproj", "{33333333-3333-3333-3333-333333333333}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintMeter.App.ViewModels", "src\PrintMeter.App.ViewModels\PrintMeter.App.ViewModels.csproj", "{44444444-4444-4444-4444-444444444444}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintMeter.App", "src\PrintMeter.App\PrintMeter.App.csproj", "{55555555-5555-5555-5555-555555555555}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintMeter.Core.Tests", "tests\PrintMeter.Core.Tests\PrintMeter.Core.Tests.csproj", "{66666666-6666-6666-6666-666666666666}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintMeter.Export.Tests", "tests\PrintMeter.Export.Tests\PrintMeter.Export.Tests.csproj", "{77777777-7777-7777-7777-777777777777}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintMeter.App.ViewModels.Tests", "tests\PrintMeter.App.ViewModels.Tests\PrintMeter.App.ViewModels.Tests.csproj", "{88888888-8888-8888-8888-888888888888}"
 EndProject
@@ -32,10 +28,6 @@ Global
 		{22222222-2222-2222-2222-222222222222}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22222222-2222-2222-2222-222222222222}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22222222-2222-2222-2222-222222222222}.Release|Any CPU.Build.0 = Release|Any CPU
-		{33333333-3333-3333-3333-333333333333}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{33333333-3333-3333-3333-333333333333}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{33333333-3333-3333-3333-333333333333}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{33333333-3333-3333-3333-333333333333}.Release|Any CPU.Build.0 = Release|Any CPU
 		{44444444-4444-4444-4444-444444444444}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{44444444-4444-4444-4444-444444444444}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44444444-4444-4444-4444-444444444444}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -48,10 +40,6 @@ Global
 		{66666666-6666-6666-6666-666666666666}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66666666-6666-6666-6666-666666666666}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66666666-6666-6666-6666-666666666666}.Release|Any CPU.Build.0 = Release|Any CPU
-		{77777777-7777-7777-7777-777777777777}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{77777777-7777-7777-7777-777777777777}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{77777777-7777-7777-7777-777777777777}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{77777777-7777-7777-7777-777777777777}.Release|Any CPU.Build.0 = Release|Any CPU
 		{88888888-8888-8888-8888-888888888888}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{88888888-8888-8888-8888-888888888888}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88888888-8888-8888-8888-888888888888}.Release|Any CPU.ActiveCfg = Release|Any CPU

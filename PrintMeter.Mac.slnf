@@ -4,10 +4,8 @@
     "projects": [
       "src/PrintMeter.Core/PrintMeter.Core.csproj",
       "src/PrintMeter.Pdf/PrintMeter.Pdf.csproj",
-      "src/PrintMeter.Export/PrintMeter.Export.csproj",
       "src/PrintMeter.App.ViewModels/PrintMeter.App.ViewModels.csproj",
       "tests/PrintMeter.Core.Tests/PrintMeter.Core.Tests.csproj",
-      "tests/PrintMeter.Export.Tests/PrintMeter.Export.Tests.csproj",
       "tests/PrintMeter.App.ViewModels.Tests/PrintMeter.App.ViewModels.Tests.csproj"
     ]
   }

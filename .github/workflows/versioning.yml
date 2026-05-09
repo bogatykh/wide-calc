@@ -19,7 +19,6 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
-    # Explicit permissions: org "Workflow permissions" can otherwise cap GITHUB_TOKEN to read-only.
     permissions:
       contents: write
       pull-requests: write
@@ -28,14 +27,6 @@ jobs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      # Do not set skip-github-release: merged release PRs must get a GitHub release + tag
-      # in this run, or autorelease:pending is never cleared and new release PRs are blocked
-      # ("untagged, merged release PRs outstanding").
-      # Uses the action default token (GITHUB_TOKEN): see action.yml default on release-please-action@v4.
-      # Do NOT set RELEASE_PLEASE_TOKEN unless you really need it: a narrow fine‑grained PAT often
-      # returns "Resource not accessible by integration" on POST /releases. Then either delete that
-      # secret or recreate a classic PAT with `repo`. To opt into a PAT, add:
-      #   token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
       - name: Release Please
         id: release
         uses: googleapis/release-please-action@v4
@@ -96,13 +87,11 @@ jobs:
             /m `
             /v:m
 
-      - name: Verify PRI next to publish output
+      - name: Require app PRI in publish output
         shell: pwsh
         run: |
-          Get-ChildItem -Path ./artifacts/publish -Filter *.pri -Recurse | ForEach-Object { $_.FullName }
           if (-not (Test-Path ./artifacts/publish/PrintMeter.pri) -and -not (Test-Path ./artifacts/publish/resources.pri)) {
-            Write-Error 'Expected PrintMeter.pri or resources.pri in publish root (app MRT map).'
-            exit 1
+            throw 'Publish output must include PrintMeter.pri or resources.pri'
           }
 
       - name: Install Inno Setup
@@ -136,8 +125,6 @@ jobs:
         run: |
           Compress-Archive -Path ./artifacts/publish/* -DestinationPath ./artifacts/PrintMeter-win-x64.zip
 
-      # Release Please already created the GitHub release + tag; only attach binaries.
-      # Omit name/body/generate_release_notes so the existing release keeps RP changelog text.
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:

@@ -261,10 +261,10 @@
                       RowBackground="{ThemeResource ControlAltFillColorTertiaryBrush}"
                       SelectionMode="Single">
                     <controls:DataGrid.Columns>
-                      <controls:DataGridTextColumn Width="1.4*" Binding="{Binding FileDisplayName}" Header="Файл" />
+                      <controls:DataGridTextColumn Width="7*" Binding="{Binding FileDisplayName}" Header="Файл" />
                       <controls:DataGridTextColumn Width="96" Binding="{Binding PageCount}" Header="Листов" />
                       <controls:DataGridTextColumn Width="132" Binding="{Binding TotalLengthMeters}" Header="Длина, м" />
-                      <controls:DataGridTextColumn Width="2.4*" MinWidth="220" Binding="{Binding FormatsSummary}" Header="Форматы (листы · м)" />
+                      <controls:DataGridTextColumn Width="12*" MinWidth="220" Binding="{Binding FormatsSummary}" Header="Форматы (листы · м)" />
                       <controls:DataGridTextColumn Width="2*" Binding="{Binding IssueText}" Header="Ошибка" />
                     </controls:DataGrid.Columns>
                   </controls:DataGrid>

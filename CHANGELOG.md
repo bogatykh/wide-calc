@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/bogatykh/wide-calc/compare/v1.0.0...v1.0.1) (2026-05-10)
+
+
+### Bug Fixes
+
+* use integer star widths for WinUI DataGrid columns ([59b3684](https://github.com/bogatykh/wide-calc/commit/59b3684bfd7d117fb5129a77eb55bbd27cba8459))
+* use integer star widths for WinUI DataGrid columns ([e23ca3b](https://github.com/bogatykh/wide-calc/commit/e23ca3b7b18797560e6ec2449671b7b1bf668168))
+
 ## [1.0.0](https://github.com/bogatykh/wide-calc/compare/v0.5.5...v1.0.0) (2026-05-09)
 
 

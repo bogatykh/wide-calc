@@ -6,7 +6,7 @@ namespace PrintMeter.App.Localization;
 
 public sealed class PriUiStrings : IUiStrings
 {
-    private readonly ResourceLoader _loader = ResourceLoader.GetForViewIndependentUse();
+    private readonly ResourceLoader _loader = new();
 
     public string Format(string resourceKey, params object[] args)
     {

@@ -8,7 +8,7 @@ internal static class AppText
 {
     private static ResourceLoader? _loader;
 
-    private static ResourceLoader Loader => _loader ??= ResourceLoader.GetForViewIndependentUse();
+    private static ResourceLoader Loader => _loader ??= new ResourceLoader();
 
     public static string Get(string key) => Loader.GetString(key) ?? key;
 

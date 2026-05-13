@@ -99,8 +99,6 @@
 
       <Style x:Key="SettingsToggle" TargetType="ToggleSwitch">
         <Setter Property="Margin" Value="0,0,0,12" />
-        <Setter Property="OffContent" Value="Выкл" />
-        <Setter Property="OnContent" Value="Вкл" />
       </Style>
 
       <Style x:Key="SummaryTextBox" TargetType="TextBox">

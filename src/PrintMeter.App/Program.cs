@@ -4,6 +4,7 @@ using Microsoft.Windows.ApplicationModel.DynamicDependency;
 #endif
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using PrintMeter.App.Localization;
 
 namespace PrintMeter.App;
 
@@ -19,6 +20,8 @@ public static class Program
     [STAThread]
     private static void Main()
     {
+        InstalledUiLanguage.ApplyPreferredFromRegistry();
+
 #if !PRINTMETER_WINDOWS_APPSDK_SELF_CONTAINED
         if (
             !Bootstrap.TryInitialize(
@@ -28,9 +31,7 @@ public static class Program
                 Bootstrap.InitializeOptions.OnNoMatch_ShowUI,
                 out var hr))
         {
-            var note =
-                $"Не удалось инициализировать Windows App SDK 1.6 (HRESULT 0x{hr:X8}).\n\n"
-                + "Установите «Windows App Runtime» (x64) с релизов Windows App SDK или используйте сборку self-contained.";
+            var note = AppText.Format("Program_Bootstrap", hr);
             NativeUi.ShowError("PrintMeter", note);
             TryWriteBootstrapFailureLog(note, hr);
             Environment.Exit(hr);

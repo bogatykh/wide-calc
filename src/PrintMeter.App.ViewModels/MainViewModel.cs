@@ -17,6 +17,7 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly IFormatRegistry _formatRegistry;
     private readonly BatchPdfAnalyzer _batchPdfAnalyzer;
     private readonly IFileDialogService _fileDialogs;
+    private readonly IUiStrings _s;
     private readonly IOptions<PrintMeterOptions> _options;
     private readonly ILogger<MainViewModel> _logger;
     private readonly bool _autoAnalyzeAfterFileSelection;
@@ -31,6 +32,7 @@ public sealed partial class MainViewModel : ObservableObject
         IFormatRegistry formatRegistry,
         BatchPdfAnalyzer batchPdfAnalyzer,
         IFileDialogService fileDialogs,
+        IUiStrings uiStrings,
         IOptions<PrintMeterOptions> options,
         ILogger<MainViewModel> logger,
         bool autoAnalyzeAfterFileSelection = true)
@@ -38,15 +40,19 @@ public sealed partial class MainViewModel : ObservableObject
         _formatRegistry = formatRegistry;
         _batchPdfAnalyzer = batchPdfAnalyzer;
         _fileDialogs = fileDialogs;
+        _s = uiStrings;
         _options = options;
         _logger = logger;
         _autoAnalyzeAfterFileSelection = autoAnalyzeAfterFileSelection;
 
+        StatusText = _s.Format(UiKeys.StatusIntro);
         InitializeFormatRows(_formatRegistry.EnabledFormats);
     }
 
     public ObservableCollection<FileReportRowViewModel> Rows { get; } = new();
     public ObservableCollection<FormatToggleRowViewModel> FormatRows { get; } = new();
+
+    public string BillingKpiTooltip => _s.Format(UiKeys.BillingKpiTooltip);
 
     [ObservableProperty]
     private bool _isBusy;
@@ -54,11 +60,11 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private double _progressValue;
 
-    public string ProgressPercentText => $"Прогресс: {Math.Round(ProgressValue, 0):F0}%";
+    public string ProgressPercentText =>
+        _s.Format(UiKeys.ProgressPercent, Math.Round(ProgressValue, 0));
 
     [ObservableProperty]
-    private string _statusText =
-        "Добавляйте PDF по одному или папкой — строки накапливаются. «Считать заново» пересчитывает весь список. «Очистить» сбрасывает всё.";
+    private string _statusText = string.Empty;
 
     [ObservableProperty]
     private double _totalLengthMeters;
@@ -98,21 +104,18 @@ public sealed partial class MainViewModel : ObservableObject
 
         if (newlyAdded.Count == 0)
         {
-            StatusText =
-                $"Все выбранные файлы уже есть в списке ({_selectedFiles.Count} PDF). Добавьте другие или нажмите «Считать заново».";
+            StatusText = _s.Format(UiKeys.AllPdfsAlreadyInList, _selectedFiles.Count);
             return;
         }
 
         if (_autoAnalyzeAfterFileSelection)
         {
-            StatusText =
-                $"Добавлено файлов: {newlyAdded.Count}. Всего в списке: {_selectedFiles.Count}. Запуск расчёта…";
+            StatusText = _s.Format(UiKeys.AddedRunning, newlyAdded.Count, _selectedFiles.Count);
             await AnalyzeAppendAsync(newlyAdded).ConfigureAwait(true);
             return;
         }
 
-        StatusText =
-            $"Добавлено файлов: {newlyAdded.Count}. Всего в списке: {_selectedFiles.Count}. Нажмите «Считать» для новых файлов или «Считать заново» для всего списка.";
+        StatusText = _s.Format(UiKeys.AddedNeedAnalyze, newlyAdded.Count, _selectedFiles.Count);
     }
 
     [RelayCommand]
@@ -136,8 +139,7 @@ public sealed partial class MainViewModel : ObservableObject
         _selectedFiles.Clear();
         _selectedSet.Clear();
         ResetOutputsAfterSelectionChange();
-        StatusText =
-            "Список файлов и результаты очищены. Добавьте PDF через «Выбрать PDF» или укажите папку.";
+        StatusText = _s.Format(UiKeys.ClearDone);
         AnalyzeCommand.NotifyCanExecuteChanged();
     }
 
@@ -174,7 +176,7 @@ public sealed partial class MainViewModel : ObservableObject
                     ProgressValue = 100.0 * p.CompletedFiles / p.TotalFiles;
                 }
 
-                StatusText = $"Обработка ({p.CompletedFiles}/{p.TotalFiles}): {p.CurrentFile}";
+                StatusText = _s.Format(UiKeys.Processing, p.CompletedFiles, p.TotalFiles, p.CurrentFile);
             });
 
             var fileReports = new List<FileReport>();
@@ -201,8 +203,7 @@ public sealed partial class MainViewModel : ObservableObject
             TotalLengthMeters = RoundMeters(_lastReport.TotalLengthMeters);
             SummaryByFormat = BuildBatchSummary(_lastReport);
             UpdateFormatStatLines();
-            StatusText =
-                $"Готово: {_selectedFiles.Count} файл(ов), суммарно {TotalLengthMeters:F3} м по длинной стороне листов.";
+            StatusText = _s.Format(UiKeys.DoneFull, _selectedFiles.Count, TotalLengthMeters);
             ProgressValue = 100;
         }
         catch (OperationCanceledException)
@@ -210,7 +211,7 @@ public sealed partial class MainViewModel : ObservableObject
             ResetOutputsBeforeRun();
             _lastReport = null;
             UpdateFormatStatLines();
-            StatusText = "Отменено.";
+            StatusText = _s.Format(UiKeys.Cancelled);
         }
         catch (Exception ex)
         {
@@ -218,7 +219,7 @@ public sealed partial class MainViewModel : ObservableObject
             ResetOutputsBeforeRun();
             _lastReport = null;
             UpdateFormatStatLines();
-            StatusText = $"Ошибка: {ex.Message}";
+            StatusText = _s.Format(UiKeys.Error, ex.Message);
         }
         finally
         {
@@ -240,7 +241,7 @@ public sealed partial class MainViewModel : ObservableObject
 
         if (todo.Count == 0)
         {
-            StatusText = $"Эти файлы уже обработаны. В таблице {Rows.Count} строк(и). Всего в списке: {_selectedFiles.Count}.";
+            StatusText = _s.Format(UiKeys.AlreadyProcessed, Rows.Count, _selectedFiles.Count);
             return;
         }
 
@@ -261,7 +262,7 @@ public sealed partial class MainViewModel : ObservableObject
                     ProgressValue = 100.0 * p.CompletedFiles / p.TotalFiles;
                 }
 
-                StatusText = $"Обработка ({p.CompletedFiles}/{p.TotalFiles}): {p.CurrentFile}";
+                StatusText = _s.Format(UiKeys.Processing, p.CompletedFiles, p.TotalFiles, p.CurrentFile);
             });
 
             await foreach (var report in _batchPdfAnalyzer.AnalyzeFilesAsync(
@@ -290,20 +291,19 @@ public sealed partial class MainViewModel : ObservableObject
             TotalLengthMeters = RoundMeters(_lastReport.TotalLengthMeters);
             SummaryByFormat = BuildBatchSummary(_lastReport);
             UpdateFormatStatLines();
-            StatusText =
-                $"Готово: добавлено {collected.Count} файл(ов). В таблице {Rows.Count} строк(и), суммарно {TotalLengthMeters:F3} м.";
+            StatusText = _s.Format(UiKeys.DoneAppend, collected.Count, Rows.Count, TotalLengthMeters);
             ProgressValue = 100;
         }
         catch (OperationCanceledException)
         {
             RollbackAppend(rowCountBefore, priorReports);
-            StatusText = "Отменено.";
+            StatusText = _s.Format(UiKeys.Cancelled);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Incremental analysis failed");
             RollbackAppend(rowCountBefore, priorReports);
-            StatusText = $"Ошибка: {ex.Message}";
+            StatusText = _s.Format(UiKeys.Error, ex.Message);
         }
         finally
         {
@@ -356,16 +356,15 @@ public sealed partial class MainViewModel : ObservableObject
 
         if (rows.Count == 0)
         {
-            BillingPricelistFormatsSummary =
-                "Прайс по форматам: нет ISO-меток в сводке (или только Custom / нулевой метраж). Номиналы A4…A0 заданы в коде.";
+            BillingPricelistFormatsSummary = _s.Format(UiKeys.BillingNoIso);
             return;
         }
 
         var inv = CultureInfo.InvariantCulture;
-        var roundRu = mode switch
+        var roundText = mode switch
         {
-            PricelistFormatEquivalence.RoundingMode.Ceiling => "округление вверх до целого условного листа",
-            PricelistFormatEquivalence.RoundingMode.NearestAwayFromZero => "к ближайшему целому",
+            PricelistFormatEquivalence.RoundingMode.Ceiling => _s.Format(UiKeys.BillingRoundingCeiling),
+            PricelistFormatEquivalence.RoundingMode.NearestAwayFromZero => _s.Format(UiKeys.BillingRoundingNearest),
             _ => mode.ToString(),
         };
 
@@ -374,12 +373,18 @@ public sealed partial class MainViewModel : ObservableObject
 
         var lines = rows.Select(
             r =>
-                $"  {r.FormatLabel.PadRight(labelW)}  {r.BillingSheets.ToString(inv),4} усл.   Σ {r.CombinedLongMm.ToString("0.#", inv),7} мм ÷ {r.DivisorMm.ToString("0.#", inv)} мм  →  {r.RawSheets.ToString("0.###", inv)} сыр.");
+                _s.Format(
+                    UiKeys.BillingRow,
+                    r.FormatLabel.PadRight(labelW),
+                    r.BillingSheets.ToString(inv).PadLeft(4),
+                    r.CombinedLongMm.ToString("0.#", inv).PadLeft(7),
+                    r.DivisorMm.ToString("0.#", inv),
+                    r.RawSheets.ToString("0.###", inv)));
 
         BillingPricelistFormatsSummary =
-            "Условные листы для прайса: по каждому ISO-формату суммарные мм по длинной стороне ÷ номинал из справочника в коде."
+            _s.Format(UiKeys.BillingIntro)
             + Environment.NewLine
-            + $"Округление: {roundRu}."
+            + _s.Format(UiKeys.BillingRoundingLine, roundText)
             + Environment.NewLine
             + string.Join(Environment.NewLine, lines);
     }
@@ -404,7 +409,7 @@ public sealed partial class MainViewModel : ObservableObject
     partial void OnProgressValueChanged(double value) =>
         OnPropertyChanged(nameof(ProgressPercentText));
 
-    private static string BuildFormatsSummary(FileReport report)
+    private string BuildFormatsSummary(FileReport report)
     {
         if (report.Error is not null)
         {
@@ -414,10 +419,15 @@ public sealed partial class MainViewModel : ObservableObject
         return string.Join(
             " · ",
             report.ByFormat.OrderBy(k => k.Key, StringComparer.Ordinal)
-                .Select(kv => $"{kv.Key}: {kv.Value.PageCount} л. · {RoundMeters(kv.Value.LengthMeters)} м"));
+                .Select(
+                    kv => _s.Format(
+                        UiKeys.FormatSummaryEntry,
+                        kv.Key,
+                        kv.Value.PageCount,
+                        RoundMeters(kv.Value.LengthMeters))));
     }
 
-    private static string BuildBatchSummary(BatchReport report)
+    private string BuildBatchSummary(BatchReport report)
     {
         var inv = CultureInfo.InvariantCulture;
         var ordered = report.SummaryByFormat.OrderBy(k => k.Key, StringComparer.Ordinal).ToList();
@@ -427,11 +437,15 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         var labelW = Math.Max(ordered.Max(kv => kv.Key.Length), 6);
-        var head =
-            $"{("Формат").PadRight(labelW)}    Листов    Метры (длинная сторона)";
+        var formatCol = _s.Format(UiKeys.BatchSummaryFormatColumn);
+        var head = _s.Format(UiKeys.BatchSummaryHeader, formatCol.PadRight(labelW));
         var body = ordered.Select(
             kv =>
-                $"{kv.Key.PadRight(labelW)}  {kv.Value.PageCount.ToString(inv).PadLeft(5)} л.  {RoundMeters(kv.Value.LengthMeters).ToString("F3", inv).PadLeft(8)} м");
+                _s.Format(
+                    UiKeys.BatchSummaryRow,
+                    kv.Key.PadRight(labelW),
+                    kv.Value.PageCount,
+                    RoundMeters(kv.Value.LengthMeters)));
         return string.Join(Environment.NewLine, new[] { head }.Concat(body));
     }
 
@@ -472,8 +486,7 @@ public sealed partial class MainViewModel : ObservableObject
 
             if (_selectedFiles.Count == 0)
             {
-                StatusText =
-                    "В этой папке не найдено PDF при текущем режиме (включён или выключен обход подпапок). Укажите другую папку.";
+                StatusText = _s.Format(UiKeys.FolderNoPdfsRecursive);
                 AnalyzeCommand.NotifyCanExecuteChanged();
                 return;
             }
@@ -481,18 +494,17 @@ public sealed partial class MainViewModel : ObservableObject
             AnalyzeCommand.NotifyCanExecuteChanged();
             if (_autoAnalyzeAfterFileSelection)
             {
-                StatusText = $"Папка: {folder}. PDF в выборе: {_selectedFiles.Count}. Запуск расчёта…";
+                StatusText = _s.Format(UiKeys.FolderRunning, folder, _selectedFiles.Count);
                 await AnalyzeNewAndOrphanRowsAsync().ConfigureAwait(true);
                 return;
             }
 
-            StatusText =
-                $"Папка: {folder}. PDF в выборе: {_selectedFiles.Count}. Нажмите «Считать» для новых файлов или «Считать заново».";
+            StatusText = _s.Format(UiKeys.FolderNeedAnalyze, folder, _selectedFiles.Count);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Recursive folder toggle failed");
-            StatusText = $"Не удалось обновить список PDF: {ex.Message}";
+            StatusText = _s.Format(UiKeys.ListRefreshFailed, ex.Message);
         }
     }
 
@@ -504,8 +516,7 @@ public sealed partial class MainViewModel : ObservableObject
 
         if (_selectedFiles.Count == 0)
         {
-            StatusText =
-                "В выбранной папке не найдено PDF. Проверьте «Рекурсивно искать PDF в папке» или выберите другую папку.";
+            StatusText = _s.Format(UiKeys.FolderNoPdfs);
             AnalyzeCommand.NotifyCanExecuteChanged();
             return;
         }
@@ -513,13 +524,12 @@ public sealed partial class MainViewModel : ObservableObject
         AnalyzeCommand.NotifyCanExecuteChanged();
         if (_autoAnalyzeAfterFileSelection)
         {
-            StatusText = $"Папка: {folder}. PDF в выборе: {_selectedFiles.Count}. Запуск расчёта…";
+            StatusText = _s.Format(UiKeys.FolderRunning, folder, _selectedFiles.Count);
             await AnalyzeNewAndOrphanRowsAsync().ConfigureAwait(true);
             return;
         }
 
-        StatusText =
-            $"Папка: {folder}. PDF в выборе: {_selectedFiles.Count}. Нажмите «Считать» или «Считать заново». Переключатель «Рекурсивно» обновляет состав из той же папки.";
+        StatusText = _s.Format(UiKeys.FolderAnalyzeHint, folder, _selectedFiles.Count);
     }
 
     /// <summary>Убирает из выбора PDF из прошлого перечисления папки, добавляет новый список и подчищает устаревшие строки.</summary>
@@ -601,8 +611,7 @@ public sealed partial class MainViewModel : ObservableObject
         var missing = _selectedFiles.Where(f => !HasRowForNormalizedPath(f)).ToList();
         if (missing.Count == 0)
         {
-            StatusText =
-                $"Состав папки обновлён. В таблице {Rows.Count} файл(ов), суммарно {TotalLengthMeters:F3} м (по длинной стороне).";
+            StatusText = _s.Format(UiKeys.FolderUpdated, Rows.Count, TotalLengthMeters);
             return;
         }
 
@@ -688,8 +697,8 @@ public sealed partial class MainViewModel : ObservableObject
         AddFormatRow("A4", "A4", enabledFormats.Contains("A4"), 13);
         AddFormatRow("A3", "A3", enabledFormats.Contains("A3"), 15);
         AddFormatRow("A2", "A2", enabledFormats.Contains("A2"), 17);
-        AddFormatRow("A1", "A1", enabledFormats.Contains("A1"), 19, "Короткая сторона до 610 mm (бывшие A1+ считаются как A1).");
-        AddFormatRow("A0", "A0", enabledFormats.Contains("A0"), 21, "Короткая сторона до 914 mm (бывшие A0+ считаются как A0).");
+        AddFormatRow("A1", "A1", enabledFormats.Contains("A1"), 19, _s.Format(UiKeys.FormatTooltipA1));
+        AddFormatRow("A0", "A0", enabledFormats.Contains("A0"), 21, _s.Format(UiKeys.FormatTooltipA0));
     }
 
     private void AddFormatRow(string key, string label, bool isEnabled, double iconSize, string? tooltip = null)
@@ -714,7 +723,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         if (_lastReport?.SummaryByFormat.TryGetValue(label, out var agg) == true && agg.PageCount > 0)
         {
-            return $"{agg.PageCount} л., {RoundMeters(agg.LengthMeters)} м";
+            return _s.Format(UiKeys.FormatStatLine, agg.PageCount, RoundMeters(agg.LengthMeters));
         }
 
         return "—";

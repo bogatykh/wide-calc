@@ -20,6 +20,7 @@
     <WindowsPackageType>None</WindowsPackageType>
     <EnableMsixTooling>false</EnableMsixTooling>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <DefaultLanguage>en-US</DefaultLanguage>
     <WindowsSdkPackageVersion>10.0.22621.56</WindowsSdkPackageVersion>
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     <StartupObject>PrintMeter.App.Program</StartupObject>
@@ -54,6 +55,7 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <PRIResource Include="Strings\**\*.resw" />
   </ItemGroup>
 
   <!--

@@ -3,7 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="PrintMeter — метраж печати по PDF">
+    x:Uid="MainRoot">
 
   <Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
     <Grid
@@ -32,12 +32,12 @@
                 Text="PrintMeter"
                 Style="{ThemeResource TitleTextBlockStyle}" />
             <TextBlock
+                x:Uid="HeroTagline"
                 Style="{StaticResource MutedText}"
-                Text="Windows-ориентированная рабочая панель для пакетного анализа PDF: быстрый выбор источника, прозрачный прогресс и детальные результаты по каждому файлу."
                 TextWrapping="WrapWholeWords" />
             <TextBlock
+                x:Uid="HeroShortcuts"
                 Style="{StaticResource MutedCaption}"
-                Text="Горячие клавиши: Ctrl+O (PDF), Ctrl+Shift+O (папка), F5 (пересчёт), Esc (отмена)."
                 TextWrapping="WrapWholeWords" />
           </StackPanel>
 
@@ -56,7 +56,7 @@
               </Button.KeyboardAccelerators>
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <FontIcon Style="{StaticResource ToolbarFontIcon}" Glyph="&#xE8E5;" />
-                <TextBlock VerticalAlignment="Center" Text="Выбрать PDF…" />
+                <TextBlock x:Uid="BtnPickPdfText" VerticalAlignment="Center" />
               </StackPanel>
             </Button>
             <Button
@@ -68,20 +68,20 @@
               </Button.KeyboardAccelerators>
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <FontIcon Style="{StaticResource ToolbarFontIcon}" Glyph="&#xE8B7;" />
-                <TextBlock VerticalAlignment="Center" Text="Открыть папку…" />
+                <TextBlock x:Uid="BtnFolderText" VerticalAlignment="Center" />
               </StackPanel>
             </Button>
             <Button
                 AutomationProperties.AutomationId="AnalyzeButton"
+                x:Uid="BtnReanalyze"
                 Command="{Binding AnalyzeCommand}"
-                Style="{StaticResource ToolbarPrimaryButton}"
-                ToolTipService.ToolTip="Пересчитать текущий набор PDF без повторного выбора в диалоге">
+                Style="{StaticResource ToolbarPrimaryButton}">
               <Button.KeyboardAccelerators>
                 <KeyboardAccelerator Key="F5" />
               </Button.KeyboardAccelerators>
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <FontIcon Style="{StaticResource ToolbarFontIcon}" Glyph="&#xE768;" />
-                <TextBlock VerticalAlignment="Center" Text="Считать заново" />
+                <TextBlock x:Uid="BtnReanalyzeText" VerticalAlignment="Center" />
               </StackPanel>
             </Button>
             <Button
@@ -93,17 +93,17 @@
               </Button.KeyboardAccelerators>
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <FontIcon Style="{StaticResource ToolbarFontIcon}" Glyph="&#xE711;" />
-                <TextBlock VerticalAlignment="Center" Text="Отмена" />
+                <TextBlock x:Uid="BtnCancelText" VerticalAlignment="Center" />
               </StackPanel>
             </Button>
             <Button
                 AutomationProperties.AutomationId="ClearAllButton"
+                x:Uid="BtnClear"
                 Command="{Binding ClearAllCommand}"
-                Style="{StaticResource ToolbarSecondaryButton}"
-                ToolTipService.ToolTip="Удалить выбранные файлы и очистить таблицу с результатами">
+                Style="{StaticResource ToolbarSecondaryButton}">
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <FontIcon Style="{StaticResource ToolbarFontIcon}" Glyph="&#xE894;" />
-                <TextBlock VerticalAlignment="Center" Text="Очистить" />
+                <TextBlock x:Uid="BtnClearText" VerticalAlignment="Center" />
               </StackPanel>
             </Button>
           </StackPanel>
@@ -118,7 +118,7 @@
 
         <Border Grid.Column="0" Margin="0,0,10,0" Style="{StaticResource SectionCardBorder}">
           <StackPanel Spacing="8">
-            <TextBlock Style="{StaticResource KpiLabel}" Text="Текущий статус" />
+            <TextBlock x:Uid="KpiStatus" Style="{StaticResource KpiLabel}" />
             <TextBlock
                 Style="{ThemeResource BodyStrongTextBlockStyle}"
                 Text="{Binding StatusText}"
@@ -133,12 +133,12 @@
 
         <Border Grid.Column="1" Style="{StaticResource SectionCardBorder}">
           <StackPanel>
-            <TextBlock Style="{StaticResource KpiLabel}" Text="Прайс: условные листы по ISO" />
+            <TextBlock x:Uid="KpiBillingTitle" Style="{StaticResource KpiLabel}" />
             <TextBlock
                 Style="{StaticResource MutedText}"
                 Text="{Binding BillingPricelistFormatsSummary}"
                 TextWrapping="WrapWholeWords"
-                ToolTipService.ToolTip="Соответствует итоговой сводке по форматам внизу окна: для каждой ISO-метки суммируется мм по длинной стороне, затем деление на номинал из кода." />
+                ToolTipService.ToolTip="{Binding BillingKpiTooltip}" />
           </StackPanel>
         </Border>
       </Grid>
@@ -157,18 +157,17 @@
           <StackPanel>
             <Border Style="{StaticResource SectionCardBorder}">
               <StackPanel>
-                <TextBlock Style="{StaticResource SectionTitleText}" Text="Настройки расчёта" />
+                <TextBlock x:Uid="SectionSettings" Style="{StaticResource SectionTitleText}" />
                 <ToggleSwitch
+                    x:Uid="RecursiveToggle"
                     Style="{StaticResource SettingsToggle}"
-                    Header="Рекурсивный поиск PDF во вложенных папках"
-                    IsOn="{Binding RecursiveFolders, Mode=TwoWay}"
-                    ToolTipService.ToolTip="Если последний выбор был папкой, переключение обновляет список PDF из той же папки и снова запускает расчёт." />
+                    IsOn="{Binding RecursiveFolders, Mode=TwoWay}" />
 
                 <TextBlock
+                    x:Uid="FormatsFootnote"
                     Margin="0,0,0,8"
                     Style="{StaticResource MutedText}"
                     FontSize="12"
-                    Text="Снимите формат, чтобы отмечать его как Custom. В сводке справа учитываются только включённые ISO-метки."
                     TextWrapping="WrapWholeWords" />
 
                 <ItemsControl ItemsSource="{Binding FormatRows}">
@@ -230,8 +229,8 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock
                     Grid.Column="0"
-                    Style="{StaticResource SectionTitleText}"
-                    Text="Результаты по файлам" />
+                    x:Uid="ResultsSection"
+                    Style="{StaticResource SectionTitleText}" />
                 <ProgressRing
                     Grid.Column="1"
                     Width="20"
@@ -261,11 +260,11 @@
                       RowBackground="{ThemeResource ControlAltFillColorTertiaryBrush}"
                       SelectionMode="Single">
                     <controls:DataGrid.Columns>
-                      <controls:DataGridTextColumn Width="7*" Binding="{Binding FileDisplayName}" Header="Файл" />
-                      <controls:DataGridTextColumn Width="96" Binding="{Binding PageCount}" Header="Листов" />
-                      <controls:DataGridTextColumn Width="132" Binding="{Binding TotalLengthMeters}" Header="Длина, м" />
-                      <controls:DataGridTextColumn Width="12*" MinWidth="220" Binding="{Binding FormatsSummary}" Header="Форматы (листы · м)" />
-                      <controls:DataGridTextColumn Width="2*" Binding="{Binding IssueText}" Header="Ошибка" />
+                      <controls:DataGridTextColumn x:Uid="ColFile" Width="7*" Binding="{Binding FileDisplayName}" />
+                      <controls:DataGridTextColumn x:Uid="ColSheets" Width="96" Binding="{Binding PageCount}" />
+                      <controls:DataGridTextColumn x:Uid="ColMeters" Width="132" Binding="{Binding TotalLengthMeters}" />
+                      <controls:DataGridTextColumn x:Uid="ColFormats" Width="12*" MinWidth="220" Binding="{Binding FormatsSummary}" />
+                      <controls:DataGridTextColumn x:Uid="ColIssue" Width="2*" Binding="{Binding IssueText}" />
                     </controls:DataGrid.Columns>
                   </controls:DataGrid>
 
@@ -287,14 +286,14 @@
                           Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
                           Glyph="&#xE8EA;" />
                       <TextBlock
-                          Style="{ThemeResource BodyStrongTextBlockStyle}"
-                          Text="Пока нет данных для отображения"
-                          TextAlignment="Center" />
+                        x:Uid="EmptyStateTitle"
+                        Style="{ThemeResource BodyStrongTextBlockStyle}"
+                        TextAlignment="Center" />
                       <TextBlock
-                          Style="{StaticResource MutedText}"
-                          Text="Нажмите «Выбрать PDF…» или «Открыть папку…». После анализа результаты появятся в этой таблице."
-                          TextAlignment="Center"
-                          TextWrapping="WrapWholeWords" />
+                        x:Uid="EmptyStateBody"
+                        Style="{StaticResource MutedText}"
+                        TextAlignment="Center"
+                        TextWrapping="WrapWholeWords" />
                       <StackPanel
                           HorizontalAlignment="Center"
                           Orientation="Horizontal"
@@ -304,7 +303,7 @@
                             Style="{StaticResource ToolbarPrimaryButton}">
                           <StackPanel Orientation="Horizontal" Spacing="6">
                             <FontIcon Style="{StaticResource ToolbarFontIcon}" FontSize="14" Glyph="&#xE8E5;" />
-                            <TextBlock Text="Выбрать PDF…" />
+                            <TextBlock x:Uid="EmptyPickPdf" />
                           </StackPanel>
                         </Button>
                         <Button
@@ -312,7 +311,7 @@
                             Style="{StaticResource ToolbarSecondaryButton}">
                           <StackPanel Orientation="Horizontal" Spacing="6">
                             <FontIcon Style="{StaticResource ToolbarFontIcon}" FontSize="14" Glyph="&#xE8B7;" />
-                            <TextBlock Text="Открыть папку…" />
+                            <TextBlock x:Uid="EmptyOpenFolder" />
                           </StackPanel>
                         </Button>
                       </StackPanel>
@@ -325,11 +324,11 @@
 
           <Border Grid.Row="1" Margin="0,10,0,0" Style="{StaticResource SectionCardBorder}">
             <StackPanel>
-              <TextBlock Style="{StaticResource SectionTitleText}" Text="Итого по форматам" />
+              <TextBlock x:Uid="SectionTotals" Style="{StaticResource SectionTitleText}" />
               <TextBlock
+                  x:Uid="TotalsFootnote"
                   Margin="0,2,0,6"
                   Style="{StaticResource MutedCaption}"
-                  Text="Моноширинная таблица: листы PDF и суммарный метраж по длинной стороне для каждой метки. Совпадает с включёнными форматами слева."
                   TextWrapping="WrapWholeWords" />
               <TextBox
                   Margin="0,0,0,0"

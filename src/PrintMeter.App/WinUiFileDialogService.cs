@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using PrintMeter.App.Localization;
 using PrintMeter.App.ViewModels;
 using WinRT.Interop;
 
@@ -50,7 +51,7 @@ public sealed class WinUiFileDialogService : IFileDialogService
         string.IsNullOrEmpty(item.Path) ? item.Name : item.Path;
 
     private static Window RequireWindow() =>
-        App.MainWindowRef ?? throw new InvalidOperationException("Главное окно недоступно для диалога.");
+        App.MainWindowRef ?? throw new InvalidOperationException(AppText.Get("WinUi_NoMainWindow"));
 
     private static Task<T> RunOnMainAsync<T>(Func<Task<T>> work)
     {

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Program_Bootstrap" xml:space="preserve">
+    <value>Не удалось инициализировать Windows App SDK 1.6 (HRESULT 0x{0:X8}).
+
+Установите «Windows App Runtime» (x64) с релизов Windows App SDK или используйте сборку self-contained.</value>
+  </data>
+  <data name="App_StartError" xml:space="preserve">
+    <value>Ошибка запуска: {0}</value>
+  </data>
+  <data name="WinUi_NoMainWindow" xml:space="preserve">
+    <value>Главное окно недоступно для диалога.</value>
+  </data>
+  <data name="MainRoot.Title" xml:space="preserve">
+    <value>PrintMeter — метраж печати по PDF</value>
+  </data>
+  <data name="HeroTagline.Text" xml:space="preserve">
+    <value>Windows-ориентированная рабочая панель для пакетного анализа PDF: быстрый выбор источника, прозрачный прогресс и детальные результаты по каждому файлу.</value>
+  </data>
+  <data name="HeroShortcuts.Text" xml:space="preserve">
+    <value>Горячие клавиши: Ctrl+O (PDF), Ctrl+Shift+O (папка), F5 (пересчёт), Esc (отмена).</value>
+  </data>
+  <data name="BtnPickPdfText.Text" xml:space="preserve">
+    <value>Выбрать PDF…</value>
+  </data>
+  <data name="BtnFolderText.Text" xml:space="preserve">
+    <value>Открыть папку…</value>
+  </data>
+  <data name="BtnReanalyze.ToolTip" xml:space="preserve">
+    <value>Пересчитать текущий набор PDF без повторного выбора в диалоге</value>
+  </data>
+  <data name="BtnReanalyzeText.Text" xml:space="preserve">
+    <value>Считать заново</value>
+  </data>
+  <data name="BtnCancelText.Text" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
+  <data name="BtnClear.ToolTip" xml:space="preserve">
+    <value>Удалить выбранные файлы и очистить таблицу с результатами</value>
+  </data>
+  <data name="BtnClearText.Text" xml:space="preserve">
+    <value>Очистить</value>
+  </data>
+  <data name="KpiStatus.Text" xml:space="preserve">
+    <value>Текущий статус</value>
+  </data>
+  <data name="KpiBillingTitle.Text" xml:space="preserve">
+    <value>Прайс: условные листы по ISO</value>
+  </data>
+  <data name="Vm_BillingKpiTooltip" xml:space="preserve">
+    <value>Соответствует итоговой сводке по форматам внизу окна: для каждой ISO-метки суммируется мм по длинной стороне, затем деление на номинал из кода.</value>
+  </data>
+  <data name="SectionSettings.Text" xml:space="preserve">
+    <value>Настройки расчёта</value>
+  </data>
+  <data name="RecursiveToggle.Header" xml:space="preserve">
+    <value>Рекурсивный поиск PDF во вложенных папках</value>
+  </data>
+  <data name="RecursiveToggle.OffContent" xml:space="preserve">
+    <value>Выкл</value>
+  </data>
+  <data name="RecursiveToggle.OnContent" xml:space="preserve">
+    <value>Вкл</value>
+  </data>
+  <data name="RecursiveToggle.ToolTip" xml:space="preserve">
+    <value>Если последний выбор был папкой, переключение обновляет список PDF из той же папки и снова запускает расчёт.</value>
+  </data>
+  <data name="FormatsFootnote.Text" xml:space="preserve">
+    <value>Снимите формат, чтобы отмечать его как Custom. В сводке справа учитываются только включённые ISO-метки.</value>
+  </data>
+  <data name="ResultsSection.Text" xml:space="preserve">
+    <value>Результаты по файлам</value>
+  </data>
+  <data name="ColFile.Header" xml:space="preserve">
+    <value>Файл</value>
+  </data>
+  <data name="ColSheets.Header" xml:space="preserve">
+    <value>Листов</value>
+  </data>
+  <data name="ColMeters.Header" xml:space="preserve">
+    <value>Длина, м</value>
+  </data>
+  <data name="ColFormats.Header" xml:space="preserve">
+    <value>Форматы (листы · м)</value>
+  </data>
+  <data name="ColIssue.Header" xml:space="preserve">
+    <value>Ошибка</value>
+  </data>
+  <data name="EmptyStateTitle.Text" xml:space="preserve">
+    <value>Пока нет данных для отображения</value>
+  </data>
+  <data name="EmptyStateBody.Text" xml:space="preserve">
+    <value>Нажмите «Выбрать PDF…» или «Открыть папку…». После анализа результаты появятся в этой таблице.</value>
+  </data>
+  <data name="EmptyPickPdf.Text" xml:space="preserve">
+    <value>Выбрать PDF…</value>
+  </data>
+  <data name="EmptyOpenFolder.Text" xml:space="preserve">
+    <value>Открыть папку…</value>
+  </data>
+  <data name="SectionTotals.Text" xml:space="preserve">
+    <value>Итого по форматам</value>
+  </data>
+  <data name="TotalsFootnote.Text" xml:space="preserve">
+    <value>Моноширинная таблица: листы PDF и суммарный метраж по длинной стороне для каждой метки. Совпадает с включёнными форматами слева.</value>
+  </data>
+  <data name="Vm_StatusIntro" xml:space="preserve">
+    <value>Добавляйте PDF по одному или папкой — строки накапливаются. «Считать заново» пересчитывает весь список. «Очистить» сбрасывает всё.</value>
+  </data>
+  <data name="Vm_ProgressPercent" xml:space="preserve">
+    <value>Прогресс: {0:F0}%</value>
+  </data>
+  <data name="Vm_AllPdfsAlreadyInList" xml:space="preserve">
+    <value>Все выбранные файлы уже есть в списке ({0} PDF). Добавьте другие или нажмите «Считать заново».</value>
+  </data>
+  <data name="Vm_AddedRunning" xml:space="preserve">
+    <value>Добавлено файлов: {0}. Всего в списке: {1}. Запуск расчёта…</value>
+  </data>
+  <data name="Vm_AddedNeedAnalyze" xml:space="preserve">
+    <value>Добавлено файлов: {0}. Всего в списке: {1}. Нажмите «Считать» для новых файлов или «Считать заново» для всего списка.</value>
+  </data>
+  <data name="Vm_ClearDone" xml:space="preserve">
+    <value>Список файлов и результаты очищены. Добавьте PDF через «Выбрать PDF» или укажите папку.</value>
+  </data>
+  <data name="Vm_Processing" xml:space="preserve">
+    <value>Обработка ({0}/{1}): {2}</value>
+  </data>
+  <data name="Vm_DoneFull" xml:space="preserve">
+    <value>Готово: {0} файл(ов), суммарно {1:F3} м по длинной стороне листов.</value>
+  </data>
+  <data name="Vm_Cancelled" xml:space="preserve">
+    <value>Отменено.</value>
+  </data>
+  <data name="Vm_Error" xml:space="preserve">
+    <value>Ошибка: {0}</value>
+  </data>
+  <data name="Vm_AlreadyProcessed" xml:space="preserve">
+    <value>Эти файлы уже обработаны. В таблице {0} строк(и). Всего в списке: {1}.</value>
+  </data>
+  <data name="Vm_DoneAppend" xml:space="preserve">
+    <value>Готово: добавлено {0} файл(ов). В таблице {1} строк(и), суммарно {2:F3} м.</value>
+  </data>
+  <data name="Vm_BillingNoIso" xml:space="preserve">
+    <value>Прайс по форматам: нет ISO-меток в сводке (или только Custom / нулевой метраж). Номиналы A4…A0 заданы в коде.</value>
+  </data>
+  <data name="Vm_BillingRoundingCeiling" xml:space="preserve">
+    <value>округление вверх до целого условного листа</value>
+  </data>
+  <data name="Vm_BillingRoundingNearest" xml:space="preserve">
+    <value>к ближайшему целому</value>
+  </data>
+  <data name="Vm_BillingRow" xml:space="preserve">
+    <value>  {0}  {1} усл.   Σ {2} мм ÷ {3} мм  →  {4} сыр.</value>
+  </data>
+  <data name="Vm_BillingIntro" xml:space="preserve">
+    <value>Условные листы для прайса: по каждому ISO-формату суммарные мм по длинной стороне ÷ номинал из справочника в коде.</value>
+  </data>
+  <data name="Vm_BillingRoundingLine" xml:space="preserve">
+    <value>Округление: {0}.</value>
+  </data>
+  <data name="Vm_FormatSummaryEntry" xml:space="preserve">
+    <value>{0}: {1} л. · {2} м</value>
+  </data>
+  <data name="Vm_BatchSummaryFormatColumn" xml:space="preserve">
+    <value>Формат</value>
+  </data>
+  <data name="Vm_BatchSummaryHeader" xml:space="preserve">
+    <value>{0}    Листов    Метры (длинная сторона)</value>
+  </data>
+  <data name="Vm_BatchSummaryRow" xml:space="preserve">
+    <value>{0}  {1,5} л.  {2,8:F3} м</value>
+  </data>
+  <data name="Vm_FolderNoPdfsRecursive" xml:space="preserve">
+    <value>В этой папке не найдено PDF при текущем режиме (включён или выключен обход подпапок). Укажите другую папку.</value>
+  </data>
+  <data name="Vm_FolderRunning" xml:space="preserve">
+    <value>Папка: {0}. PDF в выборе: {1}. Запуск расчёта…</value>
+  </data>
+  <data name="Vm_FolderNeedAnalyze" xml:space="preserve">
+    <value>Папка: {0}. PDF в выборе: {1}. Нажмите «Считать» для новых файлов или «Считать заново».</value>
+  </data>
+  <data name="Vm_ListRefreshFailed" xml:space="preserve">
+    <value>Не удалось обновить список PDF: {0}</value>
+  </data>
+  <data name="Vm_FolderNoPdfs" xml:space="preserve">
+    <value>В выбранной папке не найдено PDF. Проверьте «Рекурсивно искать PDF в папке» или выберите другую папку.</value>
+  </data>
+  <data name="Vm_FolderAnalyzeHint" xml:space="preserve">
+    <value>Папка: {0}. PDF в выборе: {1}. Нажмите «Считать» или «Считать заново». Переключатель «Рекурсивно» обновляет состав из той же папки.</value>
+  </data>
+  <data name="Vm_FolderUpdated" xml:space="preserve">
+    <value>Состав папки обновлён. В таблице {0} файл(ов), суммарно {1:F3} м (по длинной стороне).</value>
+  </data>
+  <data name="Vm_FormatStatLine" xml:space="preserve">
+    <value>{0} л., {1} м</value>
+  </data>
+  <data name="Vm_FormatTooltipA1" xml:space="preserve">
+    <value>Короткая сторона до 610 mm (бывшие A1+ считаются как A1).</value>
+  </data>
+  <data name="Vm_FormatTooltipA0" xml:space="preserve">
+    <value>Короткая сторона до 914 mm (бывшие A0+ считаются как A0).</value>
+  </data>
+</root>

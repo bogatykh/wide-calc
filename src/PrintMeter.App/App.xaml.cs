@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.UI.Xaml;
+using PrintMeter.App.Localization;
 using PrintMeter.App.ViewModels;
 using PrintMeter.Core;
 using PrintMeter.Pdf;
@@ -102,6 +103,7 @@ public partial class App : Application
                                     opt.MaxDegreeOfParallelism);
                             });
                         services.AddSingleton<IFileDialogService, WinUiFileDialogService>();
+                        services.AddSingleton<IUiStrings, PriUiStrings>();
                         services.AddSingleton<MainViewModel>();
                         services.AddSingleton<MainWindow>();
                     })
@@ -118,7 +120,7 @@ public partial class App : Application
         {
             Log.Fatal(ex, "Application failed to start");
             Log.CloseAndFlush();
-            NativeUi.ShowError("PrintMeter", $"Ошибка запуска: {ex.Message}");
+            NativeUi.ShowError("PrintMeter", AppText.Format("App_StartError", ex.Message));
             Environment.Exit(1);
         }
     }

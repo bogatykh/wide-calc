@@ -55,6 +55,7 @@ public sealed class MainViewModelTests
             new Iso216FormatRegistry(),
             analyzer,
             dialogs,
+            new EnglishTestUiStrings(),
             Options.Create(new PrintMeterOptions()),
             NullLogger<MainViewModel>.Instance);
 
@@ -76,7 +77,7 @@ public sealed class MainViewModelTests
         vm.Rows[0].FormatsSummary.Should().Contain("A4");
         vm.Rows[0].PageCount.Should().Be(1);
         vm.TotalLengthMeters.Should().BeGreaterThan(0);
-        vm.SummaryByFormat.Should().Contain("Формат");
+        vm.SummaryByFormat.Should().Contain("Format");
     }
 
     [Fact]
@@ -145,6 +146,7 @@ public sealed class MainViewModelTests
                 new PageAnalysisService(new Iso216FormatRegistry()),
                 1),
             new RecordingDialogs { PickFilesResult = new[] { @"C:\demo\slow.pdf" } },
+            new EnglishTestUiStrings(),
             Options.Create(new PrintMeterOptions()),
             NullLogger<MainViewModel>.Instance,
             autoAnalyzeAfterFileSelection: false);
@@ -166,6 +168,6 @@ public sealed class MainViewModelTests
 
         vm.IsBusy.Should().BeFalse();
         vm.CancelCommand.CanExecute(null).Should().BeFalse();
-        vm.StatusText.Should().Be("Отменено.");
+        vm.StatusText.Should().Be("Cancelled.");
     }
 }

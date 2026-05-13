@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.0](https://github.com/bogatykh/wide-calc/compare/v1.0.1...v1.1.0) (2026-05-13)
+
+
+### Features
+
+* add EN/RU UI localization and installer language preference ([97a3755](https://github.com/bogatykh/wide-calc/commit/97a37551d98a7c0ca16f18915e5f551487769c8f))
+* add EN/RU UI localization and installer language preference ([93eebcc](https://github.com/bogatykh/wide-calc/commit/93eebccf9befed4c4619ff521144a6cee756bc6a))
+
+
+### Bug Fixes
+
+* coalesce nullable CurrentFile for IUiStrings.Format ([b54b4e7](https://github.com/bogatykh/wide-calc/commit/b54b4e7c8b0168214e2e8be3140f8ede06993ad1))
+* use MRT Core ResourceLoader constructor instead of GetForViewIndependentUse ([8fadd90](https://github.com/bogatykh/wide-calc/commit/8fadd9079177c6593e0bd6e86b5a92e310a3d357))
+
 ## [1.0.1](https://github.com/bogatykh/wide-calc/compare/v1.0.0...v1.0.1) (2026-05-10)
 
 

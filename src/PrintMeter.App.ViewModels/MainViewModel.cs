@@ -176,7 +176,7 @@ public sealed partial class MainViewModel : ObservableObject
                     ProgressValue = 100.0 * p.CompletedFiles / p.TotalFiles;
                 }
 
-                StatusText = _s.Format(UiKeys.Processing, p.CompletedFiles, p.TotalFiles, p.CurrentFile);
+                StatusText = _s.Format(UiKeys.Processing, p.CompletedFiles, p.TotalFiles, p.CurrentFile ?? string.Empty);
             });
 
             var fileReports = new List<FileReport>();
@@ -262,7 +262,7 @@ public sealed partial class MainViewModel : ObservableObject
                     ProgressValue = 100.0 * p.CompletedFiles / p.TotalFiles;
                 }
 
-                StatusText = _s.Format(UiKeys.Processing, p.CompletedFiles, p.TotalFiles, p.CurrentFile);
+                StatusText = _s.Format(UiKeys.Processing, p.CompletedFiles, p.TotalFiles, p.CurrentFile ?? string.Empty);
             });
 
             await foreach (var report in _batchPdfAnalyzer.AnalyzeFilesAsync(
